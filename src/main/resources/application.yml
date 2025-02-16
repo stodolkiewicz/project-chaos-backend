@@ -15,3 +15,9 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
+jwt:
+  secret: ${SOCIAL_JWT_SECRET}
+app:
+  frontend-url: http://localhost:3000
+  cookie:
+    secure: false

@@ -7,11 +7,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
+    public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -22,7 +26,9 @@ public class SecurityConfig {
                             .requestMatchers("/public").permitAll()
                             .anyRequest().authenticated()
                 )
-                .oauth2Login(withDefaults())
+                .oauth2Login(auth ->
+                        auth.successHandler(oAuth2LoginSuccessHandler)
+                )
                 .build();
     }
 }

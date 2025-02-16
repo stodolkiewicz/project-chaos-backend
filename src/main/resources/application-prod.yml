@@ -1,0 +1,4 @@
+app:
+  frontend-url: https://xxxx.zzz
+  cookie:
+    secure: true
