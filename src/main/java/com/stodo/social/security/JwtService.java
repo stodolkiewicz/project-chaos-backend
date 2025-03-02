@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -21,15 +22,27 @@ public class JwtService {
         this.secret = secret;
     }
 
+    // todo - finish it
+    private final Function<String, Claims> getClaimsFromToken = token -> Jwts.parser()
+            .verifyWith(getSigningKey())
+            .build()
+            .parseSignedClaims(token)
+            .getPayload();
+
+    private <T> T getClaimsValue(String token, Function<Claims, T> claims) {
+        return getClaimsFromToken.andThen(claims).apply(token);
+    }
+    // ---
+
     public String generateToken(OAuth2User user) {
         return Jwts.builder()
                 .setSubject(user.getName())
+                .claim("roles", "ROLE_USER")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)) // 15 min
                 .signWith(getSigningKey())
                 .compact();
     }
-
 
     public boolean validateToken(String token) {
         try {
