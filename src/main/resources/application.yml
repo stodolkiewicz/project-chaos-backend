@@ -26,7 +26,6 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.sql
     drop-first: true
 
-
 logging:
   level:
     org.springframework.security: DEBUG
@@ -37,3 +36,13 @@ app:
   frontend-url: http://localhost:3000
   cookie:
     secure: false
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+app:
+  frontend-url: https://xxxx.zzz
+  cookie:
+    secure: true
