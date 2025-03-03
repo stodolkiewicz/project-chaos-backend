@@ -1,5 +1,6 @@
-package com.stodo.social.entity;
+package com.stodo.social.model.entity;
 
+import com.stodo.social.model.enums.RoleEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
@@ -25,6 +26,9 @@ public class UserEntity {
     private String email;
     private String firstName;
     private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private RoleEnum role;
 
     private LocalDateTime lastLogin;
 

@@ -1,7 +1,8 @@
 package com.stodo.social.entity;
 
+import com.stodo.social.model.enums.RoleEnum;
+import com.stodo.social.model.entity.UserEntity;
 import jakarta.validation.ConstraintViolationException;
-import jdk.jfr.Category;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,7 @@ class UserEntityIT {
                 .email(VALID_EMAIL)
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)
+                .role(RoleEnum.USER)
                 .accountNonExpired(true)
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)
