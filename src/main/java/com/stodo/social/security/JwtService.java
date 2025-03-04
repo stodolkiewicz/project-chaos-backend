@@ -1,9 +1,12 @@
 package com.stodo.social.security;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,8 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
+
+import static com.stodo.social.security.SecurityConstants.*;
 
 @Service
 public class JwtService {
@@ -22,29 +27,60 @@ public class JwtService {
         this.secret = secret;
     }
 
-    // todo - finish it
+    // --------------------- Claim extraction -------------------------------------------------------------------------
     private final Function<String, Claims> getClaimsFromToken = token -> Jwts.parser()
             .verifyWith(getSigningKey())
             .build()
             .parseSignedClaims(token)
             .getPayload();
 
-    private <T> T getClaimsValue(String token, Function<Claims, T> claims) {
-        return getClaimsFromToken.andThen(claims).apply(token);
+    private <T> T getClaimsValue(String token, Function<Claims, T> claimFunction) {
+        return getClaimsFromToken.andThen(claimFunction).apply(token);
     }
-    // ---
 
-    public String generateToken(OAuth2User user) {
-        return Jwts.builder()
-                .setSubject(user.getName())
-                .claim("roles", "ROLE_USER")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)) // 15 min
-                .signWith(getSigningKey())
+    public String extractUsername(String token) {
+        return getClaimsValue(token, Claims::getSubject);
+    }
+
+    public String extractTokenType(String token) {
+        return getClaimsValue(token, claims -> claims.get(TOKEN_TYPE_CLAIM_NAME, String.class));
+    }
+
+    public Claims extractAllClaims(String token) {
+        return getClaimsFromToken.apply(token);
+    }
+
+    public boolean isAccessToken(String token) {
+        return extractTokenType(token).equals(TokenType.ACCESS.name());
+    }
+
+    public boolean isRefreshToken(String token) {
+        return extractTokenType(token).equals(TokenType.REFRESH.name());
+    }
+
+    // --------------------- Token creation  --------------------------------------------------------------------------
+    private final Function<OAuth2User, JwtBuilder> createCommonTokenConfiguration = user -> Jwts.builder()
+            .subject(user.getName())
+            .issuedAt(new Date())
+            .signWith(getSigningKey());
+
+    public String generateAccessToken(OAuth2User user) {
+        return createCommonTokenConfiguration.apply(user)
+                .expiration(new Date(System.currentTimeMillis() + 1000 * JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS)) // 15 min
+                .claim(ROLE_CLAIM_NAME, ADMINS.contains(user.getName()) ? "ROLE_ADMIN" : "ROLE_USER")
+                .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.ACCESS)
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    public String generateRefreshToken(OAuth2User user) {
+        return createCommonTokenConfiguration.apply(user)
+                .expiration(new Date(System.currentTimeMillis() + 1000 * JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS)) // 15 min
+                .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.REFRESH)
+                .compact();
+    }
+
+    // --------------------- Token validation  -------------------------------------------------------------------------
+    public boolean isValid(String token) {
         try {
             Jwts.parser()
                     .verifyWith(getSigningKey())
@@ -57,24 +93,19 @@ public class JwtService {
         }
     }
 
-    public String getUserEmail(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .getSubject();
-    }
-
-    public Claims getClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getSigningKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
-
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
+    }
+
+    // ----------- Cookie helper method --------------------------------------------------------------------------------
+    public void createAndAddSecureCookieToResponse(HttpServletResponse response, String cookieName, String cookieValue, int maxAge) {
+        Cookie newCookie = new Cookie(cookieName, cookieValue);
+        newCookie.setHttpOnly(true);
+        newCookie.setSecure(true);
+
+        newCookie.setPath("/");          // available in whole domain
+        newCookie.setMaxAge(maxAge);        // lives 15 minutes
+
+        response.addCookie(newCookie);
     }
 }

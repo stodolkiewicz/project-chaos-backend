@@ -1,6 +1,5 @@
 package com.stodo.social.security;
 
-import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +27,7 @@ class JwtServiceTest {
     @Test
     void shouldGenerateValidJwtToken() {
         // when
-        String token = jwtService.generateToken(oauth2User);
+        String token = jwtService.generateAccessToken(oauth2User);
 
         // then
         assertThat(token).isNotNull();

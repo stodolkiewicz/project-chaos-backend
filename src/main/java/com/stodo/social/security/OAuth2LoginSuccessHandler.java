@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static com.stodo.social.security.SecurityConstants.JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS;
+import static com.stodo.social.security.SecurityConstants.JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS;
+
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
@@ -34,23 +37,12 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             Authentication authentication) throws IOException {
 
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-        String jwt = jwtService.generateToken(oauth2User);
+        String jwtAccessToken = jwtService.generateAccessToken(oauth2User);
+        String jwtRefreshToken = jwtService.generateRefreshToken(oauth2User);
 
-        createAndAddSecureCookieToResponse(response, "jwt", jwt);
-        // todo:
-        //        createAndAddSecureCookieToResponse(response, "refresh_token", refreshToken);
+        jwtService.createAndAddSecureCookieToResponse(response, "access_token", jwtAccessToken, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
+        jwtService.createAndAddSecureCookieToResponse(response, "refresh_token", jwtRefreshToken, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
 
         response.sendRedirect(frontendUrl + "/dashboard");
-    }
-
-    private void createAndAddSecureCookieToResponse(HttpServletResponse response, String cookieName, String cookieValue) {
-        Cookie newCookie = new Cookie(cookieName, cookieValue);
-        newCookie.setHttpOnly(true);
-        newCookie.setSecure(true);
-
-        newCookie.setPath("/");          // available in whole domain
-        newCookie.setMaxAge(900);        // lives 15 minutes
-
-        response.addCookie(newCookie);
     }
 }
