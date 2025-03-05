@@ -17,9 +17,11 @@ import static com.stodo.social.security.SecurityConstants.OAUTH2_GOOGLE_LOGIN_ST
 public class SecurityConfig {
 
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final  JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
+    public SecurityConfig(OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler, JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -47,7 +49,7 @@ public class SecurityConfig {
                     auth.successHandler(oAuth2LoginSuccessHandler)
             );
 
-        http.addFilterBefore(new JwtAuthenticationFilter(), OAuth2LoginAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, OAuth2LoginAuthenticationFilter.class);
 
         return  http.build();
     }

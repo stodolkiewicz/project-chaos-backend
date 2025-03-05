@@ -83,6 +83,7 @@ public class JwtService {
                 .compact();
     }
 
+
     private String getUserRole(OAuth2User user) {
         return ADMINS.contains(user.getName()) ?
                 ROLE_NAME.ROLE_ADMIN.name() :
