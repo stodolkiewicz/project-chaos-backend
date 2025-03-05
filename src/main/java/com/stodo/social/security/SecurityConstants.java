@@ -8,6 +8,8 @@ public final class SecurityConstants {
 
     public static final String ROLE_CLAIM_NAME = "role";
     public static final String TOKEN_TYPE_CLAIM_NAME = "tokenType";
+    public static final String TOKEN_EXPIRATION_DATE_CLAIM_NAME = "exp";
+    public static final String TOKEN_ISSUE_DATE_CLAIM_NAME = "iat";
 
-    public static final List<String> ADMINS = List.of("stodoo@gmail.com");
+    public static final List<String> ADMINS = List.of("admin@gmail.com");
 }

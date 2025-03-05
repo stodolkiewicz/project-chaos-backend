@@ -7,6 +7,9 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import static com.stodo.social.security.SecurityConstants.*;
 @Service
 public class JwtService {
     // https://github.com/jwtk/jjwt?tab=readme-ov-file#what-is-a-json-web-token
+    Logger log = LoggerFactory.getLogger(JwtService.class);
 
     private String secret;
 
@@ -38,7 +42,7 @@ public class JwtService {
         return getClaimsFromToken.andThen(claimFunction).apply(token);
     }
 
-    public String extractUsername(String token) {
+    public String extractEmail(String token) {
         return getClaimsValue(token, Claims::getSubject);
     }
 
@@ -64,19 +68,25 @@ public class JwtService {
             .issuedAt(new Date())
             .signWith(getSigningKey());
 
-    public String generateAccessToken(OAuth2User user) {
+    public String generateAccessToken(OAuth2User user, long expirationInSeconds) {
         return createCommonTokenConfiguration.apply(user)
-                .expiration(new Date(System.currentTimeMillis() + 1000 * JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS)) // 15 min
-                .claim(ROLE_CLAIM_NAME, ADMINS.contains(user.getName()) ? "ROLE_ADMIN" : "ROLE_USER")
+                .expiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds)) // 15 min
+                .claim(ROLE_CLAIM_NAME, getUserRole(user))
                 .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.ACCESS)
                 .compact();
     }
 
-    public String generateRefreshToken(OAuth2User user) {
+    public String generateRefreshToken(OAuth2User user, long expirationInSeconds) {
         return createCommonTokenConfiguration.apply(user)
-                .expiration(new Date(System.currentTimeMillis() + 1000 * JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS)) // 15 min
+                .expiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds)) // 15 min
                 .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.REFRESH)
                 .compact();
+    }
+
+    private String getUserRole(OAuth2User user) {
+        return ADMINS.contains(user.getName()) ?
+                ROLE_NAME.ROLE_ADMIN.name() :
+                ROLE_NAME.ROLE_USER.name();
     }
 
     // --------------------- Token validation  -------------------------------------------------------------------------
@@ -88,7 +98,8 @@ public class JwtService {
                     .parseSignedClaims(token);
 
             return true;
-        } catch (JwtException e) {
+        } catch (Exception e) {
+            log.error("Invalid token: {}", String.valueOf(e));
             return false;
         }
     }
