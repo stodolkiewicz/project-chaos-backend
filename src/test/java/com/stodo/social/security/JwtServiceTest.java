@@ -1,31 +1,26 @@
 package com.stodo.social.security;
 
+import com.stodo.social.security.model.ROLE_NAME;
+import com.stodo.social.security.model.TokenType;
+import com.stodo.social.security.service.JwtService;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.Date;
 
-import static com.stodo.social.security.SecurityConstants.*;
+import static com.stodo.social.security.config.SecurityConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JwtServiceTest {
     private static final String SECRET = "test_secret_key_minimum_32_chars_long_for_testing";
 
-    @InjectMocks
     private JwtService jwtService;
-
-    @Mock
-    private OAuth2User oauth2User;
 
     private static final String USER_EMAIL = "test@example.com";
     private static final String ADMIN_EMAIL = ADMINS.getFirst();
@@ -39,10 +34,9 @@ class JwtServiceTest {
     @Test
     void shouldGenerateValidAccessToken() {
         // given
-        when(oauth2User.getName()).thenReturn(USER_EMAIL);
 
         // when
-        String token = jwtService.generateAccessToken(oauth2User, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
+        String token = jwtService.generateAccessToken(USER_EMAIL, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
 
         // then
         String userEmail = jwtService.extractEmail(token);
@@ -61,10 +55,9 @@ class JwtServiceTest {
     @Test
     void testGenerateAccessToken_whenUser_shouldGenerateValidAccessTokenWithUserRole() {
         // given
-        when(oauth2User.getName()).thenReturn(USER_EMAIL);
 
         // when
-        String token = jwtService.generateAccessToken(oauth2User, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
+        String token = jwtService.generateAccessToken(USER_EMAIL, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
 
         // then
         String userEmail = jwtService.extractEmail(token);
@@ -85,10 +78,9 @@ class JwtServiceTest {
     @Test
     void testGenerateAccessToken_whenAdmin_shouldGenerateValidAccessTokenWithUserRole() {
         // given
-        when(oauth2User.getName()).thenReturn(ADMIN_EMAIL);
 
         // when
-        String token = jwtService.generateAccessToken(oauth2User, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
+        String token = jwtService.generateAccessToken(ADMIN_EMAIL, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
 
 
         // then
@@ -100,10 +92,9 @@ class JwtServiceTest {
     @Test
     void shouldGenerateValidRefreshToken() {
         // given
-        when(oauth2User.getName()).thenReturn(USER_EMAIL);
 
         // when
-        String token = jwtService.generateRefreshToken(oauth2User, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
+        String token = jwtService.generateRefreshToken(USER_EMAIL, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
 
         // then
         String userEmail = jwtService.extractEmail(token);
@@ -124,8 +115,7 @@ class JwtServiceTest {
     @Test
     void testIsValid_whenValid_shouldReturnTrue() {
         // given
-        when(oauth2User.getName()).thenReturn(USER_EMAIL);
-        String token = jwtService.generateRefreshToken(oauth2User, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
+        String token = jwtService.generateRefreshToken(USER_EMAIL, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
 
         // when
         boolean isValidToken = jwtService.isValid(token);
@@ -138,8 +128,7 @@ class JwtServiceTest {
     @Test
     void testIsValid_whenInvalid_shouldReturnFalse() {
         // given
-        when(oauth2User.getName()).thenReturn(USER_EMAIL);
-        String token = jwtService.generateRefreshToken(oauth2User, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
+        String token = jwtService.generateRefreshToken(USER_EMAIL, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
         token = "a" + token;
 
         // when
@@ -153,8 +142,7 @@ class JwtServiceTest {
     @Test
     void testIsValid_whenTokenExpired_shouldReturnFalse() throws InterruptedException {
         // given
-        when(oauth2User.getName()).thenReturn(USER_EMAIL);
-        String token = jwtService.generateRefreshToken(oauth2User, 1);
+        String token = jwtService.generateRefreshToken(USER_EMAIL, 1);
         Thread.sleep(1100);
 
         // when

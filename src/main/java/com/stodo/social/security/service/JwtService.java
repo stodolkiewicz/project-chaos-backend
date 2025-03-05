@@ -1,24 +1,23 @@
-package com.stodo.social.security;
+package com.stodo.social.security.service;
 
+import com.stodo.social.security.model.ROLE_NAME;
+import com.stodo.social.security.model.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
-import static com.stodo.social.security.SecurityConstants.*;
+import static com.stodo.social.security.config.SecurityConstants.*;
 
 @Service
 public class JwtService {
@@ -50,6 +49,10 @@ public class JwtService {
         return getClaimsValue(token, claims -> claims.get(TOKEN_TYPE_CLAIM_NAME, String.class));
     }
 
+    public String extractRole(String token) {
+        return getClaimsValue(token, claims -> claims.get(ROLE_CLAIM_NAME, String.class));
+    }
+
     public Claims extractAllClaims(String token) {
         return getClaimsFromToken.apply(token);
     }
@@ -63,29 +66,29 @@ public class JwtService {
     }
 
     // --------------------- Token creation  --------------------------------------------------------------------------
-    private final Function<OAuth2User, JwtBuilder> createCommonTokenConfiguration = user -> Jwts.builder()
-            .subject(user.getName())
+    private final Function<String, JwtBuilder> createCommonTokenConfiguration = userEmail -> Jwts.builder()
+            .subject(userEmail)
+            .claim(ROLE_CLAIM_NAME, getUserRole(userEmail))
             .issuedAt(new Date())
             .signWith(getSigningKey());
 
-    public String generateAccessToken(OAuth2User user, long expirationInSeconds) {
-        return createCommonTokenConfiguration.apply(user)
+    public String generateAccessToken(String userEmail, long expirationInSeconds) {
+        return createCommonTokenConfiguration.apply(userEmail)
                 .expiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds)) // 15 min
-                .claim(ROLE_CLAIM_NAME, getUserRole(user))
                 .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.ACCESS)
                 .compact();
     }
 
-    public String generateRefreshToken(OAuth2User user, long expirationInSeconds) {
-        return createCommonTokenConfiguration.apply(user)
+    public String generateRefreshToken(String userEmail, long expirationInSeconds) {
+        return createCommonTokenConfiguration.apply(userEmail)
                 .expiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds)) // 15 min
                 .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.REFRESH)
                 .compact();
     }
 
 
-    private String getUserRole(OAuth2User user) {
-        return ADMINS.contains(user.getName()) ?
+    private String getUserRole(String userEmail) {
+        return ADMINS.contains(userEmail) ?
                 ROLE_NAME.ROLE_ADMIN.name() :
                 ROLE_NAME.ROLE_USER.name();
     }

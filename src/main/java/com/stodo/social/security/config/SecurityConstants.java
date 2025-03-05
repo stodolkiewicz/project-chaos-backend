@@ -1,4 +1,4 @@
-package com.stodo.social.security;
+package com.stodo.social.security.config;
 
 import java.util.List;
 
@@ -16,6 +16,8 @@ public final class SecurityConstants {
     public static final String OAUTH2_GOOGLE_LOGIN_START_ENDPOINT = "/oauth2/authorization/google";
     // endpoint for exchanging authorization code for access token
     public static final String OAUTH2_GOOGLE_CALLBACK_ENDPOINT = "/login/oauth2/code/google";
+
+    public static final String TOKEN_REFRESH_ENDPOINT = "/token/refresh";
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String BEARER_PREFIX = "Bearer ";

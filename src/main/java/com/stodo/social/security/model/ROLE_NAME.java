@@ -1,4 +1,4 @@
-package com.stodo.social.security;
+package com.stodo.social.security.model;
 
 public enum ROLE_NAME {
     ROLE_ADMIN,
