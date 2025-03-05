@@ -12,4 +12,8 @@ public final class SecurityConstants {
     public static final String TOKEN_ISSUE_DATE_CLAIM_NAME = "iat";
 
     public static final List<String> ADMINS = List.of("admin@gmail.com");
+
+    public static final String OAUTH2_GOOGLE_LOGIN_START_ENDPOINT = "/oauth2/authorization/google";
+    // endpoint for exchanging authorization code for access token
+    public static final String OAUTH2_GOOGLE_CALLBACK_ENDPOINT = "/login/oauth2/code/google";
 }

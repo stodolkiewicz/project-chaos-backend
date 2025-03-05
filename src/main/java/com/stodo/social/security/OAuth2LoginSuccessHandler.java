@@ -43,6 +43,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         jwtService.createAndAddSecureCookieToResponse(response, "access_token", jwtAccessToken, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
         jwtService.createAndAddSecureCookieToResponse(response, "refresh_token", jwtRefreshToken, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
 
-        response.sendRedirect(frontendUrl + "/dashboard");
+
+        // frontend does not exist yet. Todo: revert it when frontend exists
+        // response.sendRedirect(frontendUrl + "/dashboard");
+        response.sendRedirect("/api/v1/demo/permitted");
     }
 }

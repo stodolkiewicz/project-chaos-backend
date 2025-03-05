@@ -1,6 +1,7 @@
 package com.stodo.social.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,8 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/demo")
 public class DemoController {
 
-    @GetMapping
+    @GetMapping("/secured")
     public ResponseEntity<String> hello() {
         return ResponseEntity.ok("Hello from secure endpoint");
+    }
+
+    @GetMapping("/permitted")
+    public ResponseEntity<String> helloPermitted() {
+        return ResponseEntity.ok("Hello from non-secured endpoint");
     }
 }
