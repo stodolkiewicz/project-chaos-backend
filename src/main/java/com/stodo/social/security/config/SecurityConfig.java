@@ -41,6 +41,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            // when user tries to access secured resources, return 401
             .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((request, response, authException) -> {
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -70,6 +71,4 @@ public class SecurityConfig {
 
         return  http.build();
     }
-
-
 }
