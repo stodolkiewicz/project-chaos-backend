@@ -30,6 +30,8 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
 
+    private String googlePictureLink;
+
     private LocalDateTime lastLogin;
 
     private boolean accountNonExpired = true;

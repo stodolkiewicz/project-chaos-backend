@@ -35,7 +35,7 @@ class UserEntityIT {
                 .email(VALID_EMAIL)
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)
-                .role(RoleEnum.USER)
+                .role(RoleEnum.ROLE_USER)
                 .accountNonExpired(true)
                 .accountNonLocked(true)
                 .credentialsNonExpired(true)

@@ -86,8 +86,7 @@ public class JwtService {
                 .compact();
     }
 
-
-    private String getUserRole(String userEmail) {
+    public String getUserRole(String userEmail) {
         return ADMINS.contains(userEmail) ?
                 ROLE_NAME.ROLE_ADMIN.name() :
                 ROLE_NAME.ROLE_USER.name();

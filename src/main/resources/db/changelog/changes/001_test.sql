@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     role VARCHAR(50) NOT NULL,
+    google_picture_link VARCHAR(255),
     last_login TIMESTAMP,
     account_non_expired BOOLEAN NOT NULL DEFAULT true,
     account_non_locked BOOLEAN NOT NULL DEFAULT true,

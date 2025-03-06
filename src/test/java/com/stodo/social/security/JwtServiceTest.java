@@ -105,7 +105,7 @@ class JwtServiceTest {
         String role = claims.get(ROLE_CLAIM_NAME, String.class);
 
         assertThat(token).isNotNull();
-        assertNull(role);
+        assertEquals(ROLE_NAME.ROLE_USER.name(), role);
         assertEquals(USER_EMAIL, userEmail);
         assertEquals(TokenType.REFRESH.name(), tokenType);
         assertTrue(expirationDate.after(issueDate));
