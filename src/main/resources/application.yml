@@ -32,7 +32,7 @@ jwt:
 app:
   frontend-dashboard-url: http://localhost:3000/dashboard
   cookie:
-    secure: false
+    secure: true
 
 ---
 spring:
