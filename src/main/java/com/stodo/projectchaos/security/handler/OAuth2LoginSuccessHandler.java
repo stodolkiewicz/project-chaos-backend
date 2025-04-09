@@ -23,16 +23,16 @@ import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_REFRE
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
-    private final String frontendUrl;
+    private final String frontendDashboardUrl;
     private final UserRepository userRepository;
 
     public OAuth2LoginSuccessHandler(
             JwtService jwtService,
-            @Value("${app.frontend-url}") String frontendUrl,
+            @Value("${app.frontend-dashboard-url}") String frontendDashboardUrl,
             UserRepository userRepository
     ) {
         this.jwtService = jwtService;
-        this.frontendUrl = frontendUrl;
+        this.frontendDashboardUrl = frontendDashboardUrl;
         this.userRepository = userRepository;
     }
 
@@ -52,13 +52,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         jwtService.createAndAddSecureCookieToResponse(response, "refresh_token", jwtRefreshToken, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
 
         createUserIfNotExists(userEmail, oauth2User);
-
-
         invalidateSessionAndDeleteSessionCookie(request, response);
 
-        // frontend does not exist yet. Todo: revert it when frontend exists
-        // response.sendRedirect(frontendUrl + "/dashboard");
-        response.sendRedirect("/api/v1/demo/permitted");
+        response.sendRedirect(frontendDashboardUrl);
     }
 
     private void invalidateSessionAndDeleteSessionCookie(HttpServletRequest request, HttpServletResponse response) {

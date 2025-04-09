@@ -30,7 +30,7 @@ logging:
 jwt:
   secret: ${SOCIAL_JWT_SECRET}
 app:
-  frontend-url: http://localhost:3000
+  frontend-dashboard-url: http://localhost:3000/dashboard
   cookie:
     secure: false
 
@@ -40,6 +40,6 @@ spring:
     activate:
       on-profile: prod
 app:
-  frontend-url: https://xxxx.zzz
+  frontend-dashboard-url: https://xxxx.zzz
   cookie:
     secure: true
