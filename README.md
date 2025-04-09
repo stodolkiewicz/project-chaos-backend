@@ -5,7 +5,7 @@ mvn spring-boot:run -Ddebug
 
 ### To run postgres db:
 ```
-docker run -d --name social -e POSTGRES_DB=social -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
+docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
 ```
 
 ## Docs
