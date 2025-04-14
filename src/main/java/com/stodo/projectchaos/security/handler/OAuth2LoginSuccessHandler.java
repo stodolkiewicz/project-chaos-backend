@@ -44,8 +44,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
         String userEmail = oauth2User.getAttribute("email");
+        String pictureUrl = oauth2User.getAttribute("picture");
+        String firstName = oauth2User.getAttribute("given_name");
 
-        String jwtAccessToken = jwtService.generateAccessToken(userEmail, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
+        String jwtAccessToken = jwtService.generateAccessToken(userEmail, pictureUrl, firstName, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
         String jwtRefreshToken = jwtService.generateRefreshToken(userEmail, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
 
         jwtService.createAndAddSecureCookieToResponse(response, "access_token", jwtAccessToken, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
