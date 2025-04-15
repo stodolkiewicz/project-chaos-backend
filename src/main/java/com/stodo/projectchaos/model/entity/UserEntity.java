@@ -10,7 +10,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,4 +37,8 @@ public class UserEntity {
     private boolean accountNonLocked = true;
     private boolean credentialsNonExpired = true;
     private boolean enabled = true;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "default_project_id")
+    private ProjectEntity project;
 }
