@@ -12,13 +12,16 @@ import lombok.Setter;
 @Entity
 @Table(name = "project_users")
 public class ProjectUsersEntity {
-    @Id
+    @EmbeddedId
+    private ProjectUserId id;
+
     @ManyToOne
+    @MapsId("project")
     @JoinColumn(name = "project_id")
     private ProjectEntity project;
 
-    @Id
     @ManyToOne
+    @MapsId("user")
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
