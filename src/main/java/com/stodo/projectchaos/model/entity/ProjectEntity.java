@@ -22,4 +22,6 @@ public class ProjectEntity {
 
     @Column(nullable = false, length = 255)
     private String name;
+
+    private String description;
 }

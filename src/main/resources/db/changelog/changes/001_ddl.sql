@@ -3,7 +3,8 @@
 --changeset stodo:1
 CREATE TABLE IF NOT EXISTS projects (
       id UUID PRIMARY KEY,
-      name VARCHAR(255) NOT NULL
+      name VARCHAR(255) NOT NULL,
+      description TEXT
 );
 --rollback drop table projects;
 

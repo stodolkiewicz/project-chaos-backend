@@ -13,7 +13,8 @@ public class ProjectChaos {
 //	https://spring.io/guides/tutorials/spring-boot-oauth2
 
 	// todo
-	// Rest od Entities and liquibase for: columns, tasks, teams
+	// Rest of Entities and liquibase for: columns, tasks, teams
 	// Test data -> 002_dml.sql
-	// 10 Figure out how to run different set of liquibase files for prod.
+	// Testcontainers and some tests
+	// Figure out how to run different set of liquibase files for prod.
 }
