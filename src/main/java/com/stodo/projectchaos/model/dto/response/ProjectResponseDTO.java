@@ -9,4 +9,5 @@ public class ProjectResponseDTO {
     private UUID id;
     private String name;
     private String description;
+    private boolean defaultProject;
 }
