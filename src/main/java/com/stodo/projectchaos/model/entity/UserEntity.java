@@ -33,9 +33,13 @@ public class UserEntity {
 
     private LocalDateTime lastLogin;
 
+    @Builder.Default
     private boolean accountNonExpired = true;
+    @Builder.Default
     private boolean accountNonLocked = true;
+    @Builder.Default
     private boolean credentialsNonExpired = true;
+    @Builder.Default
     private boolean enabled = true;
 
     @OneToOne(fetch = FetchType.LAZY)
