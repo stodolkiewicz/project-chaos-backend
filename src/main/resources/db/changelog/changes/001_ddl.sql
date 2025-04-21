@@ -4,7 +4,8 @@
 CREATE TABLE IF NOT EXISTS projects (
       id UUID PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
-      description TEXT
+      description TEXT,
+      created_date TIMESTAMP NOT NULL
 );
 --rollback drop table projects;
 
@@ -32,7 +33,7 @@ CREATE TABLE project_users (
    project_id UUID NOT NULL,
    user_id UUID NOT NULL,
    project_role VARCHAR(50) NOT NULL DEFAULT 'MEMBER',
-   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   created_date TIMESTAMP NOT NULL,
    PRIMARY KEY (project_id, user_id),
    CONSTRAINT fk_project_user_project FOREIGN KEY (project_id)
        REFERENCES projects(id) ON DELETE CASCADE,

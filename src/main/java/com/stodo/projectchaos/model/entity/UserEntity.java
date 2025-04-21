@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Getter
@@ -31,7 +31,7 @@ public class UserEntity {
 
     private String googlePictureLink;
 
-    private LocalDateTime lastLogin;
+    private Instant lastLogin;
 
     @Builder.Default
     private boolean accountNonExpired = true;

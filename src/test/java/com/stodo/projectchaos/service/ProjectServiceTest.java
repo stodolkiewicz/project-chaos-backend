@@ -1,23 +1,26 @@
 package com.stodo.projectchaos.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import com.stodo.projectchaos.exception.EntityNotFoundException;
-import com.stodo.projectchaos.model.dto.response.ProjectResponseDTO;
-import com.stodo.projectchaos.model.entity.ProjectEntity;
-import com.stodo.projectchaos.model.entity.UserEntity;
+import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.repository.CustomProjectRepository;
 import com.stodo.projectchaos.repository.UserRepository;
+import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ProjectServiceTest {
+
+    private ProjectService projectService;
     private CustomProjectRepository customProjectRepository;
     private UserRepository userRepository;
-    private ProjectService projectService;
 
     @BeforeEach
     void setUp() {
@@ -27,43 +30,80 @@ class ProjectServiceTest {
     }
 
     @Test
-    void shouldReturnProjects_whenUserExists() {
-        // given
-        String email = "test@example.com";
+    void shouldReturnUserProjects() {
+        // Given
+        String email = "user@example.com";
         UUID projectId = UUID.randomUUID();
+        UserProjectQueryResponseDTO project = new UserProjectQueryResponseDTO(
+                projectId,
+                "Project Chaos",
+                "Test project description",
+                Instant.now(),
+                ProjectRoleEnum.ADMIN,
+                Instant.now()
+        );
 
-        UserEntity user = new UserEntity();
-        ProjectEntity defaultProject = new ProjectEntity();
-        defaultProject.setId(projectId);
-        user.setProject(defaultProject);
+        List<UserProjectQueryResponseDTO> projects = List.of(project);
+        Optional<UUID> defaultProjectId = Optional.of(projectId);
 
-        ProjectEntity projectEntity = new ProjectEntity();
-        projectEntity.setId(projectId);
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(customProjectRepository.findProjectsByUserEmail(email)).thenReturn(List.of(projectEntity));
+        when(customProjectRepository.findProjectsByUserEmail(email)).thenReturn(projects);
+        when(userRepository.findDefaultProjectIdByEmail(email)).thenReturn(defaultProjectId);
 
         // when
-        List<ProjectResponseDTO> result = projectService.findProjectsByUserEmail(email);
+        UserProjectsResponseDTO responseDTO = projectService.findProjectsByUserEmail(email);
 
         // then
-        assertEquals(1, result.size());
-        assertNotNull(result.get(0));
+        assertNotNull(responseDTO);
+        assertEquals(1, responseDTO.projects().size());
+        assertEquals(projectId, responseDTO.defaultProjectId());
+        assertEquals("Project Chaos", responseDTO.projects().get(0).projectName());
+        assertEquals("Test project description", responseDTO.projects().get(0).projectDescription());
     }
 
     @Test
-    void shouldThrowException_whenUserNotFound() {
+    void shouldReturnEmptyProjectsWhenNoProjectsFound() {
         // given
-        String email = "notfound@example.com";
+        String email = "user@example.com";
+        Optional<UUID> defaultProjectId = Optional.empty();
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(customProjectRepository.findProjectsByUserEmail(email)).thenReturn(List.of());
+        when(userRepository.findDefaultProjectIdByEmail(email)).thenReturn(defaultProjectId);
 
-        // when / then
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
-                projectService.findProjectsByUserEmail(email));
+        // when
+        UserProjectsResponseDTO responseDTO = projectService.findProjectsByUserEmail(email);
 
-        assertEquals("User", exception.getEntityType());
-        assertTrue(exception.getIdentifiers().containsKey("email"));
-        assertEquals(email, exception.getIdentifiers().get("email"));
+        // then
+        assertNotNull(responseDTO);
+        assertTrue(responseDTO.projects().isEmpty());
+        assertNull(responseDTO.defaultProjectId());
     }
+
+    @Test
+    void shouldHandleDefaultProjectNotPresent() {
+        // given
+        String email = "user@example.com";
+        UUID projectId = UUID.randomUUID();
+        UserProjectQueryResponseDTO project = new UserProjectQueryResponseDTO(
+                projectId,
+                "Project Chaos",
+                "Test project description",
+                Instant.now(),
+                ProjectRoleEnum.ADMIN,
+                Instant.now()
+        );
+
+        List<UserProjectQueryResponseDTO> projects = List.of(project);
+
+        when(customProjectRepository.findProjectsByUserEmail(email)).thenReturn(projects);
+        when(userRepository.findDefaultProjectIdByEmail(email)).thenReturn(Optional.empty());
+
+        // when
+        UserProjectsResponseDTO responseDTO = projectService.findProjectsByUserEmail(email);
+
+        // then
+        assertNotNull(responseDTO);
+        assertEquals(1, responseDTO.projects().size());
+        assertNull(responseDTO.defaultProjectId());  // defaultProjectId is empty
+    }
+
 }

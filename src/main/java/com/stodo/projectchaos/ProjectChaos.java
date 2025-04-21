@@ -16,5 +16,6 @@ public class ProjectChaos {
 	// Rest of Entities and liquibase for: columns, tasks, teams
 	// Test data -> 002_dml.sql
 	// Testcontainers and some tests
+	// tests for ProjectService.moveDefaultProjectToFront()
 	// Figure out how to run different set of liquibase files for prod.
 }

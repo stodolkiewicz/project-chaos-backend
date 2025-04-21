@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         // on what endpoint the error occurred
         problem.setInstance(URI.create(request.getRequestURI()));
 
-        problem.setProperty("timestamp", LocalDateTime.now());
+        problem.setProperty("timestamp", Instant.now());
         problem.setProperty("entity", ex.getEntityType());
         problem.setProperty("identifiers", ex.getIdentifiers());
 
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         problem.setDetail(ex.getMessage());
         problem.setInstance(URI.create(request.getRequestURI()));
 
-        problem.setProperty("timestamp", LocalDateTime.now());
+        problem.setProperty("timestamp", Instant.now());
 
         return problem;
     }

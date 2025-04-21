@@ -1,10 +1,11 @@
 package com.stodo.projectchaos.repository;
 
-import com.stodo.projectchaos.model.entity.ProjectEntity;
+import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -13,15 +14,25 @@ public class CustomProjectRepository {
     @PersistenceContext
     private EntityManager em;
 
-    // todo: Should return a DTO, ProjectRoleEnum projectRole from ProjectUsersEntity is also needed as data
-    public List<ProjectEntity> findProjectsByUserEmail(String email) {
-        return em.createQuery("""
-                select pu.project from ProjectUsersEntity pu 
-                JOIN pu.user u 
-                WHERE u.email = :email          
-            """, ProjectEntity.class)
-        .setParameter("email", email)
-        .getResultList();
+    public List<UserProjectQueryResponseDTO> findProjectsByUserEmail(String email) {
+        List<UserProjectQueryResponseDTO> userProjectQueryResponseDTOList =
+                em.createQuery("""
+                        select new com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO(
+                            pu.project.id,
+                            pu.project.name,
+                            pu.project.description,
+                            pu.project.createdDate,
+                            pu.projectRole,
+                            pu.createdDate
+                        )
+                        from ProjectUsersEntity pu
+                        join pu.user u
+                        where u.email = :email      
+                        """, UserProjectQueryResponseDTO.class)
+                .setParameter("email", email)
+                .getResultList();
+
+        return new ArrayList<>(userProjectQueryResponseDTOList);
     }
 
 }

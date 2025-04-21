@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS;
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS;
@@ -78,7 +78,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private void createUserIfNotExists(String userEmail, OAuth2User oauth2User) {
         if (!userRepository.existsByEmail(userEmail)) {
             UserEntity newUserEntity = new UserEntity();
-            newUserEntity.setLastLogin(LocalDateTime.now());
+            newUserEntity.setLastLogin(Instant.now());
             newUserEntity.setFirstName(oauth2User.getAttribute("given_name"));
             newUserEntity.setLastName(oauth2User.getAttribute("family_name"));
             newUserEntity.setEmail(userEmail);

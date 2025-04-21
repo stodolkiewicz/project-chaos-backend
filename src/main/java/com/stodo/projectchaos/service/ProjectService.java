@@ -1,14 +1,12 @@
 package com.stodo.projectchaos.service;
 
-import com.stodo.projectchaos.exception.EntityNotFoundException;
-import com.stodo.projectchaos.model.dto.response.ProjectResponseDTO;
-import com.stodo.projectchaos.model.entity.ProjectEntity;
-import com.stodo.projectchaos.model.entity.UserEntity;
-import com.stodo.projectchaos.mapper.ProjectMapper;
+import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.repository.CustomProjectRepository;
 import com.stodo.projectchaos.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,26 +23,38 @@ public class ProjectService {
         this.userRepository = userRepository;
     }
 
-    public List<ProjectResponseDTO> findProjectsByUserEmail(String email) {
-        CompletableFuture<List<ProjectEntity>> projectsFuture =
-                CompletableFuture.supplyAsync(() -> customProjectRepository.findProjectsByUserEmail(email));
+    public UserProjectsResponseDTO findProjectsByUserEmail(String email) {
 
-        CompletableFuture<Optional<UserEntity>> userFuture =
-                CompletableFuture.supplyAsync(() -> userRepository.findByEmail(email));
+        CompletableFuture<List<UserProjectQueryResponseDTO>> userProjectsCF = CompletableFuture.supplyAsync(
+                () -> customProjectRepository.findProjectsByUserEmail(email));
 
-        CompletableFuture.allOf(projectsFuture, userFuture).join();
+        CompletableFuture<Optional<UUID>> defaultUserProjectCF = CompletableFuture.supplyAsync(
+                () -> userRepository.findDefaultProjectIdByEmail(email)
+        );
 
-        List<ProjectEntity> userProjects = projectsFuture.join();
-        UserEntity user = userFuture.join()
-                .orElseThrow(() -> EntityNotFoundException.builder()
-                        .entityType("User")
-                        .identifier("email", email)
-                        .build());
+        CompletableFuture<Void> cfs = CompletableFuture.allOf(userProjectsCF, defaultUserProjectCF);
+        cfs.join();
 
-        UUID defaultProjectId = user.getProject() != null ? user.getProject().getId() : null;
+        List<UserProjectQueryResponseDTO> projects = userProjectsCF.join();
+        Optional<UUID> defaultProjectId = defaultUserProjectCF.join();
 
-        return userProjects.stream()
-                .map(project -> ProjectMapper.toDto(project, defaultProjectId))
-                .toList();
+        moveDefaultProjectToFront(defaultProjectId, projects);
+
+        return new UserProjectsResponseDTO(projects, defaultProjectId.orElse(null));
+    }
+
+    private static void moveDefaultProjectToFront(Optional<UUID> defaultProjectId, List<UserProjectQueryResponseDTO> projects) {
+        defaultProjectId.ifPresent(id -> {
+            Optional<UserProjectQueryResponseDTO> defaultProject = projects.stream()
+                    .filter(project -> project.projectId().equals(id))
+                    .findFirst();
+
+            List<UserProjectQueryResponseDTO> mutableProjects = new ArrayList<>(projects);
+            defaultProject.ifPresent(project -> {
+                mutableProjects.remove(project);
+                mutableProjects.addFirst(project);
+
+            });
+        });
     }
 }

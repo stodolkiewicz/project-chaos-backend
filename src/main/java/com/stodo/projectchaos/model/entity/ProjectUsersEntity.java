@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -28,4 +31,7 @@ public class ProjectUsersEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "project_role")
     private ProjectRoleEnum projectRole;
+
+    @CreatedDate
+    private Instant createdDate;
 }
