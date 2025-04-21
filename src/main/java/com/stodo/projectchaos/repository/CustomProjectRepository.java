@@ -13,6 +13,7 @@ public class CustomProjectRepository {
     @PersistenceContext
     private EntityManager em;
 
+    // todo: Should return a DTO, ProjectRoleEnum projectRole from ProjectUsersEntity is also needed as data
     public List<ProjectEntity> findProjectsByUserEmail(String email) {
         return em.createQuery("""
                 select pu.project from ProjectUsersEntity pu 
