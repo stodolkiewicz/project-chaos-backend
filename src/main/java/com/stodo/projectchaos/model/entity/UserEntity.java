@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.model.entity;
 
+import com.stodo.projectchaos.model.entity.superclass.Auditable;
 import com.stodo.projectchaos.model.enums.RoleEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity extends Auditable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;

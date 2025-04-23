@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.model.entity;
 
+import com.stodo.projectchaos.model.entity.superclass.Auditable;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,7 +15,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @Entity
 @Table(name = "project_users")
-public class ProjectUsersEntity {
+public class ProjectUsersEntity extends Auditable {
     @EmbeddedId
     private ProjectUserId id;
 
@@ -32,6 +33,4 @@ public class ProjectUsersEntity {
     @Column(name = "project_role")
     private ProjectRoleEnum projectRole;
 
-    @CreatedDate
-    private Instant createdDate;
 }

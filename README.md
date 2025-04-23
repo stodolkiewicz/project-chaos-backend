@@ -8,6 +8,11 @@ mvn spring-boot:run -Ddebug
 docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
 ```
 
+## Current Database Schema
+As of 23.04.2025
+![Alt text](docs/db_schema.png)
+
+
 ## Docs
 ### Liquibase
 ```https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/configuration/```

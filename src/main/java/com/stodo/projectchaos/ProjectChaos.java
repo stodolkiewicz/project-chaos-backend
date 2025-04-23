@@ -2,8 +2,10 @@ package com.stodo.projectchaos;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 public class ProjectChaos {
 
 	public static void main(String[] args) {
@@ -13,7 +15,6 @@ public class ProjectChaos {
 //	https://spring.io/guides/tutorials/spring-boot-oauth2
 
 	// todo
-	// Rest of Entities and liquibase for: columns, tasks, teams
 	// Test data -> 002_dml.sql
 	// Testcontainers and some tests
 	// tests for ProjectService.moveDefaultProjectToFront()

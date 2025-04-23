@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.model.entity;
 
+import com.stodo.projectchaos.model.entity.superclass.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "projects")
-public class ProjectEntity {
+public class ProjectEntity extends Auditable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,6 +28,4 @@ public class ProjectEntity {
 
     private String description;
 
-    @CreatedDate
-    private Instant createdDate;
 }
