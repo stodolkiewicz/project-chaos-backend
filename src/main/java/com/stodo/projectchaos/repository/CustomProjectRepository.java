@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.repository;
 
 import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.entity.ProjectEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -33,6 +34,16 @@ public class CustomProjectRepository {
                 .getResultList();
 
         return new ArrayList<>(userProjectQueryResponseDTOList);
+    }
+
+    public ProjectEntity getDefaultProjectForUser(String email) {
+        return em.createQuery("""
+                        select u.project
+                        from UserEntity u
+                        where u.email = :email
+                        """, ProjectEntity.class)
+                        .setParameter("email", email)
+                        .getSingleResult();
     }
 
 }

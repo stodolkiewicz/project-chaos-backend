@@ -1,0 +1,12 @@
+package com.stodo.projectchaos.model.dto.response;
+
+import java.time.Instant;
+import java.util.UUID;
+
+public record DefaultProjectResponseDTO(UUID id,
+                                        String name,
+                                        String description,
+                                        Instant createdDate,
+                                        Instant lastModifiedDate,
+                                        String lastModifiedBy) {
+}

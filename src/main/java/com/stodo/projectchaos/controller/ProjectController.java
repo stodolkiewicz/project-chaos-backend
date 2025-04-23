@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.controller;
 
+import com.stodo.projectchaos.model.dto.response.DefaultProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.service.ProjectService;
 import lombok.RequiredArgsConstructor;
@@ -22,4 +23,12 @@ public class ProjectController {
         String email = userDetails.getUsername();
         return ResponseEntity.ok(projectService.findProjectsByUserEmail(email));
     }
+
+    @GetMapping("/default")
+    public DefaultProjectResponseDTO getDefaultProject(@AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+
+        return projectService.getDefaultProjectForUser(email);
+    }
+
 }

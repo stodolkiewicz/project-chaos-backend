@@ -1,7 +1,10 @@
 package com.stodo.projectchaos.service;
 
+import com.stodo.projectchaos.mapper.ProjectMapper;
+import com.stodo.projectchaos.model.dto.response.DefaultProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.repository.CustomProjectRepository;
 import com.stodo.projectchaos.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,13 @@ public class ProjectService {
     public ProjectService(CustomProjectRepository customProjectRepository, UserRepository userRepository) {
         this.customProjectRepository = customProjectRepository;
         this.userRepository = userRepository;
+    }
+
+    public DefaultProjectResponseDTO getDefaultProjectForUser(String email) {
+        ProjectEntity defaultProjectForUser = customProjectRepository.getDefaultProjectForUser(email);
+
+        return ProjectMapper.INSTANCE.projectToDefaultProjectResponseDTO(defaultProjectForUser);
+
     }
 
     public UserProjectsResponseDTO findProjectsByUserEmail(String email) {
