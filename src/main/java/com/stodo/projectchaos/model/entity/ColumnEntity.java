@@ -22,7 +22,7 @@ public class ColumnEntity extends Auditable {
 
     private Short position;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "project_id", nullable = false)
     private ProjectEntity project;
 

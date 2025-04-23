@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "task_priorities")
-public class TaskPrioritiesEntity extends Versioned {
+public class TaskPriorityEntity extends Versioned {
     @Id
     private UUID id = UUID.randomUUID();
 
