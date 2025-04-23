@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS columns (
 --changeset stodo:8
 CREATE TABLE IF NOT EXISTS task_priorities (
     id UUID PRIMARY KEY,
-    priority_value SMALLINT,
+    priority_value SMALLINT NOT NULL,
     name VARCHAR(50) NOT NULL,
     color VARCHAR(7) NOT NULL,
     CHECK (priority_value BETWEEN 1 AND 5),
