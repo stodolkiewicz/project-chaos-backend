@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Embeddable
-public class TaskLabelId implements Serializable {
+public class ProjectBacklogId implements Serializable {
+    private UUID project;
     private UUID task;
-    private UUID label;
 }
