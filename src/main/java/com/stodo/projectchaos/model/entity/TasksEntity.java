@@ -20,9 +20,7 @@ public class TasksEntity extends Auditable {
     @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     private String description;
-
     private Short positionInColumn;
 
     @ManyToOne(fetch = FetchType.LAZY)
