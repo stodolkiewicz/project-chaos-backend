@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "tasks")
-public class TasksEntity extends Auditable {
+public class TaskEntity extends Auditable {
     @Id
     private UUID id = UUID.randomUUID();
 
