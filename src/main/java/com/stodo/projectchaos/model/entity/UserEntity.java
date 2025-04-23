@@ -18,8 +18,7 @@ import java.util.UUID;
 @Table(name = "users")
 public class UserEntity extends Auditable {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private UUID id = UUID.randomUUID();
 
     @Email
     @Column(nullable = false, unique = true)

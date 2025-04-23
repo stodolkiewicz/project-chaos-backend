@@ -3,15 +3,15 @@ package com.stodo.projectchaos.model.entity;
 import com.stodo.projectchaos.model.entity.superclass.Auditable;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.Instant;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "project_users")

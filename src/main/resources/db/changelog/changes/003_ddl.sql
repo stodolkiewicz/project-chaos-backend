@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS columns (
       id UUID PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       position SMALLINT,
-      project_id UUID,
+      project_id UUID NOT NULL,
 
     created_date TIMESTAMP NOT NULL,
     last_modified_date TIMESTAMP,
