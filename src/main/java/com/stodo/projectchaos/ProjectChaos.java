@@ -15,7 +15,13 @@ public class ProjectChaos {
 //	https://spring.io/guides/tutorials/spring-boot-oauth2
 
 	// todo
-	// Test data -> 002_dml.sql
+	// Endpoints for:
+	// Endpoint getting basic info for project (/api/v1/projects/{defaultProjectId})
+	// Endpoint getting columns for the project (/api/v1/projects/{projectId}/columns)
+	// Endpoint getting task labels (/api/v1/projects/{projectId}/tasks/labels)
+	// Endpoint getting task priorities (/api/v1/projects/{projectId}/tasks/priorities)
+	// Endpoint getting users assigned to tasks (/api/v1/projects/{projectId}/tasks/users)
+
 	// Testcontainers and some tests
 	// tests for ProjectService.moveDefaultProjectToFront()
 	// Figure out how to run different set of liquibase files for prod.
