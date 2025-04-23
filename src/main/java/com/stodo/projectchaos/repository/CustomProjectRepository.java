@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CustomProjectRepository {
@@ -36,14 +37,15 @@ public class CustomProjectRepository {
         return new ArrayList<>(userProjectQueryResponseDTOList);
     }
 
-    public ProjectEntity getDefaultProjectForUser(String email) {
+    public Optional<ProjectEntity> getDefaultProjectForUser(String email) {
         return em.createQuery("""
                         select u.project
                         from UserEntity u
                         where u.email = :email
                         """, ProjectEntity.class)
                         .setParameter("email", email)
-                        .getSingleResult();
+                        .getResultStream()
+                        .findFirst();
     }
 
 }
