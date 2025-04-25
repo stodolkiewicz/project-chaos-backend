@@ -5,6 +5,7 @@ import com.stodo.projectchaos.model.dto.response.boardtasks.LabelDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class CustomBoardRepository {
     @PersistenceContext
     private EntityManager em;
 
+    @Transactional
     public List<BoardTasksResponseDTO> findBoardTasks(UUID projectId) {
         // Data for tasks (without labels)
         List<BoardTasksResponseDTO> tasks = em.createQuery("""
