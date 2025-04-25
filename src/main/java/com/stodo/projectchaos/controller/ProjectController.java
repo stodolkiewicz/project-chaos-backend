@@ -16,16 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/user/projects")
+@RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
 public class ProjectController {
 
     private final ProjectService projectService;
 
     @GetMapping("/{projectId}")
-    public ResponseEntity<ProjectResponseDTO> getProjectById (
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable UUID projectId) {
+    public ResponseEntity<ProjectResponseDTO> getProjectById (@PathVariable UUID projectId) {
         return ResponseEntity.ok(projectService.findProjectById(projectId));
     }
 
