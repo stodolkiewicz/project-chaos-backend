@@ -1,12 +1,11 @@
 package com.stodo.projectchaos.model.entity;
 
 import com.stodo.projectchaos.model.entity.superclass.Versioned;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -22,4 +21,7 @@ public class LabelEntity extends Versioned {
 
     @Column(nullable = false)
     private String name;
+
+    @OneToMany(mappedBy = "label", fetch = FetchType.LAZY)
+    private Set<TaskLabelsEntity> taskLabels = new HashSet<>();
 }

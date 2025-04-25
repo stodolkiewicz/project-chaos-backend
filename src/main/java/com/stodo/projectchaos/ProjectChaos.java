@@ -19,7 +19,9 @@ public class ProjectChaos {
 
 	// Endpoints for:
 	// Endpoint getting basic info for project (/api/v1/projects/default) - done
-	// Endpoint getting columns for the project (/api/v1/projects/{projectId}/columns)
+	// Endpoint getting columns for the project (/api/v1/projects/{projectId}/columns) - done
+	// Endpoint getting tasks for the project (/api/v1/projects/{projectId}/tasks)
+
 	// Endpoint getting task labels (/api/v1/projects/{projectId}/tasks/labels)
 	// Endpoint getting task priorities (/api/v1/projects/{projectId}/tasks/priorities)
 	// Endpoint getting users assigned to tasks (/api/v1/projects/{projectId}/tasks/users)

@@ -25,7 +25,7 @@ public class TaskEntity extends Auditable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id")
-    private UserEntity assigneeId;
+    private UserEntity assignee;
 
     // optional = false -> hibernate will make sure that
     // this field is not null during merge or persist

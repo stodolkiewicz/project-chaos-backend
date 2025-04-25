@@ -12,6 +12,7 @@ docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER
 As of 23.04.2025
 ![Alt text](docs/db_schema.png)
 
+tasks.column_id == null ? -> task is in project_backlog
 
 ## Docs
 ### Liquibase
