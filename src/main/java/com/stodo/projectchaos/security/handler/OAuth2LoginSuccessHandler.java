@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS;
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS;
@@ -47,7 +49,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String pictureUrl = oauth2User.getAttribute("picture");
         String firstName = oauth2User.getAttribute("given_name");
 
-        String jwtAccessToken = jwtService.generateAccessToken(userEmail, pictureUrl, firstName, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
+        UUID defaultProjectId = userRepository.findDefaultProjectIdByEmail(userEmail).orElse(null);
+
+        String jwtAccessToken = jwtService.generateAccessToken(userEmail, pictureUrl, firstName, defaultProjectId, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
         String jwtRefreshToken = jwtService.generateRefreshToken(userEmail, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
 
         jwtService.createAndAddSecureCookieToResponse(response, "access_token", jwtAccessToken, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);

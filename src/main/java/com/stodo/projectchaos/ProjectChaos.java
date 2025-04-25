@@ -14,7 +14,9 @@ public class ProjectChaos {
 // https://docs.spring.io/spring-security/reference/servlet/oauth2/login/index.html
 //	https://spring.io/guides/tutorials/spring-boot-oauth2
 
+
 	// todo
+
 	// Endpoints for:
 	// Endpoint getting basic info for project (/api/v1/projects/default) - done
 	// Endpoint getting columns for the project (/api/v1/projects/{projectId}/columns)

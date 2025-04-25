@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.*;
@@ -79,12 +80,13 @@ public class JwtService {
                 .compact();
     }
 
-    public String generateAccessToken(String userEmail, String pictureUrl, String firstName, long expirationInSeconds) {
+    public String generateAccessToken(String userEmail, String pictureUrl, String firstName, UUID defaultProjectId, long expirationInSeconds) {
         return createCommonTokenConfiguration.apply(userEmail)
                 .expiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds)) // 15 min
                 .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.ACCESS)
                 .claim("pictureUrl", pictureUrl)
                 .claim("firstName", firstName)
+                .claim("defaultProjectId", defaultProjectId)
                 .compact();
     }
 
