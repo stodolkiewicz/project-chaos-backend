@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.model.entity;
 
 import com.stodo.projectchaos.model.entity.superclass.Auditable;
+import com.stodo.projectchaos.model.entity.superclass.Versioned;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Entity
 @Table(name = "columns")
-public class ColumnEntity extends Auditable {
+public class ColumnEntity extends Versioned {
     @Id
     private UUID id = UUID.randomUUID();
 

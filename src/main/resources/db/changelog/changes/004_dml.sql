@@ -2,11 +2,11 @@
 
 --changeset stodo:16
 INSERT INTO columns (
-    id, name, position, project_id, created_date, last_modified_date, last_modified_by, version
+    id, name, position, project_id, version
 ) VALUES
-    ('282ea613-d683-4891-ac07-baae779685a4', 'To Do', 0, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', NOW(), NOW(), 'stodo', 0),
-    ('596ddab4-1af6-4c3a-967c-d48e64c90880', 'In Progress', 1, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', NOW(), NOW(), 'stodo', 0),
-    ('622adf67-7dce-45c0-9e7d-307a15c91e51', 'Done', 2, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', NOW(), NOW(), 'stodo', 0);
+    ('282ea613-d683-4891-ac07-baae779685a4', 'To Do', 0, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 0),
+    ('596ddab4-1af6-4c3a-967c-d48e64c90880', 'In Progress', 1, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',  0),
+    ('622adf67-7dce-45c0-9e7d-307a15c91e51', 'Done', 2, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 0);
 --rollback DELETE FROM columns WHERE id IN ('282ea613-d683-4891-ac07-baae779685a4','596ddab4-1af6-4c3a-967c-d48e64c90880', '622adf67-7dce-45c0-9e7d-307a15c91e51');
 
 --changeset stodo:11
