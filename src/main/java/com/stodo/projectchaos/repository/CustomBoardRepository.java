@@ -8,10 +8,7 @@ import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -29,7 +26,7 @@ public class CustomBoardRepository {
                 t.description,
                 t.positionInColumn,
                 new com.stodo.projectchaos.model.dto.response.boardtasks.PriorityDTO(p.id, p.priorityValue, p.name, p.color),
-                new com.stodo.projectchaos.model.dto.response.boardtasks.ColumnDTO(c.id, c.name),
+                new com.stodo.projectchaos.model.dto.response.boardtasks.ColumnDTO(c.id, c.name, c.position),
                 new com.stodo.projectchaos.model.dto.response.boardtasks.AssigneeDTO(a.id, a.email),
                 null
             )
@@ -68,6 +65,12 @@ public class CustomBoardRepository {
         // Assign labels to tasks
         tasks.forEach(task ->
                 task.setLabels(taskLabelsMap.getOrDefault(task.getTaskId(), new ArrayList<>()))
+        );
+
+        tasks.sort(
+                Comparator
+                        .comparing(BoardTasksResponseDTO::getPositionInColumn)
+                        .thenComparing(task -> task.getColumn().getPosition())
         );
 
         return tasks;

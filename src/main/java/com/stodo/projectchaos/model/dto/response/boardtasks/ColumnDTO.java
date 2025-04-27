@@ -14,4 +14,5 @@ import java.util.UUID;
 public class ColumnDTO {
     private UUID id;
     private String name;
+    private Short position;
 }
