@@ -49,7 +49,6 @@ class UserEntityIT {
         UserEntity storedUserEntity = em.persistAndFlush(userEntity);
 
         // then
-        assertNotNull(storedUserEntity.getId());
         assertEquals(FIRST_NAME, storedUserEntity.getFirstName());
         assertEquals(LAST_NAME, storedUserEntity.getLastName());
         assertEquals(VALID_EMAIL, storedUserEntity.getEmail());

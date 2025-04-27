@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,8 +17,6 @@ import java.util.UUID;
 @Table(name = "users")
 public class UserEntity extends Auditable {
     @Id
-    private UUID id = UUID.randomUUID();
-
     @Email
     @Column(nullable = false, unique = true)
     private String email;

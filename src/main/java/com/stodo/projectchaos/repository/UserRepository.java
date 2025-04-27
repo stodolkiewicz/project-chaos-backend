@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, UUID> {
+public interface UserRepository extends JpaRepository<UserEntity, String> {
     boolean existsByEmail(String email);
 
     @Query("SELECT u.project.id FROM UserEntity u WHERE u.email = :email")

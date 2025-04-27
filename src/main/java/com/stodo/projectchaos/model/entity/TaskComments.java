@@ -22,7 +22,7 @@ public class TaskComments extends Auditable {
     private TaskEntity task;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "author_id", nullable = false)
+    @JoinColumn(name = "author_email", nullable = false)
     private UserEntity author;
 
     @Column(nullable = false)

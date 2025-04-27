@@ -15,5 +15,5 @@ import java.util.UUID;
 @Embeddable
 public class ProjectUserId implements Serializable {
     private UUID project;
-    private UUID user;
+    private String user;
 }

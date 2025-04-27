@@ -26,7 +26,7 @@ public class ProjectUsersEntity extends Auditable {
 
     @ManyToOne
     @MapsId("user")
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_email")
     private UserEntity user;
 
     @Enumerated(EnumType.STRING)

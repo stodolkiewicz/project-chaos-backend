@@ -27,7 +27,7 @@ public class CustomBoardRepository {
                 t.positionInColumn,
                 new com.stodo.projectchaos.model.dto.response.boardtasks.PriorityDTO(p.id, p.priorityValue, p.name, p.color),
                 new com.stodo.projectchaos.model.dto.response.boardtasks.ColumnDTO(c.id, c.name, c.position),
-                new com.stodo.projectchaos.model.dto.response.boardtasks.AssigneeDTO(a.id, a.email),
+                new com.stodo.projectchaos.model.dto.response.boardtasks.AssigneeDTO(a.email),
                 null
             )
             FROM TaskEntity t

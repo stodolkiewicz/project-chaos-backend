@@ -24,7 +24,7 @@ public class TaskEntity extends Auditable {
     private Short positionInColumn;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assignee_id")
+    @JoinColumn(name = "assignee_email")
     private UserEntity assignee;
 
     // optional = false -> hibernate will make sure that

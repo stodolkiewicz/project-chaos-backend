@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS tasks (
       title VARCHAR(255) NOT NULL,
       description TEXT,
       position_in_column SMALLINT,
-      assignee_id UUID,
+      assignee_email VARCHAR(100),
       column_id UUID,
       priority_id UUID,
 
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     version INTEGER NOT NULL DEFAULT 0,
 
       CONSTRAINT fk_tasks_priority FOREIGN KEY (priority_id) REFERENCES task_priorities(id),
-      CONSTRAINT fk_tasks_users FOREIGN KEY (assignee_id) REFERENCES users(id),
+      CONSTRAINT fk_tasks_users FOREIGN KEY (assignee_email) REFERENCES users(email),
 
       CONSTRAINT fk_tasks_columns FOREIGN KEY (column_id) REFERENCES columns(id)
 );
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS project_backlog (
 CREATE TABLE IF NOT EXISTS task_comments (
     id UUID PRIMARY KEY,
     task_id UUID NOT NULL,
-    author_id UUID NOT NULL,
+    author_email VARCHAR(100) NOT NULL,
     content TEXT NOT NULL,
 
         created_date TIMESTAMP NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS task_comments (
         version INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT fk_comments_tasks FOREIGN KEY (task_id) REFERENCES tasks(id),
-    CONSTRAINT fk_comments_author FOREIGN KEY (author_id) REFERENCES users(id)
+    CONSTRAINT fk_comments_author FOREIGN KEY (author_email) REFERENCES users(email)
 );
 --rollback drop table task_comments;
 
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS attachments (
     task_id UUID NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     file_url TEXT NOT NULL,
-    uploaded_by UUID,
+    uploaded_by VARCHAR(100) NOT NULL,
     uploaded_at TIMESTAMP NOT NULL,
 
         created_date TIMESTAMP NOT NULL,
@@ -119,6 +119,6 @@ CREATE TABLE IF NOT EXISTS attachments (
         version INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT fk_attachments_task FOREIGN KEY (task_id) REFERENCES tasks(id),
-    CONSTRAINT fk_attachments_user FOREIGN KEY (uploaded_by) REFERENCES users(id)
+    CONSTRAINT fk_attachments_user FOREIGN KEY (uploaded_by) REFERENCES users(email)
 );
 --rollback drop table attachments;
