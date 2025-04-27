@@ -21,7 +21,7 @@ public class TaskEntity extends Auditable {
     private String title;
 
     private String description;
-    private Short positionInColumn;
+    private Double positionInColumn;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_email")

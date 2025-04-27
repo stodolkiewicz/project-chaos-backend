@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS tasks (
       id UUID PRIMARY KEY,
       title VARCHAR(255) NOT NULL,
       description TEXT,
-      position_in_column SMALLINT,
+      position_in_column FLOAT8,
       assignee_email VARCHAR(100),
       column_id UUID,
       priority_id UUID,
