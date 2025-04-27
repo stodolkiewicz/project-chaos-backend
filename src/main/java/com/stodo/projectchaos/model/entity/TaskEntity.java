@@ -4,6 +4,8 @@ import com.stodo.projectchaos.model.entity.superclass.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -37,4 +39,7 @@ public class TaskEntity extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "priority_id")
     private TaskPriorityEntity priority;
+
+    @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TaskLabelsEntity> taskLabels = new HashSet<>();
 }

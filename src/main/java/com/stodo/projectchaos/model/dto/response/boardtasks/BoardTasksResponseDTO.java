@@ -14,7 +14,7 @@ public class BoardTasksResponseDTO {
     private UUID taskId;
     private String title;
     private String description;
-    private Short positionInColumn;
+    private Double positionInColumn;
     private PriorityDTO priority;
     private ColumnDTO column;
     private AssigneeDTO assignee;

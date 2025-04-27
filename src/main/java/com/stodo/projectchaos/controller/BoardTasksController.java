@@ -1,6 +1,8 @@
 package com.stodo.projectchaos.controller;
 
+import com.stodo.projectchaos.model.dto.request.CreateTaskRequestDTO;
 import com.stodo.projectchaos.model.dto.response.boardtasks.BoardTasksResponseDTO;
+import com.stodo.projectchaos.model.dto.response.createtask.CreateTaskResponseDTO;
 import com.stodo.projectchaos.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,5 +20,14 @@ public class BoardTasksController {
     @GetMapping("/{projectId}/tasks")
     public ResponseEntity<List<BoardTasksResponseDTO>> getBoardTasks(@PathVariable UUID projectId) {
         return ResponseEntity.ok(taskService.getBoardTasks(projectId));
+    }
+
+    @PostMapping("/{projectId}/tasks")
+    public ResponseEntity<CreateTaskResponseDTO> createTask(
+            @PathVariable UUID projectId,
+            @RequestBody CreateTaskRequestDTO requestDTO
+    ) {
+        CreateTaskResponseDTO responseDTO = taskService.createTask(requestDTO, projectId);
+        return ResponseEntity.ok(responseDTO);
     }
 }
