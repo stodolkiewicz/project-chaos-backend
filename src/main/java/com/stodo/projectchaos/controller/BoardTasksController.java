@@ -30,4 +30,10 @@ public class BoardTasksController {
         CreateTaskResponseDTO responseDTO = taskService.createTask(requestDTO, projectId);
         return ResponseEntity.ok(responseDTO);
     }
+
+    @DeleteMapping("/{projectId}/tasks/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID taskId) {
+        taskService.deleteTask(taskId);
+        return ResponseEntity.noContent().build();
+    }
 }
