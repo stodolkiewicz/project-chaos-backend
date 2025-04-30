@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     @Query("SELECT new com.stodo.projectchaos.model.dto.response.ProjectUserQueryResponseDTO(u.email) " +
            "FROM UserEntity u " +
-           "JOIN ProjectUsersEntity pu ON pu.user.id = u.email " +
+           "JOIN u.projectUsers pu " +
            "WHERE pu.project.id = :projectId")
     List<ProjectUserQueryResponseDTO> findProjectUsersByProjectId(UUID projectId);
 

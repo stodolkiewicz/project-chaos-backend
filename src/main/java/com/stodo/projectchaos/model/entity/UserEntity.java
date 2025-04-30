@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Email;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -42,4 +43,7 @@ public class UserEntity extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "default_project_id")
     private ProjectEntity project;
+
+    @OneToMany(mappedBy = "user")
+    private Set<ProjectUsersEntity> projectUsers;
 }
