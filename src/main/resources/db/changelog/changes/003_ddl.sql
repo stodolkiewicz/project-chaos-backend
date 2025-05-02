@@ -17,12 +17,14 @@ CREATE TABLE IF NOT EXISTS columns (
 --changeset stodo:8
 CREATE TABLE IF NOT EXISTS task_priorities (
     id UUID PRIMARY KEY,
+    project_id UUID NOT NULL,
     priority_value SMALLINT NOT NULL,
     name VARCHAR(50) NOT NULL,
     color VARCHAR(7) NOT NULL,
     CHECK (priority_value BETWEEN 1 AND 5),
+    version INTEGER NOT NULL DEFAULT 0,
 
-    version INTEGER NOT NULL DEFAULT 0
+    CONSTRAINT fk_tasks_priorities_projects FOREIGN KEY (project_id) REFERENCES projects(id)
 )
 --rollback drop table task_priorities;
 

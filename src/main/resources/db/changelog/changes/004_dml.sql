@@ -11,11 +11,11 @@ INSERT INTO columns (
 
 --changeset stodo:11
 INSERT INTO task_priorities (
-    id, priority_value, name, color, version
+    id, priority_value, name, color, project_id, version
 ) VALUES
-    ('d9a88e6d-e06c-4b50-9c89-11c0f2f7ef6f', 1, 'Low', '#A3BE8C', 0),
-    ('db7edc9e-96e8-475d-a691-6f5365663a7f', 3, 'Medium', '#EBCB8B', 0),
-    ('87b439e5-00a3-4674-b77c-e60a24ff76ca', 5, 'High', '#BF616A', 0);
+    ('d9a88e6d-e06c-4b50-9c89-11c0f2f7ef6f', 1, 'Low', '#A3BE8C', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 0),
+    ('db7edc9e-96e8-475d-a691-6f5365663a7f', 3, 'Medium', '#EBCB8B', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 0),
+    ('87b439e5-00a3-4674-b77c-e60a24ff76ca', 5, 'High', '#BF616A', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 0);
 --rollback DELETE FROM task_priorities WHERE id IN (
 --rollback    'd9a88e6d-e06c-4b50-9c89-11c0f2f7ef6f',
 --rollback    'db7edc9e-96e8-475d-a691-6f5365663a7f',
