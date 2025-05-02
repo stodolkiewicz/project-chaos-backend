@@ -2,11 +2,15 @@ package com.stodo.projectchaos.service;
 
 import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.response.UserProjectsResponseDTO;
-import com.stodo.projectchaos.repository.CustomProjectRepository;
-import com.stodo.projectchaos.repository.UserRepository;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
-import org.junit.jupiter.api.BeforeEach;
+import com.stodo.projectchaos.repository.CustomProjectRepository;
+import com.stodo.projectchaos.repository.ProjectRepository;
+import com.stodo.projectchaos.repository.UserRepository;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.List;
@@ -14,20 +18,21 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
 
-    private ProjectService projectService;
+    @Mock
     private CustomProjectRepository customProjectRepository;
+    @Mock
+    private ProjectRepository projectRepository;
+    @Mock
     private UserRepository userRepository;
 
-    @BeforeEach
-    void setUp() {
-        customProjectRepository = mock(CustomProjectRepository.class);
-        userRepository = mock(UserRepository.class);
-        projectService = new ProjectService(customProjectRepository, userRepository);
-    }
+    @InjectMocks
+    private ProjectService projectService;
+
 
     @Test
     void shouldReturnUserProjects() {
