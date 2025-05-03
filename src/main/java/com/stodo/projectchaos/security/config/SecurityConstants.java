@@ -3,8 +3,8 @@ package com.stodo.projectchaos.security.config;
 import java.util.List;
 
 public final class SecurityConstants {
-    public static final int JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS = 3600; // 1 hour
-    public static final int JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS = 21600; // 6 hours
+    public static final int JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS = 36000; // 10 hour
+    public static final int JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS = 216000; // 60 hours
 
     public static final String ROLE_CLAIM_NAME = "role";
     public static final String TOKEN_TYPE_CLAIM_NAME = "tokenType";

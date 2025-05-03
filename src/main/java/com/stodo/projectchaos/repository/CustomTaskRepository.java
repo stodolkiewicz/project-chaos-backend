@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.repository;
 
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.model.dto.request.CreateTaskRequestDTO;
 import com.stodo.projectchaos.model.dto.response.createtask.CreateTaskResponseDTO;
@@ -45,13 +46,9 @@ public class CustomTaskRepository {
     public CreateTaskResponseDTO createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
         String email = requestDTO.assigneeEmail();
 
-        UserEntity userEntity = userRepository.findByEmail(email)
-                .orElseThrow(() -> EntityNotFoundException.builder()
-                        .entityType("UserEntity")
-                        .identifier("email", email)
-                        .build());
+        UserEntity userEntity = userRepository.findByEmail(email).orElse(null);
 
-        TaskPriorityEntity taskPriorityEntity = taskPriorityRepository.findById(requestDTO.priorityId()).orElseThrow(() ->
+        TaskPriorityEntity taskPriorityEntity = requestDTO.priorityId() == null ? null : taskPriorityRepository.findById(requestDTO.priorityId()).orElseThrow(() ->
                 EntityNotFoundException.builder()
                         .entityType("TaskPriority")
                         .identifier("id", requestDTO.priorityId().toString())

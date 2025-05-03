@@ -16,13 +16,14 @@ public record CreateTaskResponseDTO(
         UUID priorityId,
         Set<String> labels
 ) {
+
     public static CreateTaskResponseDTO fromEntity(TaskEntity taskEntity) {
         return new CreateTaskResponseDTO(
                 taskEntity.getId(),
                 taskEntity.getTitle(),
                 taskEntity.getDescription(),
                 taskEntity.getPositionInColumn(),
-                taskEntity.getAssignee().getEmail(),
+                taskEntity.getAssignee() == null ? null : taskEntity.getAssignee().getEmail(),
                 taskEntity.getColumn() != null ? taskEntity.getColumn().getId() : null,
                 taskEntity.getPriority() != null ? taskEntity.getPriority().getId() : null,
                 taskEntity.getTaskLabels() != null
