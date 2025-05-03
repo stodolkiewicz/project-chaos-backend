@@ -33,7 +33,7 @@ public class CustomBoardRepository {
                 null
             )
             FROM TaskEntity t
-            JOIN t.priority p
+            LEFT JOIN t.priority p
             JOIN t.column c
             LEFT JOIN t.assignee a
             WHERE c.project.id = :projectId
