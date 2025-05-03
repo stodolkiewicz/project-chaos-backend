@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.repository;
 
-import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -19,7 +19,7 @@ public class CustomProjectRepository {
     public List<UserProjectQueryResponseDTO> findProjectsByUserEmail(String email) {
         List<UserProjectQueryResponseDTO> userProjectQueryResponseDTOList =
                 em.createQuery("""
-                        select new com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO(
+                        select new com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO(
                             pu.project.id,
                             pu.project.name,
                             pu.project.description,

@@ -1,7 +1,7 @@
 package com.stodo.projectchaos.repository;
 
-import com.stodo.projectchaos.model.dto.response.boardtasks.BoardTasksResponseDTO;
-import com.stodo.projectchaos.model.dto.response.boardtasks.LabelDTO;
+import com.stodo.projectchaos.model.dto.task.board.response.BoardTasksResponseDTO;
+import com.stodo.projectchaos.model.dto.task.board.response.LabelDTO;
 import com.stodo.projectchaos.model.entity.LabelEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -21,14 +21,14 @@ public class CustomBoardRepository {
     public List<BoardTasksResponseDTO> findBoardTasks(UUID projectId) {
         // Data for tasks (without labels)
         List<BoardTasksResponseDTO> tasks = em.createQuery("""
-            SELECT new com.stodo.projectchaos.model.dto.response.boardtasks.BoardTasksResponseDTO(
+            SELECT new com.stodo.projectchaos.model.dto.task.board.response.BoardTasksResponseDTO(
                 t.id,
                 t.title,
                 t.description,
                 t.positionInColumn,
-                new com.stodo.projectchaos.model.dto.response.boardtasks.PriorityDTO(p.id, p.priorityValue, p.name, p.color),
-                new com.stodo.projectchaos.model.dto.response.boardtasks.ColumnDTO(c.id, c.name, c.position),
-                new com.stodo.projectchaos.model.dto.response.boardtasks.AssigneeDTO(a.email),
+                new com.stodo.projectchaos.model.dto.task.board.response.PriorityDTO(p.id, p.priorityValue, p.name, p.color),
+                new com.stodo.projectchaos.model.dto.task.board.response.ColumnDTO(c.id, c.name, c.position),
+                new com.stodo.projectchaos.model.dto.task.board.response.AssigneeDTO(a.email),
                 null
             )
             FROM TaskEntity t

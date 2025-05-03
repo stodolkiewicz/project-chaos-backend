@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.controller;
 
-import com.stodo.projectchaos.model.dto.response.ColumnResponseDTO;
+import com.stodo.projectchaos.model.dto.column.response.ColumnResponseDTO;
 import com.stodo.projectchaos.service.ColumnService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

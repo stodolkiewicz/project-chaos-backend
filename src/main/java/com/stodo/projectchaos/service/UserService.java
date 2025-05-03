@@ -1,9 +1,9 @@
 package com.stodo.projectchaos.service;
 
-import com.stodo.projectchaos.model.dto.response.ProjectUserQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.user.projectusers.query.ProjectUserQueryResponseDTO;
 import com.stodo.projectchaos.repository.UserRepository;
-import com.stodo.projectchaos.mapper.ProjectUserMapper;
-import com.stodo.projectchaos.model.dto.response.ProjectUsersResponseDTO;
+import com.stodo.projectchaos.model.dto.user.projectusers.ProjectUserMapper;
+import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersResponseDTO;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

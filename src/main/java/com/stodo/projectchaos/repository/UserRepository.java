@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.repository;
 
-import com.stodo.projectchaos.model.dto.response.ProjectUserQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.user.projectusers.query.ProjectUserQueryResponseDTO;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import jakarta.validation.constraints.Email;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,7 +20,7 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     @Query("SELECT u.project.id FROM UserEntity u WHERE u.email = :email")
     Optional<UUID> findDefaultProjectIdByEmail(@Email String email);
 
-    @Query("SELECT new com.stodo.projectchaos.model.dto.response.ProjectUserQueryResponseDTO(u.email) " +
+    @Query("SELECT new com.stodo.projectchaos.model.dto.user.projectusers.query.ProjectUserQueryResponseDTO(u.email) " +
            "FROM UserEntity u " +
            "JOIN u.projectUsers pu " +
            "WHERE pu.project.id = :projectId")

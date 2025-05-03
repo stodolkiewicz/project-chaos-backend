@@ -1,7 +1,7 @@
 package com.stodo.projectchaos.service;
 
-import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
-import com.stodo.projectchaos.model.dto.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.repository.CustomProjectRepository;
 import com.stodo.projectchaos.repository.ProjectRepository;

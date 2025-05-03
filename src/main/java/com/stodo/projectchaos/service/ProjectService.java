@@ -1,12 +1,11 @@
 package com.stodo.projectchaos.service;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
-import com.stodo.projectchaos.mapper.ProjectMapper;
-import com.stodo.projectchaos.model.dto.response.DefaultProjectResponseDTO;
-import com.stodo.projectchaos.model.dto.response.ProjectResponseDTO;
-import com.stodo.projectchaos.model.dto.response.UserProjectQueryResponseDTO;
-import com.stodo.projectchaos.model.dto.response.UserProjectsResponseDTO;
-import com.stodo.projectchaos.model.entity.ProjectEntity;
+import com.stodo.projectchaos.model.dto.project.byid.response.ProjectMapper;
+import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultProjectResponseDTO;
+import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.repository.CustomProjectRepository;
 import com.stodo.projectchaos.repository.ProjectRepository;
 import com.stodo.projectchaos.repository.UserRepository;

@@ -1,7 +1,7 @@
 package com.stodo.projectchaos.service;
 
-import com.stodo.projectchaos.mapper.ColumnMapper;
-import com.stodo.projectchaos.model.dto.response.ColumnResponseDTO;
+import com.stodo.projectchaos.model.dto.column.response.ColumnMapper;
+import com.stodo.projectchaos.model.dto.column.response.ColumnResponseDTO;
 import com.stodo.projectchaos.repository.ColumnRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

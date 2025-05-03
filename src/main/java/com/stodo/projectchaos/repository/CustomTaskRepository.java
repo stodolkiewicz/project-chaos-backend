@@ -1,9 +1,9 @@
 package com.stodo.projectchaos.repository;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
-import com.stodo.projectchaos.model.dto.request.createtask.CreateTaskRequestDTO;
-import com.stodo.projectchaos.model.dto.request.createtask.LabelDTO;
-import com.stodo.projectchaos.model.dto.response.createtask.CreateTaskResponseDTO;
+import com.stodo.projectchaos.model.dto.task.create.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.model.dto.task.create.request.LabelDTO;
+import com.stodo.projectchaos.model.dto.task.create.response.CreateTaskResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;

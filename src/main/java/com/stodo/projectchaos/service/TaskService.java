@@ -1,8 +1,8 @@
 package com.stodo.projectchaos.service;
 
-import com.stodo.projectchaos.model.dto.request.createtask.CreateTaskRequestDTO;
-import com.stodo.projectchaos.model.dto.response.boardtasks.BoardTasksResponseDTO;
-import com.stodo.projectchaos.model.dto.response.createtask.CreateTaskResponseDTO;
+import com.stodo.projectchaos.model.dto.task.create.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.model.dto.task.board.response.BoardTasksResponseDTO;
+import com.stodo.projectchaos.model.dto.task.create.response.CreateTaskResponseDTO;
 import com.stodo.projectchaos.repository.CustomBoardRepository;
 import com.stodo.projectchaos.repository.CustomTaskRepository;
 import com.stodo.projectchaos.repository.TaskRepository;

@@ -1,9 +1,7 @@
 package com.stodo.projectchaos.service;
 
-import com.stodo.projectchaos.mapper.TaskPriorityMapper;
-import com.stodo.projectchaos.model.dto.response.boardtasks.PriorityDTO;
-import com.stodo.projectchaos.model.dto.response.taskpriorities.TaskPriorityResponseDTO;
-import com.stodo.projectchaos.model.entity.TaskPriorityEntity;
+import com.stodo.projectchaos.model.dto.taskpriority.response.TaskPriorityMapper;
+import com.stodo.projectchaos.model.dto.taskpriority.response.TaskPriorityResponseDTO;
 import com.stodo.projectchaos.repository.TaskPriorityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

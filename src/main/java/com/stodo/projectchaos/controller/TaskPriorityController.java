@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.controller;
 
-import com.stodo.projectchaos.model.dto.response.taskpriorities.TaskPriorityResponseDTO;
+import com.stodo.projectchaos.model.dto.taskpriority.response.TaskPriorityResponseDTO;
 import com.stodo.projectchaos.service.TaskPriorityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.controller;
 
-import com.stodo.projectchaos.model.dto.response.ProjectUsersResponseDTO;
+import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersResponseDTO;
 import com.stodo.projectchaos.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
