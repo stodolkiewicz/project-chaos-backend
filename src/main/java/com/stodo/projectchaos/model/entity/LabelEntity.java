@@ -24,4 +24,11 @@ public class LabelEntity extends Versioned {
 
     @OneToMany(mappedBy = "label", fetch = FetchType.LAZY)
     private Set<TaskLabelsEntity> taskLabels = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "project_id", nullable = false)
+    private ProjectEntity project;
+
+    @Column(nullable = false)
+    private String color;
 }

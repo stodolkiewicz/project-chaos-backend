@@ -9,5 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface LabelRepository extends JpaRepository<LabelEntity, UUID> {
-    Optional<LabelEntity> findByName(String name);
+    Optional<LabelEntity> findByNameAndProjectIdAndColor(String name, UUID ProjectId, String color);
 }

@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.controller;
 
-import com.stodo.projectchaos.model.dto.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.model.dto.request.createtask.CreateTaskRequestDTO;
 import com.stodo.projectchaos.model.dto.response.boardtasks.BoardTasksResponseDTO;
 import com.stodo.projectchaos.model.dto.response.createtask.CreateTaskResponseDTO;
 import com.stodo.projectchaos.service.TaskService;

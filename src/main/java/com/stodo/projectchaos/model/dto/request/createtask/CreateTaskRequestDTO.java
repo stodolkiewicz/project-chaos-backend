@@ -1,8 +1,8 @@
-package com.stodo.projectchaos.model.dto.request;
+package com.stodo.projectchaos.model.dto.request.createtask;
 
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 public record CreateTaskRequestDTO (
@@ -16,6 +16,6 @@ public record CreateTaskRequestDTO (
         // no columnId -> Task should be created in project_backlog
         UUID columnId,
         UUID priorityId,
-        Set<String> labels
+        List<LabelDTO> labels
         ) {
 }

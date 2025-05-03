@@ -1,8 +1,8 @@
 package com.stodo.projectchaos.repository;
 
-import com.nimbusds.oauth2.sdk.util.StringUtils;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
-import com.stodo.projectchaos.model.dto.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.model.dto.request.createtask.CreateTaskRequestDTO;
+import com.stodo.projectchaos.model.dto.request.createtask.LabelDTO;
 import com.stodo.projectchaos.model.dto.response.createtask.CreateTaskResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import jakarta.transaction.Transactional;
@@ -73,15 +73,16 @@ public class CustomTaskRepository {
 
         TaskEntity savedTaskEntity = taskRepository.save(taskEntityToBeSaved);
 
+        ProjectEntity projectEntity = projectRepository.findById(projectId).orElseThrow(() ->
+                EntityNotFoundException.builder()
+                        .entityType("Project")
+                        .identifier("id", projectId.toString())
+                        .build()
+        );
+
+        // todo - check this when project_backlog is worked on
         // if columnId is null, create a project_backlog
         if(requestDTO.columnId() == null) {
-            ProjectEntity projectEntity = projectRepository.findById(projectId).orElseThrow(() ->
-                    EntityNotFoundException.builder()
-                            .entityType("Project")
-                            .identifier("id", projectId.toString())
-                            .build()
-            );
-
             ProjectBacklogEntity projectBacklogEntity = new ProjectBacklogEntity();
             projectBacklogEntity.setProject(projectEntity);
             projectBacklogEntity.setTask(savedTaskEntity);
@@ -92,14 +93,17 @@ public class CustomTaskRepository {
         // save the labels
         if (requestDTO.labels() != null && !requestDTO.labels().isEmpty()) {
             Set<TaskLabelsEntity> taskLabels = new HashSet<>();
-            for (String rawLabelName : requestDTO.labels()) {
-                String normalizedLabelName = rawLabelName.trim().toLowerCase();
+            for (LabelDTO labelDTO : requestDTO.labels()) {
+                String normalizedLabelName = labelDTO.name().trim().toLowerCase();
+                String color = labelDTO.color();
 
-                LabelEntity label = labelRepository.findByName(normalizedLabelName)
+                LabelEntity label = labelRepository.findByNameAndProjectIdAndColor(normalizedLabelName, projectId, color)
                         .orElseGet(() -> {
                             LabelEntity newLabel = LabelEntity.builder()
                                     .id(UUID.randomUUID())
                                     .name(normalizedLabelName)
+                                    .color(color)
+                                    .project(projectEntity)
                                     .build();
                             return labelRepository.save(newLabel);
                         });
