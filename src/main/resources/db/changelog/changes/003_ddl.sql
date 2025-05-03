@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS labels (
     version INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT fk_labels_projects FOREIGN KEY (project_id) REFERENCES projects(id),
-    CONSTRAINT unique_label_per_project_and_color UNIQUE (name, project_id, color)
+    CONSTRAINT unique_label_per_project UNIQUE (name, project_id)
 );
 --rollback drop table labels;
 
