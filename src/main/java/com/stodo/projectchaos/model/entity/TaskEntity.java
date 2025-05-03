@@ -36,7 +36,7 @@ public class TaskEntity extends Auditable {
     @JoinColumn(name = "column_id", nullable = false)
     private ColumnEntity column;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_id")
     private TaskPriorityEntity priority;
 
