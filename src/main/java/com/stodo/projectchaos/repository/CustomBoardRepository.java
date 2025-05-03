@@ -1,6 +1,5 @@
 package com.stodo.projectchaos.repository;
 
-import com.stodo.projectchaos.mapper.LabelMapper;
 import com.stodo.projectchaos.model.dto.response.boardtasks.BoardTasksResponseDTO;
 import com.stodo.projectchaos.model.dto.response.boardtasks.LabelDTO;
 import com.stodo.projectchaos.model.entity.LabelEntity;
@@ -59,7 +58,10 @@ public class CustomBoardRepository {
                         tuple -> (UUID) tuple.get("taskId"),
                         // generates value for map - list of labels
                         Collectors.mapping(
-                                tuple -> LabelMapper.INSTANCE.toLabelDTO((LabelEntity)tuple.get(1)),
+                                tuple -> {
+                                    LabelEntity e = (LabelEntity) tuple.get(1);
+                                    return new LabelDTO(e.getId(), e.getName(), e.getColor());
+                                },
                                 Collectors.toList()
                         )
                 ));

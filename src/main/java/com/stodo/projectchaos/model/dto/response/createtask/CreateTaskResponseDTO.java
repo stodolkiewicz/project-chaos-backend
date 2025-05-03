@@ -2,7 +2,7 @@ package com.stodo.projectchaos.model.dto.response.createtask;
 
 import com.stodo.projectchaos.model.entity.TaskEntity;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,7 +14,7 @@ public record CreateTaskResponseDTO(
         String assigneeEmail,
         UUID columnId,
         UUID priorityId,
-        Set<String> labels
+        List<LabelDTO> labels
 ) {
 
     public static CreateTaskResponseDTO fromEntity(TaskEntity taskEntity) {
@@ -28,9 +28,9 @@ public record CreateTaskResponseDTO(
                 taskEntity.getPriority() != null ? taskEntity.getPriority().getId() : null,
                 taskEntity.getTaskLabels() != null
                         ? taskEntity.getTaskLabels().stream()
-                        .map(taskLabel -> taskLabel.getLabel().getName())
-                        .collect(Collectors.toSet())
-                        : Set.of()
+                        .map(taskLabel -> new LabelDTO(taskLabel.getLabel().getName(), taskLabel.getLabel().getColor()) )
+                        .collect(Collectors.toList())
+                        : List.of()
         );
     }
 }
