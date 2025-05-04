@@ -1,5 +1,7 @@
 package com.stodo.projectchaos.controller;
 
+import com.stodo.projectchaos.model.dto.task.columnupdate.request.UpdateTaskColumnRequestDTO;
+import com.stodo.projectchaos.model.dto.task.columnupdate.response.UpdateTaskColumnResponseDTO;
 import com.stodo.projectchaos.model.dto.task.create.request.CreateTaskRequestDTO;
 import com.stodo.projectchaos.model.dto.task.board.response.BoardTasksResponseDTO;
 import com.stodo.projectchaos.model.dto.task.create.response.CreateTaskResponseDTO;
@@ -37,4 +39,14 @@ public class BoardTasksController {
         taskService.deleteTask(taskId);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{projectId}/tasks/{taskId}")
+        public ResponseEntity<UpdateTaskColumnResponseDTO> updateTaskColumn (
+            @PathVariable UUID projectId,
+            @PathVariable UUID taskId,
+            @Valid @RequestBody UpdateTaskColumnRequestDTO requestDTO)
+    {
+            UpdateTaskColumnResponseDTO updateTaskColumnResponseDTO = taskService.updateTaskColumn(requestDTO, taskId);
+            return ResponseEntity.ok(updateTaskColumnResponseDTO);
+        }
 }
