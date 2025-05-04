@@ -65,6 +65,7 @@ public class TaskService {
                         .build());
 
         task.setColumn(column);
+        task.setPositionInColumn(requestDTO.positionInColumn());
 
         TaskEntity savedTask = taskRepository.save(task);
 
