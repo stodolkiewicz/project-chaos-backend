@@ -35,8 +35,8 @@ public class BoardTasksController {
     }
 
     @DeleteMapping("/{projectId}/tasks/{taskId}")
-    public ResponseEntity<Void> deleteTask(@PathVariable UUID taskId) {
-        taskService.deleteTask(taskId);
+    public ResponseEntity<Void> deleteTask(@PathVariable UUID taskId, @PathVariable UUID projectId) {
+        taskService.deleteTask(projectId, taskId);
         return ResponseEntity.noContent().build();
     }
 

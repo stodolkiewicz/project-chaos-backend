@@ -9,10 +9,7 @@ import com.stodo.projectchaos.model.dto.task.columnupdate.request.UpdateTaskColu
 import com.stodo.projectchaos.model.dto.task.columnupdate.response.UpdateTaskColumnResponseDTO;
 import com.stodo.projectchaos.model.entity.ColumnEntity;
 import com.stodo.projectchaos.model.entity.TaskEntity;
-import com.stodo.projectchaos.repository.ColumnRepository;
-import com.stodo.projectchaos.repository.CustomBoardRepository;
-import com.stodo.projectchaos.repository.CustomTaskRepository;
-import com.stodo.projectchaos.repository.TaskRepository;
+import com.stodo.projectchaos.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +26,7 @@ public class TaskService {
     private final CustomTaskRepository customTaskRepository;
     private final TaskRepository taskRepository;
     private final ColumnRepository columnRepository;
+    private final LabelRepository labelRepository;
 
     private static final Double MINIMUM_DISTANCE_BETWEEN_TASKS = 0.000001;
 
@@ -40,8 +38,9 @@ public class TaskService {
         return customTaskRepository.createTask(requestDTO, projectId);
     }
 
-    public void deleteTask(UUID taskId) {
+    public void deleteTask(UUID projectId, UUID taskId) {
         taskRepository.deleteById(taskId);
+        labelRepository.deleteUnusedLabels(projectId);
     }
 
     public UpdateTaskColumnResponseDTO updateTaskColumn(UpdateTaskColumnRequestDTO requestDTO, UUID taskId) {

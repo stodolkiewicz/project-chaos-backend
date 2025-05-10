@@ -2,7 +2,9 @@ package com.stodo.projectchaos.repository;
 
 import com.stodo.projectchaos.model.entity.LabelEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,4 +18,16 @@ public interface LabelRepository extends JpaRepository<LabelEntity, UUID> {
             "FROM LabelEntity l " +
             "WHERE l.project.id = :projectId")
     List<LabelEntity> findProjectLabelsByProjectId(UUID projectId);
+
+    @Modifying
+    @Query("""
+    DELETE FROM LabelEntity l
+    WHERE l.project.id = :projectId
+    AND NOT EXISTS (
+        SELECT tl FROM TaskLabelsEntity tl
+        WHERE tl.label = l
+    )
+    """
+    )
+    void deleteUnusedLabels(@Param("projectId") UUID projectId);
 }
