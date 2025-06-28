@@ -29,13 +29,15 @@ public class ProjectService {
     private final UserRepository userRepository;
     private final ProjectUsersRepository projectUsersRepository;
     private final ColumnRepository columnRepository;
+    private final TaskPriorityRepository taskPriorityRepository;
 
-    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository) {
+    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository) {
         this.customProjectRepository = customProjectRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.projectUsersRepository = projectUsersRepository;
         this.columnRepository = columnRepository;
+        this.taskPriorityRepository = taskPriorityRepository;
     }
 
     @Transactional
@@ -51,9 +53,32 @@ public class ProjectService {
         addProjectAdmin(email, savedProjectEntity, userEntity);
         saveColumns(createProjectRequestDTO, savedProjectEntity);
 
-        // todo - add default task priorities
+        saveDefaultTaskPriorities(savedProjectEntity);
 
         return new CreateProjectResponseDTO(savedProjectEntity.getId(), savedProjectEntity.getName());
+    }
+
+    private void saveDefaultTaskPriorities(ProjectEntity savedProjectEntity) {
+        TaskPriorityEntity taskPriorityEntityLow = new TaskPriorityEntity();
+        taskPriorityEntityLow.setProject(savedProjectEntity);
+        taskPriorityEntityLow.setName("Low");
+        taskPriorityEntityLow.setPriorityValue((short) 1);
+        taskPriorityEntityLow.setColor("#A3BE8C");
+        taskPriorityRepository.save(taskPriorityEntityLow);
+
+        TaskPriorityEntity taskPriorityEntityMedium = new TaskPriorityEntity();
+        taskPriorityEntityMedium.setProject(savedProjectEntity);
+        taskPriorityEntityMedium.setName("Medium");
+        taskPriorityEntityMedium.setPriorityValue((short) 3);
+        taskPriorityEntityMedium.setColor("#EBCB8B");
+        taskPriorityRepository.save(taskPriorityEntityMedium);
+
+        TaskPriorityEntity taskPriorityEntityHigh = new TaskPriorityEntity();
+        taskPriorityEntityHigh.setProject(savedProjectEntity);
+        taskPriorityEntityHigh.setName("High");
+        taskPriorityEntityHigh.setPriorityValue((short) 5);
+        taskPriorityEntityHigh.setColor("#BF616A");
+        taskPriorityRepository.save(taskPriorityEntityHigh);
     }
 
     private ProjectEntity saveProject(CreateProjectRequestDTO createProjectRequestDTO) {
