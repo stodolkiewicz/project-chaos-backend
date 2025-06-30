@@ -56,3 +56,9 @@ Complicates the backend a little bit, but requires no reindexing.
 ## Decision
 Decision - The position_in_column floating point number field in the Task table.  
 Why? - Break of reindexing should be super rare in normal usage.
+
+## Update 30.06.2025
+- minimal_distance field should be hardcoded on the backend.- 
+- backend should get 2 nearest neighbours' position in columns.
+- when task is moved, the distance between nearest neighbours should be computed and compared to minimal distance.
+- If minimal distance < distance between nearest neighbours -> do reindexing in the target column
