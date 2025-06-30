@@ -4,7 +4,6 @@ import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectMapper;
 import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectResponseDTO;
-import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
@@ -56,6 +55,10 @@ public class ProjectService {
         saveDefaultTaskPriorities(savedProjectEntity);
 
         return new CreateProjectResponseDTO(savedProjectEntity.getId(), savedProjectEntity.getName());
+    }
+
+    public Optional<UUID> findDefaultProjectIdByEmail(String email) {
+        return userRepository.findDefaultProjectIdByEmail(email);
     }
 
     private void saveDefaultTaskPriorities(ProjectEntity savedProjectEntity) {
@@ -121,12 +124,6 @@ public class ProjectService {
             userEntity.setProject(savedProjectEntity);
             userRepository.save(userEntity);
         }
-    }
-
-    public DefaultProjectResponseDTO getDefaultProjectForUser(String email) {
-        return customProjectRepository.getDefaultProjectForUser(email)
-                .map(DefaultProjectResponseDTO::of)
-                .orElse(DefaultProjectResponseDTO.empty());
     }
 
     public ProjectResponseDTO findProjectById(UUID projectId) {

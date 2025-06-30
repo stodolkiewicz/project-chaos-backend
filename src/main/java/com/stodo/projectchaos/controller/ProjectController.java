@@ -2,7 +2,7 @@ package com.stodo.projectchaos.controller;
 
 import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectResponseDTO;
-import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultProjectResponseDTO;
+import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultProjectIdResponseDTO;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.service.ProjectService;
@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -43,10 +44,11 @@ public class ProjectController {
 
     // not really used
     @GetMapping("/default")
-    public DefaultProjectResponseDTO getDefaultProject(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<DefaultProjectIdResponseDTO> getDefaultProjectId(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
-
-        return projectService.getDefaultProjectForUser(email);
+        Optional<UUID> defaultProjectId = projectService.findDefaultProjectIdByEmail(email);
+        
+        return ResponseEntity.ok(new DefaultProjectIdResponseDTO(defaultProjectId.orElse(null)));
     }
 
 }
