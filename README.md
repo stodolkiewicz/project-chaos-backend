@@ -10,7 +10,7 @@ docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER
 
 ## Current Database Schema
 As of 27.04.2025
-![Alt text](docs/db_schema.png)
+![Alt text](docs/images/db_schema.png)
 
 tasks.column_id == null ? -> task is in project_backlog
 
