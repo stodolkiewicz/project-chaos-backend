@@ -7,6 +7,8 @@ import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectRes
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.query.SimpleProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.response.SimpleProjectsResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.repository.*;
@@ -48,7 +50,8 @@ public class ProjectService {
                         .entityType("UserEntity")
                         .build());
 
-        setDefaultProjectIdForUserIfNotExists(email, userEntity, savedProjectEntity);
+        setDefaultProjectIdForUser(userEntity, savedProjectEntity);
+
         addProjectAdmin(email, savedProjectEntity, userEntity);
         saveColumns(createProjectRequestDTO, savedProjectEntity);
 
@@ -117,13 +120,9 @@ public class ProjectService {
         columnRepository.saveAll(columnEntities);
     }
 
-    private void setDefaultProjectIdForUserIfNotExists(String email, UserEntity userEntity, ProjectEntity savedProjectEntity) {
-        Predicate<String> defaultProjectDoesNotExistForUser = emailArg -> !userRepository.existsDefaultProjectByEmail(emailArg);
-
-        if (defaultProjectDoesNotExistForUser.test(email)) {
+    private void setDefaultProjectIdForUser(UserEntity userEntity, ProjectEntity savedProjectEntity) {
             userEntity.setProject(savedProjectEntity);
             userRepository.save(userEntity);
-        }
     }
 
     public ProjectResponseDTO findProjectById(UUID projectId) {
@@ -169,5 +168,10 @@ public class ProjectService {
 
             });
         });
+    }
+
+    public SimpleProjectsResponseDTO findSimpleProjectsByUserEmail(String email) {
+        List<SimpleProjectQueryResponseDTO> projects = customProjectRepository.findSimpleProjectsByUserEmail(email);
+        return new SimpleProjectsResponseDTO(projects);
     }
 }

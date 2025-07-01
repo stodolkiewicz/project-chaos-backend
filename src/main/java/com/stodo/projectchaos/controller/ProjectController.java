@@ -5,6 +5,7 @@ import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectRes
 import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultProjectIdResponseDTO;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.response.SimpleProjectsResponseDTO;
 import com.stodo.projectchaos.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -42,13 +43,18 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.findProjectsByUserEmail(email));
     }
 
-    // not really used
     @GetMapping("/default")
     public ResponseEntity<DefaultProjectIdResponseDTO> getDefaultProjectId(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
         Optional<UUID> defaultProjectId = projectService.findDefaultProjectIdByEmail(email);
         
         return ResponseEntity.ok(new DefaultProjectIdResponseDTO(defaultProjectId.orElse(null)));
+    }
+
+    @GetMapping("/simple")
+    public ResponseEntity<SimpleProjectsResponseDTO> getSimpleProjectList(@AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        return ResponseEntity.ok(projectService.findSimpleProjectsByUserEmail(email));
     }
 
 }
