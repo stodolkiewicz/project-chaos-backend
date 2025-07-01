@@ -1,18 +1,18 @@
 package com.stodo.projectchaos.controller;
 
 import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersResponseDTO;
+import com.stodo.projectchaos.model.dto.user.update.request.ChangeDefaultProjectRequestDTO;
 import com.stodo.projectchaos.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -22,4 +22,12 @@ public class UserController {
         return ResponseEntity.ok(userService.findProjectUsersByProjectId(projectId));
     }
 
+    @PatchMapping("/default-project")
+    public ResponseEntity<Void> changeDefaultProject(
+            @RequestBody ChangeDefaultProjectRequestDTO request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        userService.changeDefaultProject(request, email);
+        return ResponseEntity.ok().build();
+    }
 }
