@@ -9,7 +9,7 @@ INSERT INTO columns (
     ('622adf67-7dce-45c0-9e7d-307a15c91e51', 'Done', 2, 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 0);
 --rollback DELETE FROM columns WHERE id IN ('282ea613-d683-4891-ac07-baae779685a4','596ddab4-1af6-4c3a-967c-d48e64c90880', '622adf67-7dce-45c0-9e7d-307a15c91e51');
 
---changeset stodo:11
+--changeset stodo:17
 INSERT INTO task_priorities (
     id, priority_value, name, color, project_id, version
 ) VALUES
@@ -22,7 +22,7 @@ INSERT INTO task_priorities (
 --rollback    '87b439e5-00a3-4674-b77c-e60a24ff76ca'
 --rollback );
 
---changeset stodo:12
+--changeset stodo:18
 INSERT INTO tasks (
     id, title, description, position_in_column, assignee_email, column_id, priority_id,
     created_date, last_modified_date, last_modified_by, version
@@ -42,3 +42,12 @@ INSERT INTO tasks (
      'projectchaos32167@gmail.com', '622adf67-7dce-45c0-9e7d-307a15c91e51', 'db7edc9e-96e8-475d-a691-6f5365663a7f',
      NOW(), NOW(), 'stodo', 0);
 --rollback DELETE FROM tasks WHERE id IN ('8113faed-e1cd-4e34-a8cf-e3ec59c948d9', 'c7b1bfa6-a697-4631-8cbd-3f5b43b5cc0b', 'adbd6529-1b3d-4ae2-a6fb-63fce48f133d');
+
+--changeset stodo:19
+INSERT INTO columns (
+    id, name, position, project_id, version
+) VALUES
+    ('282ea613-d683-4891-ac07-baae779685a6', 'To Do', 0, 'b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', 0),
+    ('296ddab4-1af6-4c3a-967c-d48e64c90886', 'In Progress', 1, 'b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e',  0),
+    ('222adf67-7dce-45c0-9e7d-307a15c91e56', 'Done', 2, 'b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', 0);
+--rollback DELETE FROM columns WHERE id IN ('282ea613-d683-4891-ac07-baae779685a6','296ddab4-1af6-4c3a-967c-d48e64c90886', '222adf67-7dce-45c0-9e7d-307a15c91e56');
