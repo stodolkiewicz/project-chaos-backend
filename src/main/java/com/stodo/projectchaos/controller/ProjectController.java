@@ -6,6 +6,8 @@ import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultP
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.SimpleProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.project.assignuser.request.AssignUserToProjectRequestDTO;
+import com.stodo.projectchaos.model.dto.project.assignuser.response.AssignUserToProjectResponseDTO;
 import com.stodo.projectchaos.service.ProjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 import java.util.UUID;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -55,6 +58,17 @@ public class ProjectController {
     public ResponseEntity<SimpleProjectsResponseDTO> getSimpleProjectList(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
         return ResponseEntity.ok(projectService.findSimpleProjectsByUserEmail(email));
+    }
+
+    // ensure:
+    // - can assign only to a project where the request issuer is ADMIN
+    @PostMapping("/{projectId}/users")
+    public ResponseEntity<AssignUserToProjectResponseDTO> assignUserToProject(
+            @PathVariable UUID projectId,
+            @Valid @RequestBody AssignUserToProjectRequestDTO assignUserRequest,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String adminEmail = userDetails.getUsername();
+        return ResponseEntity.ok(projectService.assignUserToProject(projectId, assignUserRequest, adminEmail));
     }
 
 }

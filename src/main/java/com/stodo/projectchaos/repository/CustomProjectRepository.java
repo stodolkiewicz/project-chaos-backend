@@ -3,6 +3,7 @@ package com.stodo.projectchaos.repository;
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.SimpleProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
+import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class CustomProjectRepository {
@@ -36,6 +38,20 @@ public class CustomProjectRepository {
                 .getResultList();
 
         return new ArrayList<>(userProjectQueryResponseDTOList);
+    }
+
+    public boolean isUserAdminInProject(String email, UUID projectId) {
+        return em.createQuery("""
+                    select COUNT(pu) > 0
+                    from ProjectUsersEntity pu
+                    where pu.user.email = :email and
+                          pu.project.id = :projectId and
+                          pu.projectRole = :role
+                    """, Boolean.class)
+                .setParameter("email", email)
+                .setParameter("projectId", projectId)
+                .setParameter("role", ProjectRoleEnum.ADMIN)
+                .getSingleResult();
     }
 
     public Optional<ProjectEntity> getDefaultProjectForUser(String email) {
