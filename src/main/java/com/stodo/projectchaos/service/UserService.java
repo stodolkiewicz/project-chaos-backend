@@ -20,6 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -63,17 +64,17 @@ public class UserService {
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
     public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, 
-                                                             AssignUserToProjectRequestDTO assignUserRequest, 
-                                                             String adminEmail) {
+                                                             AssignUserToProjectRequestDTO assignUserRequest) {
+        String invitedEmail = assignUserRequest.userEmail();
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("projectId", projectId)
                         .entityType("ProjectEntity")
                         .build());
 
-        UserEntity userToAssign = userRepository.findByEmail(assignUserRequest.userEmail())
+        UserEntity userToAssign = userRepository.findByEmail(invitedEmail)
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("email", assignUserRequest.userEmail())
+                        .identifier("email", invitedEmail)
                         .entityType("UserEntity")
                         .build());
 
@@ -82,23 +83,28 @@ public class UserService {
             userToAssign.setProject(project);
         }
 
-        if (projectUsersRepository.existsById(new ProjectUserId(projectId, assignUserRequest.userEmail()))) {
-            throw new IllegalArgumentException("User is already assigned to this project");
-        }
+        Optional<ProjectUsersEntity> existing = projectUsersRepository
+                .findById(new ProjectUserId(projectId, invitedEmail));
 
-        ProjectUsersEntity projectUsersEntity = new ProjectUsersEntity();
-        projectUsersEntity.setId(new ProjectUserId(projectId, assignUserRequest.userEmail()));
-        projectUsersEntity.setProject(project);
-        projectUsersEntity.setUser(userToAssign);
+        ProjectUsersEntity projectUsersEntity = existing.orElseGet(() -> {
+            ProjectUsersEntity newProjectUsersEntity = new ProjectUsersEntity();
+            newProjectUsersEntity.setId(new ProjectUserId(projectId, invitedEmail));
+            newProjectUsersEntity.setProject(project);
+            newProjectUsersEntity.setUser(userToAssign);
+
+            return newProjectUsersEntity;
+        });
+
+        // if projectUsers entity already exists, only role may have changed
         projectUsersEntity.setProjectRole(assignUserRequest.projectRole());
-
         projectUsersRepository.save(projectUsersEntity);
 
+        String successMessage = "User " + invitedEmail + " successfully assigned to the project with role: " + assignUserRequest.projectRole().getRole() + ".";
         return new AssignUserToProjectResponseDTO(
                 projectId,
                 assignUserRequest.userEmail(),
                 assignUserRequest.projectRole().getRole(),
-                "User successfully assigned to project"
+                successMessage
         );
     }
 }

@@ -34,12 +34,10 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/projects/{projectId}")
+    @PatchMapping("/projects/{projectId}")
     public ResponseEntity<AssignUserToProjectResponseDTO> assignUserToProject(
             @PathVariable UUID projectId,
-            @Valid @RequestBody AssignUserToProjectRequestDTO assignUserRequest,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        String adminEmail = userDetails.getUsername();
-        return ResponseEntity.ok(userService.assignUserToProject(projectId, assignUserRequest, adminEmail));
+            @Valid @RequestBody AssignUserToProjectRequestDTO assignUserRequest) {
+        return ResponseEntity.ok(userService.assignUserToProject(projectId, assignUserRequest));
     }
 }

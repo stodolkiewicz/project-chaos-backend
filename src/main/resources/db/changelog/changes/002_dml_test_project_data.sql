@@ -40,8 +40,17 @@ INSERT INTO users (
     '2025-04-16 02:07:56.177856',
     true, true, true, true,
     'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+    NOW(), NOW(), 'stodo', 0),
+    ('stodoo@gmail.com',
+    'firstname',
+    'lastName',
+    'ROLE_ADMIN',
+    'https://lh3.googleusercontent.com/a/TEST_IMAGE_LINK',
+    '2025-04-16 02:07:56.177856',
+    true, true, true, true,
+    null,
     NOW(), NOW(), 'stodo', 0);
---rollback DELETE FROM users WHERE email IN ('projectchaos32167@gmail.com', 'projectchaos32168@gmail.com', 'projectchaos32169@gmail.com');
+--rollback DELETE FROM users WHERE email IN ('projectchaos32167@gmail.com', 'projectchaos32168@gmail.com', 'projectchaos32169@gmail.com', 'stodoo@gmail.com');
 
 --changeset stodo:6
 INSERT INTO project_users (
