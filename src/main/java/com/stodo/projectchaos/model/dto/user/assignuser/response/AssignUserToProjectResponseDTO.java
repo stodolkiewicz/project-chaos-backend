@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.model.dto.project.assignuser.response;
+package com.stodo.projectchaos.model.dto.user.assignuser.response;
 
 import java.util.UUID;
 

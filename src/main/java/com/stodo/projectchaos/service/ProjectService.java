@@ -13,10 +13,7 @@ import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.repository.*;
 import jakarta.transaction.Transactional;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import com.stodo.projectchaos.model.dto.project.assignuser.request.AssignUserToProjectRequestDTO;
-import com.stodo.projectchaos.model.dto.project.assignuser.response.AssignUserToProjectResponseDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -175,49 +172,6 @@ public class ProjectService {
     public SimpleProjectsResponseDTO findSimpleProjectsByUserEmail(String email) {
         List<SimpleProjectQueryResponseDTO> projects = customProjectRepository.findSimpleProjectsByUserEmail(email);
         return new SimpleProjectsResponseDTO(projects);
-    }
-
-    // bug - allows non-admins to assign users to project
-    @Transactional
-    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
-    public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, 
-                                                             AssignUserToProjectRequestDTO assignUserRequest, 
-                                                             String adminEmail) {
-        ProjectEntity project = projectRepository.findById(projectId)
-                .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("projectId", projectId)
-                        .entityType("ProjectEntity")
-                        .build());
-
-        UserEntity userToAssign = userRepository.findByEmail(assignUserRequest.userEmail())
-                .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("email", assignUserRequest.userEmail())
-                        .entityType("UserEntity")
-                        .build());
-
-        // if user does not have defaultProject, assign it to him
-        if(userToAssign.getProject() == null) {
-            userToAssign.setProject(project);
-        }
-
-        if (projectUsersRepository.existsById(new ProjectUserId(projectId, assignUserRequest.userEmail()))) {
-            throw new IllegalArgumentException("User is already assigned to this project");
-        }
-
-        ProjectUsersEntity projectUsersEntity = new ProjectUsersEntity();
-        projectUsersEntity.setId(new ProjectUserId(projectId, assignUserRequest.userEmail()));
-        projectUsersEntity.setProject(project);
-        projectUsersEntity.setUser(userToAssign);
-        projectUsersEntity.setProjectRole(assignUserRequest.projectRole());
-
-        projectUsersRepository.save(projectUsersEntity);
-
-        return new AssignUserToProjectResponseDTO(
-                projectId,
-                assignUserRequest.userEmail(),
-                assignUserRequest.projectRole().getRole(),
-                "User successfully assigned to project"
-        );
     }
 
     public boolean isUserAdminInProject(String email, UUID projectId) {

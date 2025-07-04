@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.model.dto.project.assignuser.request;
+package com.stodo.projectchaos.model.dto.user.assignuser.request;
 
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import jakarta.validation.constraints.Email;
