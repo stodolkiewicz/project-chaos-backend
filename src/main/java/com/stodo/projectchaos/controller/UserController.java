@@ -7,6 +7,7 @@ import com.stodo.projectchaos.model.dto.user.assignuser.response.AssignUserToPro
 import com.stodo.projectchaos.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,6 +35,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
     @PatchMapping("/projects/{projectId}")
     public ResponseEntity<AssignUserToProjectResponseDTO> assignUserToProject(
             @PathVariable UUID projectId,

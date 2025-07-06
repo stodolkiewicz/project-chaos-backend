@@ -177,4 +177,9 @@ public class ProjectService {
     public boolean isUserAdminInProject(String email, UUID projectId) {
        return customProjectRepository.isUserAdminInProject(email, projectId);
     }
+
+    public boolean hasAtLeastMemberRole(String email, UUID projectId) {
+        return customProjectRepository.hasAtLeastMemberRole(email, projectId);
+    }
+
 }

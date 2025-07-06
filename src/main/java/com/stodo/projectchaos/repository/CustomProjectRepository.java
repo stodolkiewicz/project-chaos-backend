@@ -54,6 +54,20 @@ public class CustomProjectRepository {
                 .getSingleResult();
     }
 
+    public boolean hasAtLeastMemberRole(String email, UUID projectId) {
+        return em.createQuery("""
+                    select COUNT(pu) > 0
+                    from ProjectUsersEntity pu
+                    where pu.user.email = :email and
+                          pu.project.id = :projectId and
+                          pu.projectRole in (:roles)
+                    """, Boolean.class)
+                .setParameter("email", email)
+                .setParameter("projectId", projectId)
+                .setParameter("roles", List.of(ProjectRoleEnum.MEMBER, ProjectRoleEnum.ADMIN))
+                .getSingleResult();
+    }
+
     public Optional<ProjectEntity> getDefaultProjectForUser(String email) {
         return em.createQuery("""
                         select u.project

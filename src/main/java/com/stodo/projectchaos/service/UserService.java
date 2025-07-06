@@ -62,7 +62,6 @@ public class UserService {
         userRepository.save(userEntity);
     }
 
-    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
     public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, 
                                                              AssignUserToProjectRequestDTO assignUserRequest) {
         String invitedEmail = assignUserRequest.userEmail();

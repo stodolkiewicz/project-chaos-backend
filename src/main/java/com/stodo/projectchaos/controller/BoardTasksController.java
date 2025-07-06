@@ -9,6 +9,7 @@ import com.stodo.projectchaos.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class BoardTasksController {
         return ResponseEntity.ok(taskService.getBoardTasks(projectId));
     }
 
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
     @PostMapping("/{projectId}/tasks")
     public ResponseEntity<CreateTaskResponseDTO> createTask(
             @PathVariable UUID projectId,
@@ -34,12 +36,14 @@ public class BoardTasksController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
     @DeleteMapping("/{projectId}/tasks/{taskId}")
     public ResponseEntity<Void> deleteTask(@PathVariable UUID taskId, @PathVariable UUID projectId) {
         taskService.deleteTask(projectId, taskId);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
     @PatchMapping("/{projectId}/tasks/{taskId}")
         public ResponseEntity<UpdateTaskColumnResponseDTO> updateTaskColumn (
             @PathVariable UUID projectId,

@@ -23,7 +23,18 @@ public class ProjectSecurity {
 
         boolean userIsAdmin = projectService.isUserAdminInProject(email, projectId);
         if(!userIsAdmin) {
-            throw new UnauthorizedException("The user is not the project ADMIN. Only project administrators can assign other users to the project.");
+            throw new UnauthorizedException("Only project administrators can assign other users to the project.");
+        }
+        return projectService.isUserAdminInProject(email, projectId);
+    }
+
+    public boolean hasAtLeastMemberRole(UUID projectId, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        String email = user.getUsername();
+
+        boolean userIsAdmin = projectService.isUserAdminInProject(email, projectId);
+        if(!userIsAdmin) {
+            throw new UnauthorizedException("As a viewer, you can only view projects – editing is not allowed.");
         }
         return projectService.isUserAdminInProject(email, projectId);
     }
