@@ -1,6 +1,7 @@
 spring:
   application:
     name: Project Chaos
+
   security:
     oauth2:
       client:
@@ -8,10 +9,7 @@ spring:
           google:
             client-id: ${GOOGLE_OAUTH2_CLIENT_ID}
             client-secret: ${GOOGLE_OAUTH2_CLIENT_SECRET}
-  datasource:
-    url: jdbc:postgresql://localhost:5432/project-chaos
-    username: admin
-    password: admin123
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -19,27 +17,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yml
-    drop-first: true
 
-logging:
-  level:
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
 jwt:
   secret: ${SOCIAL_JWT_SECRET}
-app:
-  frontend-dashboard-url: http://localhost:3000/dashboard
-  cookie:
-    secure: true
-
----
-spring:
-  config:
-    activate:
-      on-profile: prod
-app:
-  frontend-dashboard-url: https://xxxx.zzz
-  cookie:
-    secure: true

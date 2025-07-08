@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset stodo:1
+--changeset stodo:1 context:dev,prod
 CREATE TABLE IF NOT EXISTS projects (
       id UUID PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 --rollback drop table projects;
 
---changeset stodo:2
+--changeset stodo:2 context:dev,prod
 CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) PRIMARY KEY,
     first_name VARCHAR(100) NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 --rollback drop table users;
 
---changeset stodo:3
+--changeset stodo:3 context:dev,prod
 CREATE TABLE project_users (
     project_id UUID NOT NULL,
     user_email VARCHAR(100) NOT NULL,

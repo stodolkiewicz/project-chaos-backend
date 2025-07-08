@@ -1,12 +1,11 @@
-### Run app in debug mode:
-```
-mvn spring-boot:run -Ddebug
-```
-
 ### To run postgres db:
 ```
 docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
 ```
+
+### Run app locally - dev profile
+Add -Dspring.profiles.active=dev as **VM Options**:
+![img.png](docs/images/dev-profile.png)
 
 ## Current Database Schema
 As of 27.04.2025

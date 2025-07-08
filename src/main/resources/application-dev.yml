@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/project-chaos
+    username: admin
+    password: admin123
+  liquibase:
+    contexts: dev
+    drop-first: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+
+app:
+  frontend-dashboard-url: http://localhost:3000/dashboard
