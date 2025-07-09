@@ -1,4 +1,4 @@
-name: Publish Docker image to Google Artifact Registry
+name: Build Docker image and publish to Google Artifact Registry
 
 on:
   push:
