@@ -32,3 +32,4 @@ jobs:
           push: true
           tags: |
             ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
+            ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:latest
