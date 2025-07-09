@@ -1,3 +1,4 @@
+# Run
 ## To run postgres db (do this for local development):
 ```
 docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
@@ -8,10 +9,30 @@ Add -Dspring.profiles.active=dev as **VM Options**:
 ![img.png](docs/images/dev-profile.png)
 
 # Current Database Schema
-As of 27.04.2025
 ![Alt text](docs/images/db_schema.png)
 
 tasks.column_id == null ? -> task is in project_backlog
+
+
+
+# Workflows / Pipelines
+### CI
+**.github/workflows/ci.yml**  
+Runs mvn test on push or pull request to main.
+
+### CD
+**.github/workflows/cd.yml**  
+Builds docker image on tag push [only main branch should be tagged].  
+Then, it tags the image with the same tag as the git tag + latest.  
+Finally, it pushes it to GCP Artifact Registry.  
+
+**Example:**
+```declarative
+git tag 1.32.5
+git push origin 1.32.5
+```
+
+
 
 # Docs
 ## Liquibase
