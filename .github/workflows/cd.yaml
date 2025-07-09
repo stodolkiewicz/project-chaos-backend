@@ -1,38 +1,34 @@
-name: CD - Docker build & push to GAR
+name: Publish Docker image to Google Artifact Registry
 
 on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+' # only tags in format of x.y.z
+      - '[0-9]+.[0-9]+.[0-9]+'  # np. 1.0.1
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-22.04
+  docker-publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Extract tag version
-        id: vars
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-
       - name: Set up Docker auth to GAR
-        uses: 'docker/login-action@v3'
+        uses: docker/login-action@v3
         with:
-          registry: europe-central2-docker.pkg.dev
+          registry: ${{ vars.REGION }}-docker.pkg.dev
           username: _json_key
-          # secret in github project GCP_ARTIFACT_REGISTRY_KEY = JSON from GCP SA with artifact registry writer role
           password: ${{ secrets.GCP_ARTIFACT_REGISTRY_KEY }}
 
-      - name: Build Docker image
-        run: |
-          docker build -t project-chaos-backend .
-
-      - name: Tag Docker image
-        run: |
-          docker tag project-chaos-backend:latest europe-central2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REGISTRY_NAME }}/project-chaos-backend:${{ env.VERSION }}
-
-      - name: Push Docker image to GAR
-        run: |
-          docker push europe-central2-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.GCP_REGISTRY_NAME }}/project-chaos-backend:${{ env.VERSION }}
+      - name: Build, tag and push container
+        id: build-image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ vars.REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
