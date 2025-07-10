@@ -37,19 +37,28 @@ spec:
             - secretRef:
                 name: project-chaos-secrets
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
           {{- with .Values.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 90 # Kluczowe: Daj aplikacji 90 sekund na start
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 90 # Kluczowe: Daj aplikacji 90 sekund na start
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
