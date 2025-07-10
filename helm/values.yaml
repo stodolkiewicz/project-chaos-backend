@@ -35,7 +35,10 @@ readinessProbe:
     path: /actuator/health
     port: http
 
-# Node placement
-nodeSelector: {}
-tolerations: []
-affinity: {}
+gcp:
+  projectId: project-chaos-459521
+
+serviceAccount:
+  name: project-chaos-ksa
+  # Nazwa konta serwisowego w Google Cloud (GSA), pod które podszywa się KSA
+  gsaName: project-chaos-sa
