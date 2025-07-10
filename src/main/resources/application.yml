@@ -22,4 +22,4 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yml
 
 jwt:
-  secret: ${SOCIAL_JWT_SECRET}
+  secret: ${JWT_SECRET}
