@@ -1,7 +1,7 @@
 # Container image configuration
 image:
   repository: europe-central2-docker.pkg.dev/project-chaos-459521/project-chaos-docker-registry/project-chaos-backend
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "latest"
 
 # Override chart name
