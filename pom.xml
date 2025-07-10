@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.3.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.stodo</groupId>
@@ -19,7 +19,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<org.mapstruct.version>1.6.3</org.mapstruct.version>
 		<lombok.version>1.18.36</lombok.version>
-		<spring-cloud-gcp-dependencies.version>6.2.3</spring-cloud-gcp-dependencies.version>
+		<spring-cloud-gcp-dependencies.version>5.3.1</spring-cloud-gcp-dependencies.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -117,11 +117,11 @@
 			<version>3.14.0</version>
 		</dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>org.postgresql</groupId>-->
-<!--			<artifactId>postgresql</artifactId>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.google.cloud</groupId>
 			<artifactId>spring-cloud-gcp-starter-sql-postgresql</artifactId>
