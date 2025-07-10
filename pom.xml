@@ -124,8 +124,6 @@
 
 	</dependencies>
 	<profiles>
-
-
 		<profile>
 			<id>prod</id>
 			<dependencies>

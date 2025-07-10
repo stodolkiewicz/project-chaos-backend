@@ -28,6 +28,9 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
           envFrom:
             - secretRef:
                 name: project-chaos-secrets
