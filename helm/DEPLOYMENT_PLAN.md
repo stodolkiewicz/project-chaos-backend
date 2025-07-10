@@ -91,7 +91,7 @@ kubectl get secret -l sealedsecrets.bitnami.com/sealed-secrets-key=active -o jso
 kubectl create secret generic project-chaos-secrets --from-literal=SPRING_CLOUD_GCP_SQL_INSTANCE_CONNECTION_NAME="$CONNECTION_NAME" --from-literal=SPRING_CLOUD_GCP_SQL_DATABASE_NAME="projectchaos" --from-literal=SPRING_DATASOURCE_USERNAME="app-user" --from-literal=SPRING_DATASOURCE_PASSWORD="$APP_PASSWORD" --from-literal=OAUTH2_CLIENT_SECRET="your-oauth-secret" --dry-run=client -o yaml secrets.yaml
 
 
-kubeseal --cert pub-cert.pem < secrets.yaml > sealed-secrets.yaml
+kubeseal --cert pub-cert.pem --format yaml < secrets.yaml > sealed-secrets.yaml
 
 # Zastosuj
 kubectl apply -f sealed-secrets.yaml
@@ -110,7 +110,7 @@ kubectl apply -f sealed-secrets.yaml
 helm template helm/ --values helm/values.yaml
 
 # Zainstaluj charta w namespace
-helm install project-chaos helm/ --namespace project-chaos --values helm/values.yaml
+helm install project-chaos helm --values helm/values.yaml
 ```
 
 ### 9. ArgoCD (później)
