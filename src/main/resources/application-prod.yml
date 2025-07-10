@@ -15,3 +15,5 @@ spring:
 
 app:
   frontend-dashboard-url: https://xxxx.zzz
+
+debug: true
