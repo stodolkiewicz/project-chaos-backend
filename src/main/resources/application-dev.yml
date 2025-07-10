@@ -4,6 +4,14 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:admin}
     password: ${SPRING_DATASOURCE_PASSWORD:admin123}
 
+# not needed as cloud dependencies are now in pom.xml prod profile
+#  cloud:
+#    gcp:
+#      sql:
+#        enabled: false
+#      core:
+#        enabled: false
+
   liquibase:
     contexts: dev
     drop-first: true

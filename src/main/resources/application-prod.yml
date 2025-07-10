@@ -1,10 +1,18 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://<CLOUD_SQL_CONNECTION_STRING>
-    username: <PROD_DB_USER>
-    password: ${PROD_DB_PASSWORD}
+
+#  datasource:
+#    url: jdbc:postgresql://<CLOUD_SQL_CONNECTION_STRING>
+#    username: <PROD_DB_USER>
+#    password: ${PROD_DB_PASSWORD}
+
   liquibase:
     contexts: prod
+
+  cloud:
+    gcp:
+      sql:
+        database-name: projectchaos
+        instance-connection-name: ${CONNECTION_NAME}
 
 app:
   frontend-dashboard-url: https://xxxx.zzz
