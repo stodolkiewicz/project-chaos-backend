@@ -1,8 +1,8 @@
 spring:
-#  datasource:
+  datasource:
     # https://github.com/GoogleCloudPlatform/spring-cloud-gcp/blob/main/spring-cloud-gcp-samples/spring-cloud-gcp-sql-postgres-sample/src/main/resources/application.properties
-#    username: ${PROD_DB_USERNAME}
-#    password: ${PROD_DB_PASSWORD}
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
 
   liquibase:
     contexts: prod
