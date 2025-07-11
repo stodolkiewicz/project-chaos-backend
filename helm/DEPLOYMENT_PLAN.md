@@ -6,10 +6,10 @@
 
 ```bash
 # Stwórz cluster z e2-small
-gcloud container clusters create project-chaos-cluster --region=europe-central2 --num-nodes=1 --machine-type=e2-small
+gcloud container clusters create [gke-cluster-name] --region=europe-central2 --num-nodes=1 --machine-type=e2-small
 
 # Połącz się z klastrem
-gcloud container clusters get-credentials project-chaos-cluster --region=europe-central2
+gcloud container clusters get-credentials [gke-cluster-name] --region=europe-central2
 ```
 
 ### 1. Cloud SQL Setup
@@ -127,5 +127,41 @@ helm install project-chaos helm --values helm/values.yaml
 - [ X ] Sealed Secrets zainstalowane
 - [ X ] Sekrety przygotowane i zasealowane
 - [ X ] Helm chart okrojony
-- [ ] Ręczny deployment udany
+- [ X ] Ręczny deployment udany
 - [ ] ArgoCD skonfigurowany
+
+
+Lekcja: Jak dać aplikacji supermoce w Google Cloud
+
+Problem: Twoja aplikacja w domku LEGO (Pod w Kubernetesie) chciała zadzwonić do fabryki klocków Google (bazy danych Cloud SQL), ale system bezpieczeństwa jej nie pozwalał.
+Dlaczego? Bo w świecie Google Cloud każdy, kto chce coś zrobić, musi mieć specjalny identyfikator i odpowiednie pozwolenia. To jak dowód osobisty i klucz do odpowiednich drzwi.
+Na początku Twoja aplikacja nie miała ani dowodu, ani klucza. Potem miała klucz, ale nie miała dowodu. A na końcu miała i dowód, i klucz, ale ochroniarz budynku (węzeł GKE) nie miał pozwolenia, żeby w ogóle z nią rozmawiać.
+Przeszliśmy przez 3 poziomy zabezpieczeń, żeby to naprawić.
+
+
+Poziom 1: Klucz do drzwi (Rola IAM)
+Co zrobiliśmy? Nadaliśmy Twojej aplikacji rolę Klient Cloud SQL.
+Czym to jest? To jest jak dać aplikacji klucz do drzwi z napisem "Fabryka Klocków". Bez tego klucza, nawet jakby stała pod drzwiami, to by ich nie otworzyła.
+Dlaczego to było potrzebne? Żeby Google wiedziało, że Twoja aplikacja ma pozwolenie na rozmowę z bazą danych.
+
+
+Poziom 2: Dowód osobisty (Workload Identity)
+Nawet z kluczem, system bezpieczeństwa pytał: "A kim Ty w ogóle jesteś, żeby używać tego klucza?". Twoja aplikacja nie miała "dowodu osobistego" Google.
+Co to jest Workload Identity? To jest mechanizm, który pozwala stworzyć oficjalny dowód osobisty Google dla Twojej aplikacji w świecie LEGO. To jest super bezpieczne, bo każda aplikacja dostaje swój własny, unikalny dowód.
+
+Co zrobiliśmy?
+Stworzyliśmy "prawdziwy" dowód w Google: Google Service Account (GSA) o nazwie project-chaos-sa.
+Stworzyliśmy "wewnętrzny" identyfikator w świecie LEGO: Kubernetes Service Account (KSA) o nazwie project-chaos-ksa.
+Powiązaliśmy je ze sobą. Powiedzieliśmy Google: "Jeśli ktoś przyjdzie z identyfikatorem project-chaos-ksa, traktuj go tak, jakby miał dowód project-chaos-sa".
+Dlaczego to było potrzebne? Żeby Twoja aplikacja mogła się wylegitymować i udowodnić, że ma prawo używać klucza, który jej daliśmy.
+
+
+Poziom 3: Pozwolenie dla Ochroniarza (Uprawnienia Węzła GKE)
+To był nasz ostatni, najtrudniejszy problem. Twoja aplikacja miała już i dowód, i klucz, ale wciąż nie mogła się połączyć. Dlaczego?
+Wyobraź sobie, że Twoje domki LEGO stoją na wielkiej, zielonej płycie (to jest Węzeł GKE – maszyna, na której działa aplikacja). Okazało się, że ta płyta miała od początku wbudowaną zasadę: "Nie pozwalam nikomu na moim terenie nawet próbować dzwonić do fabryki klocków".
+
+Co to są "Access Scopes"? To są właśnie te zasady "wypalone" w zielonej płycie. Nasza płyta miała bardzo ograniczone zasady.
+Co zrobiliśmy? Nie mogliśmy zmienić zasad starej płyty, więc zrobiliśmy coś sprytniejszego:
+Stworzyliśmy nową, lśniącą zieloną płytę (app-pool) z jedną, prostą zasadą: "Można dzwonić do wszystkich fabryk Google" (to jest ten scope o nazwie Cloud Platform).
+Przenieśliśmy Twój domek LEGO na tę nową płytę.
+Dlaczego to było potrzebne? Żeby "ochroniarz" (węzeł GKE) w ogóle pozwolił Twojej aplikacji (która ma już dowód i klucz) na wykonanie telefonu do bazy danych.

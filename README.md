@@ -75,3 +75,11 @@ project-chaos-backend-env.env - file with env variables like:
 - GOOGLE_OAUTH2_CLIENT_ID
 - GOOGLE_OAUTH2_CLIENT_SECRET
 - SOCIAL_JWT_SECRET
+
+## Manually deploy helm chart on GCP
+1. Connect with cluster  
+```gcloud container clusters get-credentials [gke-cluster-name] --region=[cluster-region]```
+
+
+2. install helm chart    
+   ```helm install project-chaos ./helm```
