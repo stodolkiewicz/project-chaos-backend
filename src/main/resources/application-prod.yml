@@ -15,7 +15,3 @@ spring:
 
 app:
   frontend-dashboard-url: https://xxxx.zzz
-
-logging:
-  level:
-    root: DEBUG
