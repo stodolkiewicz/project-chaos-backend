@@ -49,6 +49,9 @@ jobs:
       id-token: 'write'
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
