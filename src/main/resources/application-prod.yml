@@ -17,5 +17,5 @@ app:
   frontend-dashboard-url: https://theprojectchaos.com/dashboard
 
 # check forward-headers-strategy.md in the docs folder
-server:
-  forward-headers-strategy: native
+#server:
+#  forward-headers-strategy: native
