@@ -48,7 +48,7 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: http
-            initialDelaySeconds: 90 # Kluczowe: Daj aplikacji 90 sekund na start
+            initialDelaySeconds: 180
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
@@ -56,7 +56,7 @@ spec:
             httpGet:
               path: /actuator/health/readiness
               port: http
-            initialDelaySeconds: 90 # Kluczowe: Daj aplikacji 90 sekund na start
+            initialDelaySeconds: 190
             periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 3
