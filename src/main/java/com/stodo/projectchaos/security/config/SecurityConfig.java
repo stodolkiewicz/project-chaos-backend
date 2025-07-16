@@ -61,6 +61,7 @@ public class SecurityConfig {
                                 "/oauth2/**",
                                 "/login/**",
                                 "/actuator/**",
+                                "/api/debug-info",
                                 OAUTH2_GOOGLE_LOGIN_START_ENDPOINT,
                                 OAUTH2_GOOGLE_CALLBACK_ENDPOINT,
                                 TOKEN_REFRESH_ENDPOINT
