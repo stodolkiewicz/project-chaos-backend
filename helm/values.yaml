@@ -19,11 +19,11 @@ securityContext: {}
 # Resources limits
 resources:
   requests:
-    cpu: 380m
+    cpu: 250m
     memory: 512Mi
   limits:
-    cpu: 500m
-    memory: 1024Mi
+    cpu: 250m
+    memory: 512Mi
 
 # Health checks
 livenessProbe:
