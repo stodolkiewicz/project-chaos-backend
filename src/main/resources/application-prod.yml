@@ -10,7 +10,7 @@ spring:
   cloud:
     gcp:
       sql:
-        database-name: projectchaos
+        database-name: ${PROD_DB_NAME}
         instance-connection-name: ${GCP_SQL_INSTANCE_CONNECTION_NAME}
 
 app:
