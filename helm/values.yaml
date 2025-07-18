@@ -17,13 +17,13 @@ podSecurityContext: {}
 securityContext: {}
 
 # Resources limits
-resources: {}
-# limits:
-#   cpu: 100m
-#   memory: 128Mi
-# requests:
-#   cpu: 100m
-#   memory: 128Mi
+resources:
+  requests:
+    cpu: 380m
+    memory: 512Mi
+  limits:
+    cpu: 500m
+    memory: 1024Mi
 
 # Health checks
 livenessProbe:
