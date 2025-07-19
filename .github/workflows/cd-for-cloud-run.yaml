@@ -1,0 +1,79 @@
+name: Build Docker image and publish to Google Artifact Registry
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'  # np. 1.0.1
+
+jobs:
+  docker-publish:
+    runs-on: ubuntu-latest
+
+    # for Workload Identity Federation
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - name: Configure Docker to use gcloud
+        run: |
+          gcloud auth configure-docker ${{ vars.REGION }}-docker.pkg.dev --quiet
+
+      - name: Build, tag and push container
+        id: build-image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
+            ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:latest
+
+  deploy-to-cloud-run:
+    runs-on: ubuntu-latest
+    needs: docker-publish
+
+    # for Workload Identity Federation
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SA_EMAIL }}
+
+      - id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: project-chaos-backend
+          image: ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
+
+          env_vars: |
+            SPRING_PROFILES_ACTIVE=prod
+
+          # Inject secrets from Secret Manager and set env variables
+          secrets: |
+            GCP_SQL_INSTANCE_CONNECTION_NAME=GCP_SQL_INSTANCE_CONNECTION_NAME:latest
+            GOOGLE_OAUTH2_CLIENT_ID=GOOGLE_OAUTH2_CLIENT_ID:latest
+            GOOGLE_OAUTH2_CLIENT_SECRET=GOOGLE_OAUTH2_CLIENT_SECRET:latest
+            JWT_SECRET=JWT_SECRET:latest
+            PROD_DB_USERNAME=PROD_DB_USERNAME:latest
+            PROD_DB_PASSWORD=PROD_DB_PASSWORD:latest
+            PROD_DB_NAME=PROD_DB_NAME:latest
