@@ -64,7 +64,7 @@ jobs:
         with:
           service: project-chaos-backend
           image: ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
-
+          region: ${{ vars.REGION }}
           env_vars: |
             SPRING_PROFILES_ACTIVE=prod
 
