@@ -62,7 +62,6 @@ jobs:
       - name: Deploy to Cloud Run using gcloud command
         env:
           SERVICE_ACCOUNT: ${{ secrets.GCP_SA_TO_RUN_WORKLOAD }}
-          CLOUD_SQL_CONNECTION_NAME: ${{ secrets.CLOUD_SQL_CONNECTION_NAME }}
           REGION: ${{ vars.REGION }}
           PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
           ARTIFACT_REPO: ${{ vars.ARTIFACT_REPO }}
