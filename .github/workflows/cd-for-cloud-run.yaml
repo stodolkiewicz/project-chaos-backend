@@ -69,9 +69,8 @@ jobs:
           IMAGE_TAG: ${{ github.ref_name }}
         run: |-
           gcloud run deploy project-chaos-backend \
-          --service-account=$SERVICE_ACCOUNT \
-          --image=$REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/project-chaos-backend:$IMAGE_TAG \
-          # --add-cloudsql-instances $CLOUD_SQL_CONNECTION_NAME  <-- USUNIĘTA LINIA
-          --region=$REGION \
-          --update-secrets="GCP_SQL_INSTANCE_CONNECTION_NAME=GCP_SQL_INSTANCE_CONNECTION_NAME:latest,GOOGLE_OAUTH2_CLIENT_ID=GOOGLE_OAUTH2_CLIENT_ID:latest,GOOGLE_OAUTH2_CLIENT_SECRET=GOOGLE_OAUTH2_CLIENT_SECRET:latest,JWT_SECRET=JWT_SECRET:latest,PROD_DB_NAME=PROD_DB_NAME:latest,PROD_DB_PASSWORD=PROD_DB_PASSWORD:latest,PROD_DB_USERNAME=PROD_DB_USERNAME:latest" \
-          --platform="managed"
+            --service-account=$SERVICE_ACCOUNT \
+            --image=$REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/project-chaos-backend:$IMAGE_TAG \
+            --region=$REGION \
+            --update-secrets="GCP_SQL_INSTANCE_CONNECTION_NAME=GCP_SQL_INSTANCE_CONNECTION_NAME:latest,GOOGLE_OAUTH2_CLIENT_ID=GOOGLE_OAUTH2_CLIENT_ID:latest,GOOGLE_OAUTH2_CLIENT_SECRET=GOOGLE_OAUTH2_CLIENT_SECRET:latest,JWT_SECRET=JWT_SECRET:latest,PROD_DB_NAME=PROD_DB_NAME:latest,PROD_DB_PASSWORD=PROD_DB_PASSWORD:latest,PROD_DB_USERNAME=PROD_DB_USERNAME:latest" \
+            --platform="managed"
