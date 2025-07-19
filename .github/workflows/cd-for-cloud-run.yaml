@@ -59,21 +59,11 @@ jobs:
           workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SA_EMAIL }}
 
-      - id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: project-chaos-backend
-          image: ${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
-          region: ${{ vars.REGION }}
-          env_vars: |
-            SPRING_PROFILES_ACTIVE=prod
-
-          # Inject secrets from Secret Manager and set env variables
-          secrets: |
-            GCP_SQL_INSTANCE_CONNECTION_NAME=GCP_SQL_INSTANCE_CONNECTION_NAME:latest
-            GOOGLE_OAUTH2_CLIENT_ID=GOOGLE_OAUTH2_CLIENT_ID:latest
-            GOOGLE_OAUTH2_CLIENT_SECRET=GOOGLE_OAUTH2_CLIENT_SECRET:latest
-            JWT_SECRET=JWT_SECRET:latest
-            PROD_DB_USERNAME=PROD_DB_USERNAME:latest
-            PROD_DB_PASSWORD=PROD_DB_PASSWORD:latest
-            PROD_DB_NAME=PROD_DB_NAME:latest
+      - name: Deploy to Cloud Run using gcloud command
+        run: |-
+          gcloud run deploy project-chaos-backend \
+            --service-account=${{ secrets.GCP_SA_TO_RUN_WORKLOAD }}
+            --image=${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
+            --region=${{ vars.REGION }}
+            --update-secrets="GCP_SQL_INSTANCE_CONNECTION_NAME=GCP_SQL_INSTANCE_CONNECTION_NAME:latest,GOOGLE_OAUTH2_CLIENT_ID=GOOGLE_OAUTH2_CLIENT_ID:latest,GOOGLE_OAUTH2_CLIENT_SECRET=GOOGLE_OAUTH2_CLIENT_SECRET:latest,JWT_SECRET=JWT_SECRET:latest,PROD_DB_NAME=PROD_DB_NAME:latest,PROD_DB_PASSWORD=PROD_DB_PASSWORD:latest,PROD_DB_USERNAME=PROD_DB_USERNAME:latest" 
+            --platform="managed"
