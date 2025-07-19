@@ -1,4 +1,4 @@
-name: Build Docker image and publish to Google Artifact Registry
+name: Build and Deploy on Cloud Run
 
 on:
   push:
