@@ -61,7 +61,7 @@ jobs:
 
       - name: Deploy to Cloud Run using gcloud command
         run: |-
-          gcloud run deploy project-chaos-backend \
+          gcloud run deploy project-chaos-backend 
             --service-account=${{ secrets.GCP_SA_TO_RUN_WORKLOAD }}
             --image=${{ vars.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ vars.ARTIFACT_REPO }}/project-chaos-backend:${{ github.ref_name }}
             --region=${{ vars.REGION }}
