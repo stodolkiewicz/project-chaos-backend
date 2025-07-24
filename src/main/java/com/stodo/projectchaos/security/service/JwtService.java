@@ -127,8 +127,12 @@ public class JwtService {
         newCookie.setHttpOnly(true);
         newCookie.setSecure(true);
 
-        newCookie.setPath("/");          // available in whole domain
-        newCookie.setMaxAge(maxAge);        // lives 15 minutes
+        newCookie.setPath("/");
+        // cookie is valid for the whole domain
+        // plus all of it subdomains (thanks to the dot at the beginning)
+        newCookie.setDomain(".theprojectchaos.com");
+
+        newCookie.setMaxAge(maxAge);
 
         response.addCookie(newCookie);
     }
