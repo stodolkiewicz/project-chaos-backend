@@ -75,4 +75,7 @@ jobs:
             --update-secrets="GCP_SQL_INSTANCE_CONNECTION_NAME=GCP_SQL_INSTANCE_CONNECTION_NAME:latest,GOOGLE_OAUTH2_CLIENT_ID=GOOGLE_OAUTH2_CLIENT_ID:latest,GOOGLE_OAUTH2_CLIENT_SECRET=GOOGLE_OAUTH2_CLIENT_SECRET:latest,JWT_SECRET=JWT_SECRET:latest,PROD_DB_NAME=PROD_DB_NAME:latest,PROD_DB_PASSWORD=PROD_DB_PASSWORD:latest,PROD_DB_USERNAME=PROD_DB_USERNAME:latest" \
             --platform="managed" \
             --allow-unauthenticated \
-            --max-instances=1
+            --max-instances=1 \
+#          Give the app 2x CPU during startup
+            --cpu-boost
+
