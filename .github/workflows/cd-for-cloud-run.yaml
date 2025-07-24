@@ -76,6 +76,5 @@ jobs:
             --platform="managed" \
             --allow-unauthenticated \
             --max-instances=1 \
-            --startup-probe-timeout=360 \
             --cpu-boost
 
