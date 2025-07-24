@@ -129,8 +129,8 @@ public class JwtService {
 
         newCookie.setPath("/");
         // cookie is valid for the whole domain
-        // plus all of it subdomains (thanks to the dot at the beginning)
-        newCookie.setDomain(".theprojectchaos.com");
+        // plus all of it subdomains
+        newCookie.setDomain("theprojectchaos.com");
 
         newCookie.setMaxAge(maxAge);
 
