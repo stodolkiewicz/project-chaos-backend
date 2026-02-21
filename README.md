@@ -1,3 +1,13 @@
+# The Project Chaos
+The Project Chaos is a Kanban-style task board.  
+It lets users organize tasks across columns, work with other people on shared projects,
+and assign different member roles to control access and responsibilities.
+
+Frontend Repository: https://github.com/stodolkiewicz/project-chaos-frontend
+
+<img src="docs/images/dashboard-screenshot.png" alt="Dashboard" style="max-width: 1200px;" />
+
+
 # Run on localhost
 
 ### To run postgres db (do this for local development):
@@ -43,7 +53,7 @@ Runs mvn test on push or pull request to main.
 
 ### CD
 
-**.github/workflows/cd.yml**  
+**.github/workflows/cd-for-cloud-run.yml**  
 Builds docker image on tag push [only main branch should be tagged].  
 Then, it tags the image with the same tag as the git tag + latest.  
 Finally, it pushes it to GCP Artifact Registry.
@@ -54,41 +64,3 @@ Finally, it pushes it to GCP Artifact Registry.
 git tag 1.32.5
 git push origin 1.32.5
 ```
-
-# Docs
-
-## Liquibase
-
-`https://contribute.liquibase.com/extensions-integrations/directory/integration-docs/springboot/configuration/`
-
-# Other
-
-## Test folder structure
-
-```
-https://blog.worldline.tech/2020/04/10/split-unit-and-integration-tests.html
-```
-
-## Cloud SQL
-
-```
-https://codelabs.developers.google.com/codelabs/cloud-spring-petclinic-cloudsql#0
-```
-
-## To build app and run it in docker (do this to test that container is built correctly):
-
-```
-docker build -t project-chaos-backend .
-
-docker network create project-chaos-network
-
-docker run -d --name project-chaos-db --network project-chaos-network -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
-
-docker run --network project-chaos-network -p 8080:8080 --env SPRING_PROFILES_ACTIVE=dev --env-file project-chaos-backend-env.env --env SPRING_DATASOURCE_URL=jdbc:postgresql://project-chaos-db:5432/project-chaos --env SPRING_DATASOURCE_USERNAME=admin --env SPRING_DATASOURCE_PASSWORD=admin123 project-chaos-backend
-```
-
-project-chaos-backend-env.env - file with env variables like:
-
-- GOOGLE_OAUTH2_CLIENT_ID
-- GOOGLE_OAUTH2_CLIENT_SECRET
-- SOCIAL_JWT_SECRET
