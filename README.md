@@ -1,15 +1,32 @@
-# Run
+# Run on localhost
 
-## To run postgres db (do this for local development):
+### To run postgres db (do this for local development):
 
 ```
 docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
 ```
 
-## Run app locally - dev profile
+### Set up dev profile
 
 Add -Dspring.profiles.active=dev as **VM Options**:
 ![img.png](docs/images/dev-profile.png)
+
+### Lombok
+Make sure that you have enabled **annotation processing** in the IDE and have an active, installed **Lombok plugin**.
+
+### Env Variables
+You will need the following env variables to run the app locally:
+- GOOGLE_OAUTH2_CLIENT_ID
+- GOOGLE_OAUTH2_CLIENT_SECRET
+- JWT_SECRET
+
+To generate JWT_SECRET on ubuntu/linux you can use:
+> openssl rand -base64 64
+
+To get GOOGLE_OAUTH2_CLIENT_ID, GOOGLE_OAUTH2_CLIENT_SECRET:
+- go to Secret Manager in the GCP Project and look it up.
+
+You can add those variables to Intellij's run configuration as environment variables.
 
 # Current Database Schema
 
@@ -75,11 +92,3 @@ project-chaos-backend-env.env - file with env variables like:
 - GOOGLE_OAUTH2_CLIENT_ID
 - GOOGLE_OAUTH2_CLIENT_SECRET
 - SOCIAL_JWT_SECRET
-
-## Manually deploy helm chart on GCP
-1. Connect with cluster  
-```gcloud container clusters get-credentials [gke-cluster-name] --region=[cluster-region]```
-
-
-2. install helm chart    
-   ```helm install project-chaos ./helm```
