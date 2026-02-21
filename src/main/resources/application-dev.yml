@@ -23,3 +23,7 @@ logging:
 
 app:
   frontend-dashboard-url: http://localhost:3000/dashboard
+  security:
+    cookie:
+      domain: localhost
+      secure: false

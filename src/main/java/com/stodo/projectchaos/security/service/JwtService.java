@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
-import java.util.UUID;
 import java.util.function.Function;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.*;
@@ -26,9 +25,17 @@ public class JwtService {
     Logger log = LoggerFactory.getLogger(JwtService.class);
 
     private String secret;
+    private String cookieDomain;
+    private boolean cookieSecure;
 
-    public JwtService(@Value("${jwt.secret}") String secret) {
+    public JwtService(
+            @Value("${jwt.secret}") String secret,
+            @Value("${app.security.cookie.domain}") String cookieDomain,
+            @Value("${app.security.cookie.secure}") boolean cookieSecure
+            ) {
         this.secret = secret;
+        this.cookieDomain = cookieDomain;
+        this.cookieSecure = cookieSecure;
     }
 
     // --------------------- Claim extraction -------------------------------------------------------------------------
@@ -125,12 +132,15 @@ public class JwtService {
     public void createAndAddSecureCookieToResponse(HttpServletResponse response, String cookieName, String cookieValue, int maxAge) {
         Cookie newCookie = new Cookie(cookieName, cookieValue);
         newCookie.setHttpOnly(true);
-        newCookie.setSecure(true);
 
+        // secure cookie - forces browsers to only send this cookie via HTTPS
+        newCookie.setSecure(cookieSecure);
+
+        // allows cookie to "travel" through subdomains like auth.theprojectchaos.com and app.theprojectchaos.com
+        newCookie.setDomain(cookieDomain);
+
+        // allows all paths within subdomains
         newCookie.setPath("/");
-        // cookie is valid for the whole domain
-        // plus all of it subdomains
-        newCookie.setDomain("theprojectchaos.com");
 
         newCookie.setMaxAge(maxAge);
 
