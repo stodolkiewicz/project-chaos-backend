@@ -25,17 +25,17 @@ public class ProjectSecurity {
         if(!userIsAdmin) {
             throw new UnauthorizedException("Only project administrators can assign other users to the project.");
         }
-        return projectService.isUserAdminInProject(email, projectId);
+        return true;
     }
 
     public boolean hasAtLeastMemberRole(UUID projectId, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         String email = user.getUsername();
 
-        boolean userIsAdmin = projectService.isUserAdminInProject(email, projectId);
-        if(!userIsAdmin) {
+        boolean hasAtLeastMemberRole = projectService.hasAtLeastMemberRole(email, projectId);
+        if(!hasAtLeastMemberRole) {
             throw new UnauthorizedException("As a viewer, you can only view projects – editing is not allowed.");
         }
-        return projectService.isUserAdminInProject(email, projectId);
+        return true;
     }
 }
