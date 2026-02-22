@@ -1,11 +1,13 @@
 package com.stodo.projectchaos.service;
 
+import com.google.api.gax.rpc.UnimplementedException;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectMapper;
 import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.SimpleProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.SimpleProjectsResponseDTO;
@@ -22,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@Transactional
 public class ProjectService {
 
     private final CustomProjectRepository customProjectRepository;
@@ -40,7 +43,33 @@ public class ProjectService {
         this.taskPriorityRepository = taskPriorityRepository;
     }
 
-    @Transactional
+    public DeleteProjectResponseDTO hardDeleteProject(UUID projectId) {
+        // todo: delete files from GCS (when it is actually implemented to store them there)
+        // todo: notify project members via email
+
+        // attachments table
+
+        // task_comments
+
+        // task_labels
+
+        // project_backlog
+
+        // tasks
+
+        // columns
+
+        // labels
+
+        // task_priorities
+
+        // projects
+
+        // users.default_project_id -> set some other project or set to null
+
+        return new DeleteProjectResponseDTO(projectId);
+    }
+
     public CreateProjectResponseDTO createProject(CreateProjectRequestDTO createProjectRequestDTO, String email) {
         ProjectEntity savedProjectEntity = saveProject(createProjectRequestDTO);
         UserEntity userEntity = userRepository.findByEmail(email)

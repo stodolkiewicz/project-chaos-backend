@@ -1,4 +1,6 @@
 package com.stodo.projectchaos.model.dto.project.list.response;
 
-public record DeleteProjectResponseDTO() {
+import java.util.UUID;
+
+public record DeleteProjectResponseDTO(UUID projectId) {
 }
