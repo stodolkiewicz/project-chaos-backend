@@ -16,7 +16,6 @@ import com.stodo.projectchaos.repository.UserRepository;
 import com.stodo.projectchaos.repository.ProjectUsersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

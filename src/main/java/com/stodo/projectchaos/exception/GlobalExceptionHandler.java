@@ -3,6 +3,7 @@ package com.stodo.projectchaos.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -50,8 +51,8 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
-    public ProblemDetail handleUnauthorized(UnauthorizedException ex, HttpServletRequest request) {
+    @ExceptionHandler(AccessDeniedException.class)
+    public ProblemDetail handleUnauthorized(AccessDeniedException ex, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         problem.setTitle("Unauthorized");
         problem.setDetail(ex.getMessage());

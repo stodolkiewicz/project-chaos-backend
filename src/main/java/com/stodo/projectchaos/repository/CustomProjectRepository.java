@@ -2,16 +2,15 @@ package com.stodo.projectchaos.repository;
 
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.SimpleProjectQueryResponseDTO;
+import com.stodo.projectchaos.model.dto.project.firstalternativeproject.query.UserAlternativeProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class CustomProjectRepository {
@@ -94,6 +93,26 @@ public class CustomProjectRepository {
                 .getResultList();
 
         return new ArrayList<>(simpleProjectQueryResponseDTOList);
+    }
+    
+    public List<UserAlternativeProjectQueryResponseDTO> findFirstAlternativeProjectForUsers(List<String> emails, UUID excludeProjectId) {
+        if (emails.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        return em.createQuery("""
+            SELECT new com.stodo.projectchaos.model.dto.project.firstalternativeproject.query.UserAlternativeProjectQueryResponseDTO(
+                pu.user.email, 
+                MIN(pu.project.id)
+            )
+            FROM ProjectUsersEntity pu 
+            WHERE pu.user.email IN :emails 
+            AND pu.project.id != :excludeProjectId
+            GROUP BY pu.user.email
+            """, UserAlternativeProjectQueryResponseDTO.class)
+            .setParameter("emails", emails)
+            .setParameter("excludeProjectId", excludeProjectId)
+            .getResultList();
     }
 
 }

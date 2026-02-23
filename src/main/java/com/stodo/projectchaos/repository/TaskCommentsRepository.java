@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.repository;
 
-import com.stodo.projectchaos.model.entity.ColumnEntity;
+import com.stodo.projectchaos.model.entity.TaskComments;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,13 +8,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
-import java.util.List;
 
 @Repository
-public interface ColumnRepository extends JpaRepository<ColumnEntity, UUID> {
-    List<ColumnEntity> findByProjectIdOrderByPosition(UUID projectId);
-    
+public interface TaskCommentsRepository extends JpaRepository<TaskComments, UUID> {
+
     @Modifying
-    @Query("DELETE FROM ColumnEntity c WHERE c.project.id = :projectId")
+    @Query("DELETE FROM TaskComments tc WHERE tc.task.column.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 }

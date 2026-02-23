@@ -4,7 +4,9 @@ import com.stodo.projectchaos.model.dto.user.projectusers.query.ProjectUserQuery
 import com.stodo.projectchaos.model.entity.UserEntity;
 import jakarta.validation.constraints.Email;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,5 +30,16 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
            "JOIN u.projectUsers pu " +
            "WHERE pu.project.id = :projectId")
     List<ProjectUserQueryResponseDTO> findProjectUsersByProjectId(UUID projectId);
+    
+    @Query("SELECT u.email FROM UserEntity u WHERE u.project.id = :projectId")
+    List<String> findUserEmailsWithDefaultProject(@Param("projectId") UUID projectId);
+    
+    @Modifying
+    @Query("UPDATE UserEntity u SET u.project = NULL WHERE u.project.id = :projectId")
+    void clearDefaultProjectForProject(@Param("projectId") UUID projectId);
+    
+    @Modifying  
+    @Query("UPDATE UserEntity u SET u.project.id = :projectId WHERE u.email = :email")
+    void setDefaultProject(@Param("email") String email, @Param("projectId") UUID projectId);
 
 }

@@ -1,15 +1,14 @@
 package com.stodo.projectchaos.security.method;
 
-import com.stodo.projectchaos.exception.UnauthorizedException;
 import com.stodo.projectchaos.service.ProjectService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-
-@Component
+@Component("projectSecurity")
 public class ProjectSecurity {
     private final ProjectService projectService;
 
@@ -23,7 +22,7 @@ public class ProjectSecurity {
 
         boolean userIsAdmin = projectService.isUserAdminInProject(email, projectId);
         if(!userIsAdmin) {
-            throw new UnauthorizedException("Only project administrators can assign other users to the project.");
+            throw new AccessDeniedException("Only project administrators can assign other users to the project.");
         }
         return true;
     }
@@ -34,7 +33,7 @@ public class ProjectSecurity {
 
         boolean hasAtLeastMemberRole = projectService.hasAtLeastMemberRole(email, projectId);
         if(!hasAtLeastMemberRole) {
-            throw new UnauthorizedException("As a viewer, you can only view projects – editing is not allowed.");
+            throw new AccessDeniedException("As a viewer, you can only view projects – editing is not allowed.");
         }
         return true;
     }

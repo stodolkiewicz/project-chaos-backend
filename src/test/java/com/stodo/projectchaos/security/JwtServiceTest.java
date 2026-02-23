@@ -27,7 +27,7 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtService(SECRET);
+        jwtService = new JwtService(SECRET, "cookieDomain", true);
     }
 
     @DisplayName("Generate Access Token sanity check")

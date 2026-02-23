@@ -1,6 +1,5 @@
 package com.stodo.projectchaos.service;
 
-import com.google.api.gax.rpc.UnimplementedException;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectMapper;
 import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequestDTO;
@@ -11,6 +10,7 @@ import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectRespo
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.SimpleProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.SimpleProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.project.firstalternativeproject.query.UserAlternativeProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.repository.*;
@@ -33,40 +33,85 @@ public class ProjectService {
     private final ProjectUsersRepository projectUsersRepository;
     private final ColumnRepository columnRepository;
     private final TaskPriorityRepository taskPriorityRepository;
+    private final AttachmentRepository attachmentRepository;
+    private final TaskCommentsRepository taskCommentsRepository;
+    private final TaskLabelsRepository taskLabelsRepository;
+    private final ProjectBacklogRepository projectBacklogRepository;
+    private final TaskRepository taskRepository;
+    private final LabelRepository labelRepository;
 
-    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository) {
+    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository) {
         this.customProjectRepository = customProjectRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.projectUsersRepository = projectUsersRepository;
         this.columnRepository = columnRepository;
         this.taskPriorityRepository = taskPriorityRepository;
+        this.attachmentRepository = attachmentRepository;
+        this.taskCommentsRepository = taskCommentsRepository;
+        this.taskLabelsRepository = taskLabelsRepository;
+        this.projectBacklogRepository = projectBacklogRepository;
+        this.taskRepository = taskRepository;
+        this.labelRepository = labelRepository;
     }
 
     public DeleteProjectResponseDTO hardDeleteProject(UUID projectId) {
         // todo: delete files from GCS (when it is actually implemented to store them there)
         // todo: notify project members via email
+        
+        // 1. Handle default_project_id reassignment BEFORE deleting anything
+        List<String> affectedEmails = userRepository.findUserEmailsWithDefaultProject(projectId);
+        if (!affectedEmails.isEmpty()) {
+            // Find alternative projects for affected users
+            List<UserAlternativeProjectQueryResponseDTO> alternatives = customProjectRepository
+                .findFirstAlternativeProjectForUsers(affectedEmails, projectId);
+            
+            // Set new default projects for users who have alternatives
+            for (UserAlternativeProjectQueryResponseDTO alternative : alternatives) {
+                userRepository.setDefaultProject(alternative.email(), alternative.projectId());
+            }
+            
+            // Clear default project for users without alternatives
+            userRepository.clearDefaultProjectForProject(projectId);
+        }
 
-        // attachments table
-
-        // task_comments
-
-        // task_labels
-
-        // project_backlog
-
-        // tasks
-
-        // columns
-
-        // labels
-
-        // task_priorities
-
-        // projects
-
-        // users.default_project_id -> set some other project or set to null
-
+        // 2. Delete in dependency order (from leaves to root)
+        
+        // Get file URLs before deleting attachments (for future GCS cleanup)
+        List<String> fileUrls = attachmentRepository.findFilePathsByProjectId(projectId);
+        
+        // Delete attachments
+        attachmentRepository.deleteByProjectId(projectId);
+        
+        // Delete task comments  
+        taskCommentsRepository.deleteByProjectId(projectId);
+        
+        // Delete task_labels (junction table)
+        taskLabelsRepository.deleteByProjectId(projectId);
+        
+        // Delete project_backlog (junction table)
+        projectBacklogRepository.deleteByProjectId(projectId);
+        
+        // Delete tasks
+        taskRepository.deleteByProjectId(projectId);
+        
+        // Delete columns
+        columnRepository.deleteByProjectId(projectId);
+        
+        // Delete project_users (junction table)
+        projectUsersRepository.deleteByProjectId(projectId);
+        
+        // Delete labels
+        labelRepository.deleteByProjectId(projectId);
+        
+        // Delete task_priorities  
+        taskPriorityRepository.deleteByProjectId(projectId);
+        
+        // Delete project (final step)
+        projectRepository.deleteById(projectId);
+        
+        // TODO: Delete physical files from GCS using fileUrls list
+        
         return new DeleteProjectResponseDTO(projectId);
     }
 

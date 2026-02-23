@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,7 +62,7 @@ public class ProjectController {
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<DeleteProjectResponseDTO> hardDeleteProject(UUID projectId) {
+    public ResponseEntity<DeleteProjectResponseDTO> hardDeleteProject(@PathVariable("projectId") UUID projectId) {
         DeleteProjectResponseDTO deleteProjectResponseDTO = projectService.hardDeleteProject(projectId);
 
         return ResponseEntity.ok(deleteProjectResponseDTO);

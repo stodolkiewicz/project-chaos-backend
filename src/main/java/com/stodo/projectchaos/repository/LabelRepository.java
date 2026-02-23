@@ -30,4 +30,8 @@ public interface LabelRepository extends JpaRepository<LabelEntity, UUID> {
     """
     )
     void deleteUnusedLabels(@Param("projectId") UUID projectId);
+    
+    @Modifying
+    @Query("DELETE FROM LabelEntity l WHERE l.project.id = :projectId")
+    void deleteByProjectId(@Param("projectId") UUID projectId);
 }
