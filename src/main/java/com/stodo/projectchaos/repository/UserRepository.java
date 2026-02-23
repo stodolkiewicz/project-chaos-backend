@@ -22,25 +22,15 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     @Query("SELECT u.project.id FROM UserEntity u WHERE u.email = :email")
     Optional<UUID> findDefaultProjectIdByEmail(@Email String email);
 
-    @Query("SELECT COUNT(u) > 0 FROM UserEntity u WHERE u.email = :email AND u.project IS NOT NULL")
-    boolean existsDefaultProjectByEmail(@Email String email);
-
     @Query("SELECT new com.stodo.projectchaos.model.dto.user.projectusers.query.ProjectUserQueryResponseDTO(u.email) " +
            "FROM UserEntity u " +
            "JOIN u.projectUsers pu " +
            "WHERE pu.project.id = :projectId")
     List<ProjectUserQueryResponseDTO> findProjectUsersByProjectId(UUID projectId);
     
-    @Query("SELECT u.email FROM UserEntity u WHERE u.project.id = :projectId")
-    List<String> findUserEmailsWithDefaultProject(@Param("projectId") UUID projectId);
-    
     @Modifying
     @Query("UPDATE UserEntity u SET u.project = NULL WHERE u.project.id = :projectId")
     void clearDefaultProjectForProject(@Param("projectId") UUID projectId);
-    
-    @Modifying  
-    @Query("UPDATE UserEntity u SET u.project.id = :projectId WHERE u.email = :email")
-    void setDefaultProject(@Param("email") String email, @Param("projectId") UUID projectId);
 
     //    Update all users - set their new default project to the lowest ID project from those they have access to (but not the
     //            deleted project), but only for users who:
