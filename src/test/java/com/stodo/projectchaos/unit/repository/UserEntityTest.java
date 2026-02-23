@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.entity;
+package com.stodo.projectchaos.unit.repository;
 
 import com.stodo.projectchaos.model.enums.RoleEnum;
 import com.stodo.projectchaos.model.entity.UserEntity;

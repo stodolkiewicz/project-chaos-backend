@@ -42,4 +42,25 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
     @Query("UPDATE UserEntity u SET u.project.id = :projectId WHERE u.email = :email")
     void setDefaultProject(@Param("email") String email, @Param("projectId") UUID projectId);
 
+    //    Update all users - set their new default project to the lowest ID project from those they have access to (but not the
+    //            deleted project), but only for users who:
+    //            1. Currently have the deleted project as default
+    //            2. And simultaneously have access to some other project (i.e., have an alternative)
+    @Modifying
+    @Query("""
+        UPDATE UserEntity u SET u.project.id = (
+            SELECT MIN(pu.project.id) 
+            FROM ProjectUsersEntity pu 
+            WHERE pu.user.email = u.email 
+            AND pu.project.id != :excludeProjectId
+        )
+        WHERE u.project.id = :excludeProjectId
+        AND EXISTS (
+            SELECT 1 FROM ProjectUsersEntity pu2 
+            WHERE pu2.user.email = u.email 
+            AND pu2.project.id != :excludeProjectId
+        )
+        """)
+    void batchUpdateDefaultProjectsForUsersWithAlternatives(@Param("excludeProjectId") UUID excludeProjectId);
+
 }

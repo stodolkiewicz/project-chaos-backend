@@ -1,5 +1,6 @@
-package com.stodo.projectchaos.controller;
+package com.stodo.projectchaos.unit.controller;
 
+import com.stodo.projectchaos.controller.ProjectController;
 import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.security.method.ProjectSecurity;
 import com.stodo.projectchaos.security.service.JwtService;

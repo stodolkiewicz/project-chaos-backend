@@ -60,59 +60,71 @@ public class ProjectService {
         // todo: notify project members via email
         
         // 1. Handle default_project_id reassignment BEFORE deleting anything
-        List<String> affectedEmails = userRepository.findUserEmailsWithDefaultProject(projectId);
-        if (!affectedEmails.isEmpty()) {
-            // Find alternative projects for affected users
-            List<UserAlternativeProjectQueryResponseDTO> alternatives = customProjectRepository
-                .findFirstAlternativeProjectForUsers(affectedEmails, projectId);
-            
-            // Set new default projects for users who have alternatives
-            for (UserAlternativeProjectQueryResponseDTO alternative : alternatives) {
-                userRepository.setDefaultProject(alternative.email(), alternative.projectId());
-            }
-            
-            // Clear default project for users without alternatives
-            userRepository.clearDefaultProjectForProject(projectId);
-        }
+        handleUsersDefaultProjectId(projectId);
 
-        // 2. Delete in dependency order (from leaves to root)
-        
         // Get file URLs before deleting attachments (for future GCS cleanup)
         List<String> fileUrls = attachmentRepository.findFilePathsByProjectId(projectId);
-        
-        // Delete attachments
-        attachmentRepository.deleteByProjectId(projectId);
-        
-        // Delete task comments  
-        taskCommentsRepository.deleteByProjectId(projectId);
-        
-        // Delete task_labels (junction table)
-        taskLabelsRepository.deleteByProjectId(projectId);
-        
-        // Delete project_backlog (junction table)
-        projectBacklogRepository.deleteByProjectId(projectId);
-        
-        // Delete tasks
+        // TODO: Delete physical files from GCS using fileUrls list
+
+        // ----------------------------------------
+        CompletableFuture<Void> attachmentDeletion =
+                CompletableFuture.runAsync(() -> attachmentRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> taskCommentsDeletion =
+                CompletableFuture.runAsync(() -> taskCommentsRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> taskLabelsDeletion =
+                CompletableFuture.runAsync(() -> taskLabelsRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> projectBacklogDeletion =
+                CompletableFuture.runAsync(() -> projectBacklogRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> cfLevel1Deletion = CompletableFuture.allOf(
+                attachmentDeletion,
+                taskCommentsDeletion,
+                taskLabelsDeletion,
+                projectBacklogDeletion);
+
+        cfLevel1Deletion.join();
+        // --------------------------------
+        // Level 2: Delete tasks (must be after level 1)
         taskRepository.deleteByProjectId(projectId);
-        
-        // Delete columns
-        columnRepository.deleteByProjectId(projectId);
-        
-        // Delete project_users (junction table)
-        projectUsersRepository.deleteByProjectId(projectId);
-        
-        // Delete labels
-        labelRepository.deleteByProjectId(projectId);
-        
-        // Delete task_priorities  
-        taskPriorityRepository.deleteByProjectId(projectId);
-        
-        // Delete project (final step)
+
+        // --------------------------------  
+        // Level 3: Delete everything that depends on project (can be parallel)
+        CompletableFuture<Void> columnsDeletion =
+                CompletableFuture.runAsync(() -> columnRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> projectUsersDeletion =
+                CompletableFuture.runAsync(() -> projectUsersRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> labelsDeletion =
+                CompletableFuture.runAsync(() -> labelRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> taskPrioritiesDeletion =
+                CompletableFuture.runAsync(() -> taskPriorityRepository.deleteByProjectId(projectId));
+
+        CompletableFuture<Void> cfLevel3Deletion = CompletableFuture.allOf(
+                columnsDeletion,
+                projectUsersDeletion,
+                labelsDeletion,
+                taskPrioritiesDeletion);
+
+        cfLevel3Deletion.join();
+
+        // -----------------------------------------
+        // Level 4: Delete project (final step)
         projectRepository.deleteById(projectId);
         
-        // TODO: Delete physical files from GCS using fileUrls list
-        
         return new DeleteProjectResponseDTO(projectId);
+    }
+
+    private void handleUsersDefaultProjectId(UUID projectId) {
+        // Batch update default projects for users who have alternatives
+        userRepository.batchUpdateDefaultProjectsForUsersWithAlternatives(projectId);
+
+        // Clear default project for users without alternatives
+        userRepository.clearDefaultProjectForProject(projectId);
     }
 
     public CreateProjectResponseDTO createProject(CreateProjectRequestDTO createProjectRequestDTO, String email) {

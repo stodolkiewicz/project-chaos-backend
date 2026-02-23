@@ -114,5 +114,20 @@ public class CustomProjectRepository {
             .setParameter("excludeProjectId", excludeProjectId)
             .getResultList();
     }
+    
+    public List<UserAlternativeProjectQueryResponseDTO> findAlternativeProjectsForUsersWithDefaultProject(UUID defaultProjectId) {
+        return em.createQuery("""
+            SELECT new com.stodo.projectchaos.model.dto.project.firstalternativeproject.query.UserAlternativeProjectQueryResponseDTO(
+                pu.user.email, 
+                MIN(pu.project.id)
+            )
+            FROM ProjectUsersEntity pu 
+            WHERE pu.user.project.id = :defaultProjectId
+            AND pu.project.id != :defaultProjectId
+            GROUP BY pu.user.email
+            """, UserAlternativeProjectQueryResponseDTO.class)
+            .setParameter("defaultProjectId", defaultProjectId)
+            .getResultList();
+    }
 
 }

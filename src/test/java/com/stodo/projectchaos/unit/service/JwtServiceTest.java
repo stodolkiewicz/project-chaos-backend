@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.security;
+package com.stodo.projectchaos.unit.service;
 
 import com.stodo.projectchaos.security.model.ROLE_NAME;
 import com.stodo.projectchaos.security.model.TokenType;

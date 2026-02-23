@@ -1,5 +1,6 @@
-package com.stodo.projectchaos.service;
+package com.stodo.projectchaos.unit.service;
 
+import com.stodo.projectchaos.service.ProjectService;
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
