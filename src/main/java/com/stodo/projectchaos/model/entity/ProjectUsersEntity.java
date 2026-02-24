@@ -19,7 +19,7 @@ public class ProjectUsersEntity extends Auditable {
     @EmbeddedId
     private ProjectUserId id;
 
-    @ManyToOne
+    @ManyToOne(cascade = {})
     @MapsId("project")
     @JoinColumn(name = "project_id")
     private ProjectEntity project;

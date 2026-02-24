@@ -40,7 +40,7 @@ public class UserEntity extends Auditable {
     @Builder.Default
     private boolean enabled = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {})
     @JoinColumn(name = "default_project_id")
     private ProjectEntity project;
 

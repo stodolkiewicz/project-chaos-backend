@@ -27,30 +27,33 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
            "JOIN u.projectUsers pu " +
            "WHERE pu.project.id = :projectId")
     List<ProjectUserQueryResponseDTO> findProjectUsersByProjectId(UUID projectId);
-    
-    @Modifying
-    @Query("UPDATE UserEntity u SET u.project = NULL WHERE u.project.id = :projectId")
-    void clearDefaultProjectForProject(@Param("projectId") UUID projectId);
 
-    //    Update all users - set their new default project to the lowest ID project from those they have access to (but not the
-    //            deleted project), but only for users who:
+    // ---- These 2 queries are used (consecutively) to handle users' default project id,
+    //      when their default project is deleted ----------------------------------------------------------------------
+    //
+    //    Update all users - set their new default project to the max ID project (=random) from those they have access
+    //    to (but not the deleted project), but only for users who:
     //            1. Currently have the deleted project as default
     //            2. And simultaneously have access to some other project (i.e., have an alternative)
-    @Modifying
+    @Modifying(clearAutomatically = true) // true == clear the underlying persistence context after executing the modifying query.
     @Query("""
         UPDATE UserEntity u SET u.project.id = (
-            SELECT MIN(pu.project.id) 
+            SELECT MAX(pu.project.id) 
             FROM ProjectUsersEntity pu 
             WHERE pu.user.email = u.email 
-            AND pu.project.id != :excludeProjectId
+            AND pu.project.id != :projectIdBeingDeleted
         )
-        WHERE u.project.id = :excludeProjectId
+        WHERE u.project.id = :projectIdBeingDeleted
         AND EXISTS (
             SELECT 1 FROM ProjectUsersEntity pu2 
             WHERE pu2.user.email = u.email 
-            AND pu2.project.id != :excludeProjectId
+            AND pu2.project.id != :projectIdBeingDeleted
         )
         """)
-    void batchUpdateDefaultProjectsForUsersWithAlternatives(@Param("excludeProjectId") UUID excludeProjectId);
+    int batchUpdateDefaultProjectsForUsersWithAlternatives(@Param("projectIdBeingDeleted") UUID projectIdBeingDeleted);
 
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE UserEntity u SET u.project = NULL WHERE u.project.id = :projectId")
+    void clearDefaultProjectForProject(@Param("projectId") UUID projectId);
+    // ----------------------------------------------------------------------------------------------------------------
 }
