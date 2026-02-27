@@ -8,10 +8,15 @@ Frontend Repository: https://github.com/stodolkiewicz/project-chaos-frontend
 <img src="docs/images/dashboard-screenshot.png" alt="Dashboard" style="max-width: 1200px;" />
 
 
-# Run on localhost
+# How to start local development
 
-### To run postgres db (do this for local development):
+### To run postgres db:
+From the project top-level directory
+```
+docker compose up -d
+```
 
+alternatively,
 ```
 docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
 ```
