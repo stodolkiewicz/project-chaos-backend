@@ -22,7 +22,7 @@ public class ProjectSecurity {
 
         boolean userIsAdmin = projectService.isUserAdminInProject(email, projectId);
         if(!userIsAdmin) {
-            throw new AccessDeniedException("Only project administrators can assign other users to the project.");
+            throw new AccessDeniedException("Only project administrators can execute this action.");
         }
         return true;
     }
@@ -33,7 +33,7 @@ public class ProjectSecurity {
 
         boolean hasAtLeastMemberRole = projectService.hasAtLeastMemberRole(email, projectId);
         if(!hasAtLeastMemberRole) {
-            throw new AccessDeniedException("As a viewer, you can only view projects – editing is not allowed.");
+            throw new AccessDeniedException("As a viewer, you can only view projects – editing and deleting is not allowed.");
         }
         return true;
     }

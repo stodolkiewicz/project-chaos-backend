@@ -46,14 +46,6 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.findProjectsByUserEmail(email));
     }
 
-    @GetMapping("/default")
-    public ResponseEntity<DefaultProjectIdResponseDTO> getDefaultProjectId(@AuthenticationPrincipal UserDetails userDetails) {
-        String email = userDetails.getUsername();
-        Optional<UUID> defaultProjectId = projectService.findDefaultProjectIdByEmail(email);
-        
-        return ResponseEntity.ok(new DefaultProjectIdResponseDTO(defaultProjectId.orElse(null)));
-    }
-
     @GetMapping("/simple")
     public ResponseEntity<SimpleProjectsResponseDTO> getSimpleProjectList(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();

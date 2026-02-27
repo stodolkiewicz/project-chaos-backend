@@ -17,9 +17,11 @@ spring:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
     org.springframework.security: DEBUG
     org.springframework.security.oauth2: DEBUG
+    sun.rmi: WARN
+    javax.management.remote.rmi: WARN
 
 app:
   frontend-dashboard-url: http://localhost:3000/dashboard

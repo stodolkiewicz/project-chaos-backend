@@ -5,5 +5,5 @@ import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryRespo
 import java.util.List;
 import java.util.UUID;
 
-public record UserProjectsResponseDTO(List<UserProjectQueryResponseDTO> projects, UUID defaultProjectId) {
+public record UserProjectsResponseDTO(List<UserProjectQueryResponseDTO> projects) {
 }
