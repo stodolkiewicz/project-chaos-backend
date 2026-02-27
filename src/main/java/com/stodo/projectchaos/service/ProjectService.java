@@ -2,15 +2,12 @@ package com.stodo.projectchaos.service;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectMapper;
+import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectResponseDTO;
-import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
-import com.stodo.projectchaos.model.dto.project.list.query.SimpleProjectQueryResponseDTO;
-import com.stodo.projectchaos.model.dto.project.list.response.SimpleProjectsResponseDTO;
-import com.stodo.projectchaos.model.dto.project.firstalternativeproject.query.UserAlternativeProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.repository.*;
@@ -222,11 +219,6 @@ public class ProjectService {
 
             });
         });
-    }
-
-    public SimpleProjectsResponseDTO findSimpleProjectsByUserEmail(String email) {
-        List<SimpleProjectQueryResponseDTO> projects = customProjectRepository.findSimpleProjectsByUserEmail(email);
-        return new SimpleProjectsResponseDTO(projects);
     }
 
     public boolean isUserAdminInProject(String email, UUID projectId) {
