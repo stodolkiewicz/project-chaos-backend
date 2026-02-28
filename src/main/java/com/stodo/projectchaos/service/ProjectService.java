@@ -149,7 +149,7 @@ public class ProjectService {
 
     private void addProjectAdmin(String email, ProjectEntity savedProjectEntity, UserEntity userEntity) {
         ProjectUsersEntity projectUsersEntity = new ProjectUsersEntity();
-        projectUsersEntity.setId(new ProjectUserId(savedProjectEntity.getId(), email));
+        projectUsersEntity.setId(new ProjectUserId(savedProjectEntity.getId(), userEntity.getId()));
         projectUsersEntity.setProjectRole(ProjectRoleEnum.ADMIN);
         projectUsersEntity.setProject(savedProjectEntity);
         projectUsersEntity.setUser(userEntity);

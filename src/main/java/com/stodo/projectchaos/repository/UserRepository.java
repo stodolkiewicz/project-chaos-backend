@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, String> {
+public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     Optional<UserEntity> findByEmail(String email);
 
     boolean existsByEmail(String email);
@@ -40,13 +40,13 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
         UPDATE UserEntity u SET u.project.id = (
             SELECT MAX(pu.project.id) 
             FROM ProjectUsersEntity pu 
-            WHERE pu.user.email = u.email 
+            WHERE pu.user.id = u.id 
             AND pu.project.id != :projectIdBeingDeleted
         )
         WHERE u.project.id = :projectIdBeingDeleted
         AND EXISTS (
             SELECT 1 FROM ProjectUsersEntity pu2 
-            WHERE pu2.user.email = u.email 
+            WHERE pu2.user.id = u.id 
             AND pu2.project.id != :projectIdBeingDeleted
         )
         """)

@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -18,6 +19,8 @@ import java.util.Set;
 @Table(name = "users")
 public class UserEntity extends Auditable {
     @Id
+    private UUID id = UUID.randomUUID();
+
     @Email
     @Column(nullable = false, unique = true)
     private String email;

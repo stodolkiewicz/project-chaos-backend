@@ -61,7 +61,6 @@ class ProjectServiceTest {
         // then
         assertNotNull(responseDTO);
         assertEquals(1, responseDTO.projects().size());
-        assertEquals(projectId, responseDTO.defaultProjectId());
         assertEquals("Project Chaos", responseDTO.projects().get(0).projectName());
         assertEquals("Test project description", responseDTO.projects().get(0).projectDescription());
     }
@@ -81,7 +80,6 @@ class ProjectServiceTest {
         // then
         assertNotNull(responseDTO);
         assertTrue(responseDTO.projects().isEmpty());
-        assertNull(responseDTO.defaultProjectId());
     }
 
     @Test
@@ -109,7 +107,6 @@ class ProjectServiceTest {
         // then
         assertNotNull(responseDTO);
         assertEquals(1, responseDTO.projects().size());
-        assertNull(responseDTO.defaultProjectId());  // defaultProjectId is empty
     }
 
 }

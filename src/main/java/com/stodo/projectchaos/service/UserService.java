@@ -85,11 +85,11 @@ public class UserService {
         }
 
         Optional<ProjectUsersEntity> existing = projectUsersRepository
-                .findById(new ProjectUserId(projectId, invitedEmail));
+                .findById(new ProjectUserId(projectId, userToAssign.getId()));
 
         ProjectUsersEntity projectUsersEntity = existing.orElseGet(() -> {
             ProjectUsersEntity newProjectUsersEntity = new ProjectUsersEntity();
-            newProjectUsersEntity.setId(new ProjectUserId(projectId, invitedEmail));
+            newProjectUsersEntity.setId(new ProjectUserId(projectId, userToAssign.getId()));
             newProjectUsersEntity.setProject(project);
             newProjectUsersEntity.setUser(userToAssign);
 
@@ -110,9 +110,16 @@ public class UserService {
     }
 
     public void removeUserFromProject(UUID projectId, String userEmail) {
+        // Find user first by email
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("email", userEmail)
+                        .entityType("UserEntity")
+                        .build());
+
         // Check if user exists in project
         ProjectUsersEntity projectUser = projectUsersRepository
-                .findById(new ProjectUserId(projectId, userEmail))
+                .findById(new ProjectUserId(projectId, user.getId()))
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("userEmail", userEmail)
                         .entityType("ProjectUsersEntity")
@@ -130,12 +137,6 @@ public class UserService {
         projectUsersRepository.delete(projectUser);
 
         // If this was user's default project, clear it
-        UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("email", userEmail)
-                        .entityType("UserEntity")
-                        .build());
-
         if (user.getProject() != null && user.getProject().getId().equals(projectId)) {
             user.setProject(null);
             userRepository.save(user);
@@ -143,9 +144,16 @@ public class UserService {
     }
 
     public ChangeUserRoleResponseDTO changeUserRole(UUID projectId, String userEmail, ChangeUserRoleRequestDTO changeRoleRequest) {
+        // Find user first by email
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("email", userEmail)
+                        .entityType("UserEntity")
+                        .build());
+
         // Check if user exists in project
         ProjectUsersEntity projectUser = projectUsersRepository
-                .findById(new ProjectUserId(projectId, userEmail))
+                .findById(new ProjectUserId(projectId, user.getId()))
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("userEmail", userEmail)
                         .entityType("ProjectUsersEntity")
