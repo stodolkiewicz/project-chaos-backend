@@ -2,6 +2,7 @@ package com.stodo.projectchaos.repository;
 
 import com.stodo.projectchaos.model.entity.ProjectUserId;
 import com.stodo.projectchaos.model.entity.ProjectUsersEntity;
+import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface ProjectUsersRepository extends JpaRepository<ProjectUsersEntity
     @Modifying
     @Query("DELETE FROM ProjectUsersEntity pu WHERE pu.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
+
+    long countByProjectIdAndProjectRole(UUID projectId, ProjectRoleEnum projectRole);
 }

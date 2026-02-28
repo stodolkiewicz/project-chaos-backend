@@ -7,6 +7,9 @@ import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersR
 import com.stodo.projectchaos.model.dto.user.update.request.ChangeDefaultProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.user.assignuser.request.AssignUserToProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.user.assignuser.response.AssignUserToProjectResponseDTO;
+import com.stodo.projectchaos.model.dto.user.changerole.request.ChangeUserRoleRequestDTO;
+import com.stodo.projectchaos.model.dto.user.changerole.response.ChangeUserRoleResponseDTO;
+import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.model.entity.ProjectUsersEntity;
@@ -103,6 +106,70 @@ public class UserService {
                 assignUserRequest.userEmail(),
                 assignUserRequest.projectRole().getRole(),
                 successMessage
+        );
+    }
+
+    public void removeUserFromProject(UUID projectId, String userEmail) {
+        // Check if user exists in project
+        ProjectUsersEntity projectUser = projectUsersRepository
+                .findById(new ProjectUserId(projectId, userEmail))
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("userEmail", userEmail)
+                        .entityType("ProjectUsersEntity")
+                        .build());
+
+        // Check if user is admin and if removing would leave project without admins
+        if (projectUser.getProjectRole() == ProjectRoleEnum.ADMIN) {
+            long adminCount = projectUsersRepository.countByProjectIdAndProjectRole(projectId, ProjectRoleEnum.ADMIN);
+            if (adminCount <= 1) {
+                throw new IllegalStateException("Cannot remove last admin from project. Please assign another admin first.");
+            }
+        }
+
+        // Remove user from project
+        projectUsersRepository.delete(projectUser);
+
+        // If this was user's default project, clear it
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("email", userEmail)
+                        .entityType("UserEntity")
+                        .build());
+
+        if (user.getProject() != null && user.getProject().getId().equals(projectId)) {
+            user.setProject(null);
+            userRepository.save(user);
+        }
+    }
+
+    public ChangeUserRoleResponseDTO changeUserRole(UUID projectId, String userEmail, ChangeUserRoleRequestDTO changeRoleRequest) {
+        // Check if user exists in project
+        ProjectUsersEntity projectUser = projectUsersRepository
+                .findById(new ProjectUserId(projectId, userEmail))
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("userEmail", userEmail)
+                        .entityType("ProjectUsersEntity")
+                        .build());
+
+        ProjectRoleEnum currentRole = projectUser.getProjectRole();
+        ProjectRoleEnum newRole = changeRoleRequest.projectRole();
+
+        // Check if demoting last admin
+        if (currentRole == ProjectRoleEnum.ADMIN && newRole != ProjectRoleEnum.ADMIN) {
+            long adminCount = projectUsersRepository.countByProjectIdAndProjectRole(projectId, ProjectRoleEnum.ADMIN);
+            if (adminCount <= 1) {
+                throw new IllegalStateException("Cannot demote last admin. Please assign another admin first.");
+            }
+        }
+
+        // Update user role
+        projectUser.setProjectRole(newRole);
+        projectUsersRepository.save(projectUser);
+
+        return new ChangeUserRoleResponseDTO(
+                projectId,
+                userEmail,
+                newRole.getRole()
         );
     }
 }

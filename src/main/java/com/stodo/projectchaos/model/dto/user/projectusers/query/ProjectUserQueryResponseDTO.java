@@ -1,9 +1,6 @@
 package com.stodo.projectchaos.model.dto.user.projectusers.query;
 
-public record ProjectUserQueryResponseDTO(String email) {
-    public ProjectUserQueryResponseDTO {
-        if (email == null || email.isBlank()) {
-            throw new IllegalArgumentException("Email cannot be null or blank");
-        }
-    }
+import java.time.Instant;
+
+public record ProjectUserQueryResponseDTO(String email, String firstName, String lastName, String role, String googlePictureLink, Instant projectJoinDate) {
 }

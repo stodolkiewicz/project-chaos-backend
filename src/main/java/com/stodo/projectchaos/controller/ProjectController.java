@@ -5,7 +5,9 @@ import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequ
 import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersResponseDTO;
 import com.stodo.projectchaos.service.ProjectService;
+import com.stodo.projectchaos.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,6 +23,12 @@ import java.util.UUID;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final UserService userService;
+
+    @GetMapping("/{projectId}/users")
+    public ResponseEntity<ProjectUsersResponseDTO> getProjectUsers (@PathVariable UUID projectId) {
+        return ResponseEntity.ok(userService.findProjectUsersByProjectId(projectId));
+    }
 
     @PostMapping
     public ResponseEntity<CreateProjectResponseDTO> createProject(
@@ -49,5 +57,24 @@ public class ProjectController {
 
         return ResponseEntity.ok(deleteProjectResponseDTO);
     }
+
+//    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
+//    @DeleteMapping("/{projectId}/users/{userEmail}")
+//    public ResponseEntity<Void> removeUserFromProject(
+//            @PathVariable UUID projectId,
+//            @PathVariable String userEmail) {
+//        userService.removeUserFromProject(projectId, userEmail);
+//        return ResponseEntity.noContent().build();
+//    }
+//
+//    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
+//    @PutMapping("/{projectId}/users/{userEmail}/role")
+//    public ResponseEntity<ChangeUserRoleResponseDTO> changeUserRole (
+//            @PathVariable UUID projectId,
+//            @PathVariable String userEmail,
+//            @Valid @RequestBody ChangeUserRoleRequestDTO changeRoleRequest) {
+//        ChangeUserRoleResponseDTO response = userService.changeUserRole(projectId, userEmail, changeRoleRequest);
+//        return ResponseEntity.ok(response);
+//    }
 
 }
