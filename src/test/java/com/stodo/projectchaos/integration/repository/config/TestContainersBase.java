@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.integration.repository.config;
 
+import org.junit.jupiter.api.Tag;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
@@ -16,6 +17,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
         "spring.jpa.hibernate.ddl-auto=none",
 })
 @ActiveProfiles("test")
+@Tag("integration-test")
 @DataJpaTest
 @EnableJpaAuditing
 public class TestContainersBase {

@@ -203,6 +203,13 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version> <configuration>
+				<excludedGroups>integration-test</excludedGroups>
+			</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
