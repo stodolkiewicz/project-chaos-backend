@@ -59,14 +59,6 @@ public class ProjectController {
         return ResponseEntity.ok(deleteProjectResponseDTO);
     }
 
-    @GetMapping("/default-project")
-    public ResponseEntity<DefaultProjectIdResponseDTO> getDefaultProjectId(@AuthenticationPrincipal UserDetails userDetails) {
-        String email = userDetails.getUsername();
-        Optional<UUID> defaultProjectId = projectService.findDefaultProjectIdByEmail(email);
-
-        return ResponseEntity.ok(new DefaultProjectIdResponseDTO(defaultProjectId.orElse(null)));
-    }
-
     @GetMapping("/{projectId}/users")
     public ResponseEntity<ProjectUsersResponseDTO> getProjectUsers (@PathVariable UUID projectId) {
         return ResponseEntity.ok(projectService.findProjectUsersByProjectId(projectId));

@@ -119,10 +119,6 @@ public class ProjectService {
         return new CreateProjectResponseDTO(savedProjectEntity.getId(), savedProjectEntity.getName());
     }
 
-    public Optional<UUID> findDefaultProjectIdByEmail(String email) {
-        return userRepository.findDefaultProjectIdByEmail(email);
-    }
-
     private void saveDefaultTaskPriorities(ProjectEntity savedProjectEntity) {
         TaskPriorityEntity taskPriorityEntityLow = new TaskPriorityEntity();
         taskPriorityEntityLow.setProject(savedProjectEntity);
