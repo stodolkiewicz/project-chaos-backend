@@ -3,13 +3,16 @@ package com.stodo.projectchaos.controller;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectResponseDTO;
+import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultProjectIdResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.user.assignuser.request.AssignUserToProjectRequestDTO;
+import com.stodo.projectchaos.model.dto.user.assignuser.response.AssignUserToProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.user.changerole.request.ChangeUserRoleRequestDTO;
 import com.stodo.projectchaos.model.dto.user.changerole.response.ChangeUserRoleResponseDTO;
+import com.stodo.projectchaos.model.dto.user.unassign.request.UnassignUserFromProjectRequestDTO;
 import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersResponseDTO;
 import com.stodo.projectchaos.service.ProjectService;
-import com.stodo.projectchaos.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -26,12 +30,6 @@ import java.util.UUID;
 public class ProjectController {
 
     private final ProjectService projectService;
-    private final UserService userService;
-
-    @GetMapping("/{projectId}/users")
-    public ResponseEntity<ProjectUsersResponseDTO> getProjectUsers (@PathVariable UUID projectId) {
-        return ResponseEntity.ok(userService.findProjectUsersByProjectId(projectId));
-    }
 
     @PostMapping
     public ResponseEntity<CreateProjectResponseDTO> createProject(
@@ -61,12 +59,33 @@ public class ProjectController {
         return ResponseEntity.ok(deleteProjectResponseDTO);
     }
 
+    @GetMapping("/default-project")
+    public ResponseEntity<DefaultProjectIdResponseDTO> getDefaultProjectId(@AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        Optional<UUID> defaultProjectId = projectService.findDefaultProjectIdByEmail(email);
+
+        return ResponseEntity.ok(new DefaultProjectIdResponseDTO(defaultProjectId.orElse(null)));
+    }
+
+    @GetMapping("/{projectId}/users")
+    public ResponseEntity<ProjectUsersResponseDTO> getProjectUsers (@PathVariable UUID projectId) {
+        return ResponseEntity.ok(projectService.findProjectUsersByProjectId(projectId));
+    }
+
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
-    @DeleteMapping("/{projectId}/users/{userId}")
+    @PatchMapping("/{projectId}/users")
+    public ResponseEntity<AssignUserToProjectResponseDTO> assignUserToProject(
+            @PathVariable UUID projectId,
+            @Valid @RequestBody AssignUserToProjectRequestDTO assignUserRequest) {
+        return ResponseEntity.ok(projectService.assignUserToProject(projectId, assignUserRequest));
+    }
+
+    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
+    @DeleteMapping("/{projectId}/users")
     public ResponseEntity<Void> removeUserFromProject(
             @PathVariable UUID projectId,
-            @PathVariable UUID userId) {
-        userService.removeUserFromProject(projectId, userId);
+            @Valid @RequestBody UnassignUserFromProjectRequestDTO unassignRequest) {
+        projectService.removeUserFromProject(projectId, unassignRequest);
         return ResponseEntity.noContent().build();
     }
 
@@ -76,7 +95,7 @@ public class ProjectController {
             @PathVariable UUID projectId,
             @PathVariable UUID userId,
             @Valid @RequestBody ChangeUserRoleRequestDTO changeRoleRequest) {
-        ChangeUserRoleResponseDTO response = userService.changeUserRole(projectId, userId, changeRoleRequest);
+        ChangeUserRoleResponseDTO response = projectService.changeUserRole(projectId, userId, changeRoleRequest);
         return ResponseEntity.ok(response);
     }
 

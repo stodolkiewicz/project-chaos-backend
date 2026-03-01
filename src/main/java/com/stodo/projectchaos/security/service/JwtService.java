@@ -2,6 +2,7 @@ package com.stodo.projectchaos.security.service;
 
 import com.stodo.projectchaos.security.model.ROLE_NAME;
 import com.stodo.projectchaos.security.model.TokenType;
+import com.stodo.projectchaos.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.UUID;
 import java.util.function.Function;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.*;
@@ -27,15 +29,18 @@ public class JwtService {
     private String secret;
     private String cookieDomain;
     private boolean cookieSecure;
+    private UserService userService;
 
     public JwtService(
             @Value("${jwt.secret}") String secret,
             @Value("${app.security.cookie.domain}") String cookieDomain,
-            @Value("${app.security.cookie.secure}") boolean cookieSecure
-            ) {
+            @Value("${app.security.cookie.secure}") boolean cookieSecure,
+            UserService userService
+    ) {
         this.secret = secret;
         this.cookieDomain = cookieDomain;
         this.cookieSecure = cookieSecure;
+        this.userService = userService;
     }
 
     // --------------------- Claim extraction -------------------------------------------------------------------------
@@ -88,9 +93,12 @@ public class JwtService {
     }
 
     public String generateAccessToken(String userEmail, String pictureUrl, String firstName, long expirationInSeconds) {
+        UUID userId = userService.getUserIdByEmail(userEmail);
+
         return createCommonTokenConfiguration.apply(userEmail)
                 .expiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds)) // 15 min
                 .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.ACCESS)
+                .claim("userId", userId)
                 .claim("pictureUrl", pictureUrl)
                 .claim("firstName", firstName)
                 .compact();

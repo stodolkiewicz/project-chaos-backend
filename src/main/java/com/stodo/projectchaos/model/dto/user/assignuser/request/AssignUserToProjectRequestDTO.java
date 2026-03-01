@@ -6,8 +6,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record AssignUserToProjectRequestDTO(
     @NotNull(message = "User email is required")
-    @Email(message = "Invalid email format")
+    @Email(message = "Valid email is required")
     String userEmail,
+    
     @NotNull(message = "Project role is required")
     ProjectRoleEnum projectRole
 ) {} 

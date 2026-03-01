@@ -8,6 +8,14 @@ import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectRes
 import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.model.dto.user.assignuser.request.AssignUserToProjectRequestDTO;
+import com.stodo.projectchaos.model.dto.user.assignuser.response.AssignUserToProjectResponseDTO;
+import com.stodo.projectchaos.model.dto.user.changerole.request.ChangeUserRoleRequestDTO;
+import com.stodo.projectchaos.model.dto.user.changerole.response.ChangeUserRoleResponseDTO;
+import com.stodo.projectchaos.model.dto.user.unassign.request.UnassignUserFromProjectRequestDTO;
+import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersResponseDTO;
+import com.stodo.projectchaos.model.dto.user.projectusers.ProjectUserMapper;
+import com.stodo.projectchaos.model.dto.user.projectusers.query.ProjectUserQueryResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.repository.*;
@@ -228,5 +236,119 @@ public class ProjectService {
     public boolean hasAtLeastMemberRole(String email, UUID projectId) {
         return customProjectRepository.hasAtLeastMemberRole(email, projectId);
     }
+
+    public ProjectUsersResponseDTO findProjectUsersByProjectId(UUID projectId) {
+        List<ProjectUserQueryResponseDTO> users = userRepository.findProjectUsersByProjectId(projectId);
+        return ProjectUserMapper.INSTANCE.toProjectUsersResponseDTO(users);
+    }
+
+    public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, AssignUserToProjectRequestDTO assignUserRequest) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("projectId", projectId)
+                        .entityType("ProjectEntity")
+                        .build());
+
+        UserEntity userToAssign = userRepository.findByEmail(assignUserRequest.userEmail())
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("email", assignUserRequest.userEmail())
+                        .entityType("UserEntity")
+                        .build());
+
+        // if user does not have defaultProject, assign it to him
+        if(userToAssign.getProject() == null) {
+            userToAssign.setProject(project);
+            userRepository.save(userToAssign);
+        }
+
+        // Create or update project user relation
+        ProjectUsersEntity projectUsersEntity = new ProjectUsersEntity();
+        projectUsersEntity.setId(new ProjectUserId(projectId, userToAssign.getId()));
+        projectUsersEntity.setProject(project);
+        projectUsersEntity.setUser(userToAssign);
+        
+        // if projectUsers entity already exists, only role may have changed
+        projectUsersEntity.setProjectRole(assignUserRequest.projectRole());
+        projectUsersRepository.save(projectUsersEntity);
+
+        return new AssignUserToProjectResponseDTO(
+                projectId,
+                userToAssign.getId(),
+                assignUserRequest.projectRole().getRole()
+        );
+    }
+
+    public void removeUserFromProject(UUID projectId, UnassignUserFromProjectRequestDTO unassignRequest) {
+        // Find user first by email
+        UserEntity user = userRepository.findByEmail(unassignRequest.userEmail())
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("email", unassignRequest.userEmail())
+                        .entityType("UserEntity")
+                        .build());
+
+        // Check if user exists in project
+        ProjectUsersEntity projectUser = projectUsersRepository
+                .findById(new ProjectUserId(projectId, user.getId()))
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("userEmail", unassignRequest.userEmail())
+                        .entityType("ProjectUsersEntity")
+                        .build());
+
+        // Check if user is admin and if removing would leave project without admins
+        if (projectUser.getProjectRole() == ProjectRoleEnum.ADMIN) {
+            long adminCount = projectUsersRepository.countByProjectIdAndProjectRole(projectId, ProjectRoleEnum.ADMIN);
+            if (adminCount <= 1) {
+                throw new IllegalStateException("Cannot remove last admin from project. Please assign another admin first.");
+            }
+        }
+
+        // Remove user from project
+        projectUsersRepository.delete(projectUser);
+
+        // If this was user's default project, clear it
+        if (user.getProject() != null && user.getProject().getId().equals(projectId)) {
+            user.setProject(null);
+            userRepository.save(user);
+        }
+    }
+
+    public ChangeUserRoleResponseDTO changeUserRole(UUID projectId, UUID userId, ChangeUserRoleRequestDTO changeRoleRequest) {
+        // Find user first by id
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("id", userId)
+                        .entityType("UserEntity")
+                        .build());
+
+        // Check if user exists in project
+        ProjectUsersEntity projectUser = projectUsersRepository
+                .findById(new ProjectUserId(projectId, user.getId()))
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("userId", userId)
+                        .entityType("ProjectUsersEntity")
+                        .build());
+
+        ProjectRoleEnum currentRole = projectUser.getProjectRole();
+        ProjectRoleEnum newRole = changeRoleRequest.projectRole();
+
+        // Check if demoting last admin
+        if (currentRole == ProjectRoleEnum.ADMIN && newRole != ProjectRoleEnum.ADMIN) {
+            long adminCount = projectUsersRepository.countByProjectIdAndProjectRole(projectId, ProjectRoleEnum.ADMIN);
+            if (adminCount <= 1) {
+                throw new IllegalStateException("Cannot demote last admin. Please assign another admin first.");
+            }
+        }
+
+        // Update user role
+        projectUser.setProjectRole(newRole);
+        projectUsersRepository.save(projectUser);
+
+        return new ChangeUserRoleResponseDTO(
+                projectId,
+                userId,
+                newRole.getRole()
+        );
+    }
+
 
 }

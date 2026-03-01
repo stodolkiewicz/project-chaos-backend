@@ -3,11 +3,13 @@ package com.stodo.projectchaos.unit.service;
 import com.stodo.projectchaos.security.model.ROLE_NAME;
 import com.stodo.projectchaos.security.model.TokenType;
 import com.stodo.projectchaos.security.service.JwtService;
+import com.stodo.projectchaos.service.UserService;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Date;
@@ -22,12 +24,15 @@ class JwtServiceTest {
 
     private JwtService jwtService;
 
+    @Mock
+    private UserService userService;
+
     private static final String USER_EMAIL = "test@example.com";
     private static final String ADMIN_EMAIL = ADMINS.getFirst();
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtService(SECRET, "cookieDomain", true);
+        jwtService = new JwtService(SECRET, "cookieDomain", true, userService);
     }
 
     @DisplayName("Generate Access Token sanity check")

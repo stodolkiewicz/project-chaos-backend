@@ -4,7 +4,6 @@ import java.util.UUID;
 
 public record AssignUserToProjectResponseDTO(
     UUID projectId,
-    String userEmail,
-    String projectRole,
-    String message
+    UUID userId,
+    String projectRole
 ) {} 
