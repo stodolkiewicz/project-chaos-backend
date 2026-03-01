@@ -109,11 +109,11 @@ public class UserService {
         );
     }
 
-    public void removeUserFromProject(UUID projectId, String userEmail) {
-        // Find user first by email
-        UserEntity user = userRepository.findByEmail(userEmail)
+    public void removeUserFromProject(UUID projectId, UUID userId) {
+        // Find user first by id
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("email", userEmail)
+                        .identifier("id", userId)
                         .entityType("UserEntity")
                         .build());
 
@@ -121,7 +121,7 @@ public class UserService {
         ProjectUsersEntity projectUser = projectUsersRepository
                 .findById(new ProjectUserId(projectId, user.getId()))
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("userEmail", userEmail)
+                        .identifier("userId", userId)
                         .entityType("ProjectUsersEntity")
                         .build());
 
@@ -143,11 +143,11 @@ public class UserService {
         }
     }
 
-    public ChangeUserRoleResponseDTO changeUserRole(UUID projectId, String userEmail, ChangeUserRoleRequestDTO changeRoleRequest) {
-        // Find user first by email
-        UserEntity user = userRepository.findByEmail(userEmail)
+    public ChangeUserRoleResponseDTO changeUserRole(UUID projectId, UUID userId, ChangeUserRoleRequestDTO changeRoleRequest) {
+        // Find user first by id
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("email", userEmail)
+                        .identifier("id", userId)
                         .entityType("UserEntity")
                         .build());
 
@@ -155,7 +155,7 @@ public class UserService {
         ProjectUsersEntity projectUser = projectUsersRepository
                 .findById(new ProjectUserId(projectId, user.getId()))
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("userEmail", userEmail)
+                        .identifier("userId", userId)
                         .entityType("ProjectUsersEntity")
                         .build());
 
@@ -176,7 +176,7 @@ public class UserService {
 
         return new ChangeUserRoleResponseDTO(
                 projectId,
-                userEmail,
+                userId,
                 newRole.getRole()
         );
     }

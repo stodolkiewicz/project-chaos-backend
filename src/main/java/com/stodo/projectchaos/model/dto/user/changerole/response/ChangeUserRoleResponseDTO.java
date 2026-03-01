@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public record ChangeUserRoleResponseDTO(
         UUID projectId,
-        String userEmail,
+        UUID userId,
         String newRole
 ) {
 }
