@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.service;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
+import com.stodo.projectchaos.exception.UserAlreadyInProjectException;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectMapper;
 import com.stodo.projectchaos.model.dto.project.byid.response.ProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.create.request.CreateProjectRequestDTO;
@@ -239,17 +240,25 @@ public class ProjectService {
     }
 
     public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, AssignUserToProjectRequestDTO assignUserRequest) {
+        String userEmail = assignUserRequest.userEmail();
+        ProjectRoleEnum userRoleToBeAssigned = assignUserRequest.projectRole();
+
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("projectId", projectId)
                         .entityType("ProjectEntity")
                         .build());
 
-        UserEntity userToAssign = userRepository.findByEmail(assignUserRequest.userEmail())
+        UserEntity userToAssign = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("email", assignUserRequest.userEmail())
+                        .identifier("email", userEmail)
                         .entityType("UserEntity")
                         .build());
+
+        // check if user already is in project
+        if(customProjectRepository.ifUserIsInProject(userEmail, projectId)) {
+            throw new UserAlreadyInProjectException(userEmail, project.getName());
+        }
 
         // if user does not have defaultProject, assign it to him
         if(userToAssign.getProject() == null) {
@@ -264,13 +273,13 @@ public class ProjectService {
         projectUsersEntity.setUser(userToAssign);
         
         // if projectUsers entity already exists, only role may have changed
-        projectUsersEntity.setProjectRole(assignUserRequest.projectRole());
+        projectUsersEntity.setProjectRole(userRoleToBeAssigned);
         projectUsersRepository.save(projectUsersEntity);
 
         return new AssignUserToProjectResponseDTO(
                 projectId,
                 userToAssign.getId(),
-                assignUserRequest.projectRole().getRole()
+                userRoleToBeAssigned.getRole()
         );
     }
 

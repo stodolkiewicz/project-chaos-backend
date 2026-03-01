@@ -66,7 +66,7 @@ public class ProjectController {
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
     @PatchMapping("/{projectId}/users")
-    public ResponseEntity<AssignUserToProjectResponseDTO> assignUserToProject(
+    public ResponseEntity<AssignUserToProjectResponseDTO> addUserToProject(
             @PathVariable UUID projectId,
             @Valid @RequestBody AssignUserToProjectRequestDTO assignUserRequest) {
         return ResponseEntity.ok(projectService.assignUserToProject(projectId, assignUserRequest));

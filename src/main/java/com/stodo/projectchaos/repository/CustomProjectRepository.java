@@ -18,6 +18,20 @@ public class CustomProjectRepository {
     @PersistenceContext
     private EntityManager em;
 
+    public boolean ifUserIsInProject(String userEmail, UUID projectId) {
+        Long count = em.createQuery("""
+                SELECT COUNT(pu) 
+                FROM ProjectUsersEntity pu 
+                WHERE pu.user.email = :email 
+                AND pu.project.id = :projectId
+                """, Long.class)
+                .setParameter("email", userEmail)
+                .setParameter("projectId", projectId)
+                .getSingleResult();
+
+        return count > 0;
+    }
+    
     public List<UserProjectQueryResponseDTO> findProjectsByUserEmail(String email) {
         List<UserProjectQueryResponseDTO> userProjectQueryResponseDTOList =
                 em.createQuery("""

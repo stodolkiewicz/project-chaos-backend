@@ -32,6 +32,19 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(UserAlreadyInProjectException.class)
+    public ProblemDetail handleUserAlreadyInProjectException(UserAlreadyInProjectException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT); // 409
+        problem.setTitle("User can not be assigned to a project");
+        problem.setDetail(ex.getMessage());
+        // on what endpoint the error occurred
+        problem.setInstance(URI.create(request.getRequestURI()));
+
+        problem.setProperty("timestamp", Instant.now());
+
+        return problem;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
