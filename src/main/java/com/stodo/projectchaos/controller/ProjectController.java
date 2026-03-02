@@ -6,12 +6,6 @@ import com.stodo.projectchaos.model.dto.project.create.response.CreateProjectRes
 import com.stodo.projectchaos.model.dto.project.defaultproject.response.DefaultProjectIdResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
-import com.stodo.projectchaos.model.dto.user.assignuser.request.AssignUserToProjectRequestDTO;
-import com.stodo.projectchaos.model.dto.user.assignuser.response.AssignUserToProjectResponseDTO;
-import com.stodo.projectchaos.model.dto.user.changerole.request.ChangeUserRoleRequestDTO;
-import com.stodo.projectchaos.model.dto.user.changerole.response.ChangeUserRoleResponseDTO;
-import com.stodo.projectchaos.model.dto.user.unassign.request.UnassignUserFromProjectRequestDTO;
-import com.stodo.projectchaos.model.dto.user.projectusers.response.ProjectUsersResponseDTO;
 import com.stodo.projectchaos.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +38,6 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.findProjectById(projectId));
     }
 
-    // to be used to display list of projects for user
     @GetMapping
     public ResponseEntity<UserProjectsResponseDTO> getProjectList(@AuthenticationPrincipal UserDetails userDetails) {
         String email = userDetails.getUsername();
@@ -59,36 +52,5 @@ public class ProjectController {
         return ResponseEntity.ok(deleteProjectResponseDTO);
     }
 
-    @GetMapping("/{projectId}/users")
-    public ResponseEntity<ProjectUsersResponseDTO> getProjectUsers (@PathVariable UUID projectId) {
-        return ResponseEntity.ok(projectService.findProjectUsersByProjectId(projectId));
-    }
-
-    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
-    @PatchMapping("/{projectId}/users")
-    public ResponseEntity<AssignUserToProjectResponseDTO> addUserToProject(
-            @PathVariable UUID projectId,
-            @Valid @RequestBody AssignUserToProjectRequestDTO assignUserRequest) {
-        return ResponseEntity.ok(projectService.assignUserToProject(projectId, assignUserRequest));
-    }
-
-    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
-    @DeleteMapping("/{projectId}/users")
-    public ResponseEntity<Void> removeUserFromProject(
-            @PathVariable UUID projectId,
-            @Valid @RequestBody UnassignUserFromProjectRequestDTO unassignRequest) {
-        projectService.removeUserFromProject(projectId, unassignRequest);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
-    @PatchMapping("/{projectId}/users/{userId}/role")
-    public ResponseEntity<ChangeUserRoleResponseDTO> changeUserRole (
-            @PathVariable UUID projectId,
-            @PathVariable UUID userId,
-            @Valid @RequestBody ChangeUserRoleRequestDTO changeRoleRequest) {
-        ChangeUserRoleResponseDTO response = projectService.changeUserRole(projectId, userId, changeRoleRequest);
-        return ResponseEntity.ok(response);
-    }
 
 }

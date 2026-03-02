@@ -254,6 +254,7 @@ public class ProjectService {
                         .identifier("email", userEmail)
                         .entityType("UserEntity")
                         .build());
+        // todo: na froncie error handling przy dodawaniu usera ktorego email nie jest w ogole w bazie.
 
         // check if user already is in project
         if(customProjectRepository.ifUserIsInProject(userEmail, projectId)) {

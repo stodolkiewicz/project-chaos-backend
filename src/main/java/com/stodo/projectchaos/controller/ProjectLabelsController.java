@@ -11,7 +11,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/projects/{projectId}")
 @RequiredArgsConstructor
-public class LabelController {
+public class ProjectLabelsController {
     
     private final LabelService labelService;
     

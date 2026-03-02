@@ -15,7 +15,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
-public class TaskPriorityController {
+public class ProjectTaskPrioritiesController {
     private final TaskPriorityService taskPriorityService;
 
     @GetMapping("/{projectId}/task-priorities")

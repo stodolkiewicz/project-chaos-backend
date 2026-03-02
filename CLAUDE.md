@@ -16,6 +16,11 @@ This is a Java Spring Boot backend project for project-chaos.
 - **JWT Secret**: Application requires `JWT_SECRET` environment variable to start
 - **Test App Startup**: After making changes, ALWAYS test that application starts properly
 
+## Communication Guidelines
+- **When asked a question, ALWAYS provide direct answers first**
+- **Do NOT suggest code changes or modifications unless explicitly asked**
+- **Answer what was asked, not what you think should be changed**
+
 ## Testing Protocol
 ⚠️ **IMPORTANT**: After any code changes, verify application startup with:
 ```bash
@@ -128,7 +133,33 @@ TaskEntity (1) ←→ (N) AttachmentEntity
 ```
 
 ### Inheritance Hierarchy
-- **Auditable**: Base class with `createdAt`, `updatedAt`, `createdBy`, `updatedBy`
-  - Used by: UserEntity, ProjectEntity, ProjectUsersEntity, TaskEntity, AttachmentEntity
+- **Auditable**: Base class with `createdDate`, `lastModifiedDate`, `lastModifiedBy`, `version`
+  - **Database columns required**: `created_date TIMESTAMP NOT NULL`, `last_modified_date TIMESTAMP`, `last_modified_by VARCHAR(255)`, `version INTEGER`
+  - **Spring Data JPA auditing**: Uses `@CreatedDate`, `@LastModifiedDate`, `@LastModifiedBy`, `@Version`
+  - Used by: UserEntity, ProjectEntity, ProjectUsersEntity, TaskEntity, AttachmentEntity, InvitationEntity
 - **Versioned**: Extends Auditable, adds optimistic locking with `@Version`
   - Used by: ColumnEntity
+
+### Auditable Class Requirements
+⚠️ **IMPORTANT**: When creating new entities that extend `Auditable`:
+1. **Always add auditing columns to Liquibase migrations**
+2. **Column names**: `created_date`, `last_modified_date`, `last_modified_by`, `version`
+3. **Types**: TIMESTAMP for dates, VARCHAR(255) for user, INTEGER for version
+
+### Service Layer Rules
+⚠️ **CRITICAL**: Service methods must NEVER return Entity objects:
+- **Always return DTOs** from service methods
+- **Never expose JPA entities** outside the service layer
+- **Use MapStruct mappers** to convert Entity to DTO before returning
+
+### MapStruct Usage
+**Pattern in project:**
+```java
+@Mapper
+public interface EntityMapper {
+    EntityMapper INSTANCE = Mappers.getMapper(EntityMapper.class);
+    
+    ResponseDTO toResponseDTO(Entity entity);
+}
+```
+**Usage:** `EntityMapper.INSTANCE.toResponseDTO(entity)`
