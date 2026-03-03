@@ -147,10 +147,11 @@ TaskEntity (1) ←→ (N) AttachmentEntity
 3. **Types**: TIMESTAMP for dates, VARCHAR(255) for user, INTEGER for version
 
 ### Service Layer Rules
-⚠️ **CRITICAL**: Service methods must NEVER return Entity objects:
-- **Always return DTOs** from service methods
+⚠️ **CRITICAL**: Service methods must NEVER return Entity objects or xxxResponseDTO objects:
+- **Services should return their own service-specific objects** (not DTOs)
 - **Never expose JPA entities** outside the service layer
-- **Use MapStruct mappers** to convert Entity to DTO before returning
+- **RestControllers map service objects to xxxResponseDTOs** using MapStruct
+- **Service-to-Controller mapping pattern**: Service returns domain objects → Controller maps to ResponseDTOs
 
 ### MapStruct Usage
 **Pattern in project:**

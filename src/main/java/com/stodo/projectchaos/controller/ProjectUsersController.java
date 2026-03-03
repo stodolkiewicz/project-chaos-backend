@@ -30,7 +30,11 @@ public class ProjectUsersController {
     public ResponseEntity<AssignUserToProjectResponseDTO> addUserToProject(
             @PathVariable UUID projectId,
             @Valid @RequestBody AssignUserToProjectRequestDTO assignUserRequest) {
-        return ResponseEntity.ok(projectService.assignUserToProject(projectId, assignUserRequest));
+        return ResponseEntity.ok(projectService.assignUserToProject(
+                projectId,
+                assignUserRequest.userEmail(),
+                assignUserRequest.projectRole())
+        );
     }
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")

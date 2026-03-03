@@ -239,10 +239,7 @@ public class ProjectService {
         return ProjectUserMapper.INSTANCE.toProjectUsersResponseDTO(users);
     }
 
-    public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, AssignUserToProjectRequestDTO assignUserRequest) {
-        String userEmail = assignUserRequest.userEmail();
-        ProjectRoleEnum userRoleToBeAssigned = assignUserRequest.projectRole();
-
+    public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, String userEmail, ProjectRoleEnum userRoleToBeAssigned) {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("projectId", projectId)
@@ -355,6 +352,5 @@ public class ProjectService {
                 newRole.getRole()
         );
     }
-
 
 }

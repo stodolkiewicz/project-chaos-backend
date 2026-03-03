@@ -4,6 +4,7 @@ import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.model.enums.RoleEnum;
 import com.stodo.projectchaos.repository.UserRepository;
 import com.stodo.projectchaos.security.service.JwtService;
+import com.stodo.projectchaos.service.InvitationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,15 +27,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
     private final String frontendDashboardUrl;
     private final UserRepository userRepository;
+    private final InvitationService invitationService;
 
     public OAuth2LoginSuccessHandler(
             JwtService jwtService,
             @Value("${app.frontend-dashboard-url}") String frontendDashboardUrl,
-            UserRepository userRepository
+            UserRepository userRepository, InvitationService invitationService
     ) {
         this.jwtService = jwtService;
         this.frontendDashboardUrl = frontendDashboardUrl;
         this.userRepository = userRepository;
+        this.invitationService = invitationService;
     }
 
     @Override
@@ -88,6 +91,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             newUserEntity.setRole(RoleEnum.valueOf(jwtService.getUserRole(userEmail)));
 
             userRepository.saveAndFlush(newUserEntity);
+
+            // check if user has an invitation. yes -> assign project and default project.
+//            invitationService.
         }
     }
 }
