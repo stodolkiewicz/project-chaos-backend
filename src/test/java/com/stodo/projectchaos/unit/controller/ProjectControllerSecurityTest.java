@@ -1,10 +1,10 @@
 package com.stodo.projectchaos.unit.controller;
 
-import com.stodo.projectchaos.controller.ProjectController;
-import com.stodo.projectchaos.model.dto.project.list.response.DeleteProjectResponseDTO;
+import com.stodo.projectchaos.features.project.ProjectController;
+import com.stodo.projectchaos.features.project.dto.response.DeleteProjectResponseDTO;
 import com.stodo.projectchaos.security.method.ProjectSecurity;
 import com.stodo.projectchaos.security.service.JwtService;
-import com.stodo.projectchaos.service.ProjectService;
+import com.stodo.projectchaos.features.project.ProjectService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

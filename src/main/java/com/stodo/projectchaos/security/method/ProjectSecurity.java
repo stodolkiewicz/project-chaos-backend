@@ -1,6 +1,6 @@
 package com.stodo.projectchaos.security.method;
 
-import com.stodo.projectchaos.service.ProjectService;
+import com.stodo.projectchaos.features.project.ProjectService;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;

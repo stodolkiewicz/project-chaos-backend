@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ActiveProfiles;
 
+import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
@@ -18,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Tag("h2")
 @DataJpaTest
 @AutoConfigureTestDatabase // h2 by default
+@ActiveProfiles("test")
 class UserEntityIT {
 
     @Autowired
@@ -32,6 +35,7 @@ class UserEntityIT {
     @BeforeEach
     public void setup() {
         userEntity = UserEntity.builder()
+                .id(UUID.randomUUID())
                 .email(VALID_EMAIL)
                 .firstName(FIRST_NAME)
                 .lastName(LAST_NAME)

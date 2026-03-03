@@ -1,12 +1,12 @@
 package com.stodo.projectchaos.unit.service;
 
-import com.stodo.projectchaos.service.ProjectService;
-import com.stodo.projectchaos.model.dto.project.list.query.UserProjectQueryResponseDTO;
-import com.stodo.projectchaos.model.dto.project.list.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.features.project.ProjectService;
+import com.stodo.projectchaos.features.project.dto.query.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.features.project.dto.response.UserProjectsResponseDTO;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
-import com.stodo.projectchaos.repository.CustomProjectRepository;
-import com.stodo.projectchaos.repository.ProjectRepository;
-import com.stodo.projectchaos.repository.UserRepository;
+import com.stodo.projectchaos.features.project.CustomProjectRepository;
+import com.stodo.projectchaos.features.project.ProjectRepository;
+import com.stodo.projectchaos.features.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

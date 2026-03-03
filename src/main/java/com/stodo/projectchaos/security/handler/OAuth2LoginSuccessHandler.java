@@ -2,9 +2,9 @@ package com.stodo.projectchaos.security.handler;
 
 import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.model.enums.RoleEnum;
-import com.stodo.projectchaos.repository.UserRepository;
+import com.stodo.projectchaos.features.user.UserRepository;
 import com.stodo.projectchaos.security.service.JwtService;
-import com.stodo.projectchaos.service.InvitationService;
+import com.stodo.projectchaos.features.invitation.InvitationService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -3,7 +3,7 @@ package com.stodo.projectchaos.unit.service;
 import com.stodo.projectchaos.security.model.ROLE_NAME;
 import com.stodo.projectchaos.security.model.TokenType;
 import com.stodo.projectchaos.security.service.JwtService;
-import com.stodo.projectchaos.service.UserService;
+import com.stodo.projectchaos.features.user.UserService;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -2,7 +2,7 @@ package com.stodo.projectchaos.security.service;
 
 import com.stodo.projectchaos.security.model.ROLE_NAME;
 import com.stodo.projectchaos.security.model.TokenType;
-import com.stodo.projectchaos.service.UserService;
+import com.stodo.projectchaos.features.user.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
