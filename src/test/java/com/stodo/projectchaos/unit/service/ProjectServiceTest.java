@@ -2,7 +2,7 @@ package com.stodo.projectchaos.unit.service;
 
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.dto.query.UserProjectQueryResponseDTO;
-import com.stodo.projectchaos.features.project.dto.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.features.project.dto.service.UserProjects;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.features.project.CustomProjectRepository;
 import com.stodo.projectchaos.features.project.ProjectRepository;
@@ -56,7 +56,7 @@ class ProjectServiceTest {
         when(userRepository.findDefaultProjectIdByEmail(email)).thenReturn(defaultProjectId);
 
         // when
-        UserProjectsResponseDTO responseDTO = projectService.findProjectsByUserEmail(email);
+        UserProjects responseDTO = projectService.findProjectsByUserEmail(email);
 
         // then
         assertNotNull(responseDTO);
@@ -75,7 +75,7 @@ class ProjectServiceTest {
         when(userRepository.findDefaultProjectIdByEmail(email)).thenReturn(defaultProjectId);
 
         // when
-        UserProjectsResponseDTO responseDTO = projectService.findProjectsByUserEmail(email);
+        UserProjects responseDTO = projectService.findProjectsByUserEmail(email);
 
         // then
         assertNotNull(responseDTO);
@@ -102,7 +102,7 @@ class ProjectServiceTest {
         when(userRepository.findDefaultProjectIdByEmail(email)).thenReturn(Optional.empty());
 
         // when
-        UserProjectsResponseDTO responseDTO = projectService.findProjectsByUserEmail(email);
+        UserProjects responseDTO = projectService.findProjectsByUserEmail(email);
 
         // then
         assertNotNull(responseDTO);

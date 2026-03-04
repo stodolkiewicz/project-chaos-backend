@@ -1,10 +1,8 @@
 package com.stodo.projectchaos.features.invitation;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
-import com.stodo.projectchaos.features.invitation.dto.mapper.CreateInvitationMapper;
-import com.stodo.projectchaos.features.invitation.dto.response.CreateInvitationResponseDTO;
-import com.stodo.projectchaos.features.invitation.dto.mapper.InvitationMapper;
-import com.stodo.projectchaos.features.invitation.dto.response.InvitationResponseDTO;
+import com.stodo.projectchaos.features.invitation.dto.service.Invitation;
+import com.stodo.projectchaos.features.invitation.dto.mapper.InvitationEntityMapper;
 import com.stodo.projectchaos.model.entity.InvitationEntity;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;
@@ -44,7 +42,7 @@ public class InvitationService {
         this.customProjectRepository = customProjectRepository;
     }
 
-    public CreateInvitationResponseDTO createInvitation(String invitedEmail, UUID projectId, String role, String invitedByEmail) {
+    public Invitation createInvitation(String invitedEmail, UUID projectId, String role, String invitedByEmail) {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("projectId", projectId)
@@ -80,18 +78,18 @@ public class InvitationService {
                 .build();
 
         InvitationEntity savedInvitation = invitationRepository.save(invitation);
-        return CreateInvitationMapper.INSTANCE.toCreateInvitationResponseDTO(savedInvitation);
+        return InvitationEntityMapper.INSTANCE.toInvitation(savedInvitation);
     }
 
-    public List<InvitationResponseDTO> getInvitationsByEmail(String email) {
+    public List<Invitation> getInvitationsByEmail(String email) {
         return invitationRepository.findByEmail(email).stream()
-                .map(InvitationMapper.INSTANCE::toInvitationResponseDTO)
+                .map(InvitationEntityMapper.INSTANCE::toInvitation)
                 .toList();
     }
 
-    public List<InvitationResponseDTO> getInvitationsByProject(UUID projectId) {
+    public List<Invitation> getInvitationsByProject(UUID projectId) {
         return invitationRepository.findByProjectId(projectId).stream()
-                .map(InvitationMapper.INSTANCE::toInvitationResponseDTO)
+                .map(InvitationEntityMapper.INSTANCE::toInvitation)
                 .toList();
     }
 

@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.features.column;
 
 import com.stodo.projectchaos.features.column.dto.response.ColumnResponseDTO;
+import com.stodo.projectchaos.features.column.dto.mapper.ColumnMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,10 @@ public class ColumnController {
     public ResponseEntity<List<ColumnResponseDTO>> getColumnsByProjectId(
             @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable UUID projectId) {
-        return ResponseEntity.ok(columnService.findColumnsByProjectId(projectId));
+        List<ColumnResponseDTO> response = columnService.findColumnsByProjectId(projectId)
+                .stream()
+                .map(ColumnMapper.INSTANCE::toColumnResponseDTO)
+                .toList();
+        return ResponseEntity.ok(response);
     }
 } 

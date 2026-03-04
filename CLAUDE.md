@@ -28,29 +28,41 @@ JWT_SECRET=mysecretkey123456789012345678901234567890 mvn spring-boot:run -Dsprin
 ```
 Application should show: `"Started ProjectChaos in X.XXX seconds"`
 
-## Model Package Architecture Patterns
+## Architecture Patterns
 
 ### Key Principles
-- **Feature-based organization** - DTOs grouped by domain and operation
-- **Separation of concerns** - Request/Response/Query DTOs separated
-- **Consistent naming** - Predictable naming patterns across all layers
-- **Domain-driven structure** - Organized around business concepts (project, task, user)
+- **Package-by-Feature Architecture** - Organized around business domains
+- **Service Layer Separation** - Services return domain objects, Controllers map to DTOs
+- **Consistent DTO Structure** - Standardized package organization
+- **MapStruct Integration** - All mapping done via MapStruct
 
-### Package Structure
+### Package-by-Feature Structure
 ```
+features/
+├── {domain}/               # Business domain (invitation, project, task, etc.)
+│   ├── dto/
+│   │   ├── service/        # Domain objects returned by services
+│   │   ├── mapper/         # All MapStruct mappers
+│   │   ├── request/        # Request DTOs
+│   │   ├── response/       # Response DTOs
+│   │   └── query/          # Query result DTOs
+│   ├── {Domain}Service.java
+│   ├── {Domain}Repository.java
+│   └── {Domain}Controller.java
 model/
-├── dto/           # Data Transfer Objects (42 files)
-├── entity/        # JPA Entities (14 files)  
-└── enums/         # Enumerations (2 files)
+├── entity/                 # JPA Entities
+└── enums/                  # Enumerations
 ```
 
-### DTO Organization Pattern
-DTOs follow **hierarchical functional structure**:
+### DTO Package Organization
+**Each feature follows standardized structure:**
 ```
-dto/{domain}/{operation}/{type}/
-├── request/       # Input DTOs
-├── response/      # Output DTOs  
-└── query/         # Query result DTOs
+dto/
+├── service/        # Domain objects for service layer
+├── mapper/         # MapStruct mappers (Entity→Domain, Domain→Response)
+├── request/        # Input DTOs
+├── response/       # Output DTOs
+└── query/          # Query result DTOs
 ```
 
 ### Naming Conventions
@@ -146,21 +158,43 @@ TaskEntity (1) ←→ (N) AttachmentEntity
 2. **Column names**: `created_date`, `last_modified_date`, `last_modified_by`, `version`
 3. **Types**: TIMESTAMP for dates, VARCHAR(255) for user, INTEGER for version
 
-### Service Layer Rules
-⚠️ **CRITICAL**: Service methods must NEVER return Entity objects or xxxResponseDTO objects:
-- **Services should return their own service-specific objects** (not DTOs)
-- **Never expose JPA entities** outside the service layer
-- **RestControllers map service objects to xxxResponseDTOs** using MapStruct
-- **Service-to-Controller mapping pattern**: Service returns domain objects → Controller maps to ResponseDTOs
+### Service Layer Architecture
+⚠️ **CRITICAL**: Service Layer Rules:
+- **Services NEVER return Entity objects or ResponseDTO objects**
+- **Services return domain objects from dto/service/ package**
+- **Controllers use MapStruct to map domain objects to ResponseDTOs**
+- **All mapping done via MapStruct - NO manual mapping**
 
-### MapStruct Usage
-**Pattern in project:**
+### Mapping Flow
+```
+Entity → (EntityMapper) → Domain Object → (ResponseMapper) → ResponseDTO
+              ↓                           ↓                      ↓
+         dto/mapper/              dto/service/            dto/response/
+```
+
+### MapStruct Patterns
+**Two types of mappers in each feature:**
+
+1. **Entity to Domain Object** (dto/mapper/):
 ```java
 @Mapper
-public interface EntityMapper {
-    EntityMapper INSTANCE = Mappers.getMapper(EntityMapper.class);
+public interface {Feature}EntityMapper {
+    {Feature}EntityMapper INSTANCE = Mappers.getMapper({Feature}EntityMapper.class);
     
-    ResponseDTO toResponseDTO(Entity entity);
+    {Domain} to{Domain}({Feature}Entity entity);
 }
 ```
-**Usage:** `EntityMapper.INSTANCE.toResponseDTO(entity)`
+
+2. **Domain Object to ResponseDTO** (dto/mapper/):
+```java
+@Mapper
+public interface {Feature}Mapper {
+    {Feature}Mapper INSTANCE = Mappers.getMapper({Feature}Mapper.class);
+    
+    {Response}DTO to{Response}DTO({Domain} domain);
+}
+```
+
+**Usage Pattern:**
+- Service: `return {Feature}EntityMapper.INSTANCE.to{Domain}(entity);`
+- Controller: `return {Feature}Mapper.INSTANCE.to{Response}DTO(domain);`

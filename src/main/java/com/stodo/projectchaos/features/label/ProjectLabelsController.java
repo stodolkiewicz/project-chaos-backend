@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.features.label;
 
 import com.stodo.projectchaos.features.label.dto.response.LabelResponseDTO;
+import com.stodo.projectchaos.features.label.dto.mapper.LabelMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,9 @@ public class ProjectLabelsController {
     @GetMapping("/labels")
     public ResponseEntity<LabelResponseDTO> getLabelsByProjectId(
             @PathVariable UUID projectId) {
-        return ResponseEntity.ok(labelService.getLabelsByProjectId(projectId));
+        LabelResponseDTO response = LabelMapper.INSTANCE.toLabelResponseDTO(
+                labelService.getLabelsByProjectId(projectId)
+        );
+        return ResponseEntity.ok(response);
     }
 } 

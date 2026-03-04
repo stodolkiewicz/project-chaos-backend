@@ -2,13 +2,12 @@ package com.stodo.projectchaos.features.project;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.exception.UserAlreadyInProjectException;
-import com.stodo.projectchaos.features.project.dto.mapper.ProjectMapper;
-import com.stodo.projectchaos.features.project.dto.response.ProjectResponseDTO;
 import com.stodo.projectchaos.features.project.dto.request.CreateProjectRequestDTO;
-import com.stodo.projectchaos.features.project.dto.response.CreateProjectResponseDTO;
 import com.stodo.projectchaos.features.project.dto.query.UserProjectQueryResponseDTO;
-import com.stodo.projectchaos.features.project.dto.response.DeleteProjectResponseDTO;
-import com.stodo.projectchaos.features.project.dto.response.UserProjectsResponseDTO;
+import com.stodo.projectchaos.features.project.dto.service.Project;
+import com.stodo.projectchaos.features.project.dto.service.ProjectDelete;
+import com.stodo.projectchaos.features.project.dto.service.UserProjects;
+import com.stodo.projectchaos.features.project.dto.mapper.ProjectEntityMapper;
 import com.stodo.projectchaos.features.user.dto.response.AssignUserToProjectResponseDTO;
 import com.stodo.projectchaos.features.user.dto.request.ChangeUserRoleRequestDTO;
 import com.stodo.projectchaos.features.user.dto.response.ChangeUserRoleResponseDTO;
@@ -73,7 +72,7 @@ public class ProjectService {
         this.labelRepository = labelRepository;
     }
 
-    public DeleteProjectResponseDTO hardDeleteProject(UUID projectId) {
+    public ProjectDelete hardDeleteProject(UUID projectId) {
         // todo: delete files from GCS (when it is actually implemented to store them there)
         // todo: notify project members via email
         
@@ -103,7 +102,7 @@ public class ProjectService {
         // Level 4: Delete project (final step)
         projectRepository.deleteById(projectId);
         
-        return new DeleteProjectResponseDTO(projectId);
+        return new ProjectDelete(projectId);
     }
 
     private void handleUsersDefaultProjectId(UUID projectId) {
@@ -114,7 +113,7 @@ public class ProjectService {
         userRepository.clearDefaultProjectForProject(projectId);
     }
 
-    public CreateProjectResponseDTO createProject(CreateProjectRequestDTO createProjectRequestDTO, String email) {
+    public Project createProject(CreateProjectRequestDTO createProjectRequestDTO, String email) {
         ProjectEntity savedProjectEntity = saveProject(createProjectRequestDTO);
         UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> EntityNotFoundException.builder()
@@ -129,7 +128,7 @@ public class ProjectService {
 
         saveDefaultTaskPriorities(savedProjectEntity);
 
-        return new CreateProjectResponseDTO(savedProjectEntity.getId(), savedProjectEntity.getName());
+        return ProjectEntityMapper.INSTANCE.toProject(savedProjectEntity);
     }
 
     private void saveDefaultTaskPriorities(ProjectEntity savedProjectEntity) {
@@ -193,16 +192,16 @@ public class ProjectService {
             userRepository.save(userEntity);
     }
 
-    public ProjectResponseDTO findProjectById(UUID projectId) {
+    public Project findProjectById(UUID projectId) {
         return projectRepository.findById(projectId)
-                .map(ProjectMapper.INSTANCE::toProjectResponseDTO)
+                .map(ProjectEntityMapper.INSTANCE::toProject)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("projectId", projectId)
                         .entityType("ProjectEntity")
                         .build());
     }
 
-    public UserProjectsResponseDTO findProjectsByUserEmail(String email) {
+    public UserProjects findProjectsByUserEmail(String email) {
 
         CompletableFuture<List<UserProjectQueryResponseDTO>> userProjectsCF = CompletableFuture.supplyAsync(
                 () -> customProjectRepository.findProjectsByUserEmail(email));
@@ -219,7 +218,7 @@ public class ProjectService {
 
         moveDefaultProjectToFront(defaultProjectId, projects);
 
-        return new UserProjectsResponseDTO(projects);
+        return new UserProjects(projects);
     }
 
     // todo: take a look at it

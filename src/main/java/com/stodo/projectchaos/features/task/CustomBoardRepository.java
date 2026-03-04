@@ -1,7 +1,10 @@
 package com.stodo.projectchaos.features.task;
 
-import com.stodo.projectchaos.features.task.dto.response.BoardTasksResponseDTO;
-import com.stodo.projectchaos.features.task.dto.response.LabelDTO;
+import com.stodo.projectchaos.features.task.dto.service.BoardTask;
+import com.stodo.projectchaos.features.task.dto.service.Priority;
+import com.stodo.projectchaos.features.task.dto.service.Column;
+import com.stodo.projectchaos.features.task.dto.service.Assignee;
+import com.stodo.projectchaos.features.task.dto.service.Label;
 import com.stodo.projectchaos.model.entity.LabelEntity;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -18,17 +21,17 @@ public class CustomBoardRepository {
     private EntityManager em;
 
     @Transactional
-    public List<BoardTasksResponseDTO> findBoardTasks(UUID projectId) {
+    public List<BoardTask> findBoardTasks(UUID projectId) {
         // Data for tasks (without labels)
-        List<BoardTasksResponseDTO> tasks = em.createQuery("""
-            SELECT new com.stodo.projectchaos.features.task.dto.response.BoardTasksResponseDTO(
+        List<BoardTask> tasks = em.createQuery("""
+            SELECT new com.stodo.projectchaos.features.task.dto.service.BoardTask(
                 t.id,
                 t.title,
                 t.description,
                 t.positionInColumn,
-                new com.stodo.projectchaos.features.task.dto.response.PriorityDTO(p.id, p.priorityValue, p.name, p.color),
-                new com.stodo.projectchaos.features.task.dto.response.ColumnDTO(c.id, c.name, c.position),
-                new com.stodo.projectchaos.features.task.dto.response.AssigneeDTO(a.email),
+                new com.stodo.projectchaos.features.task.dto.service.Priority(p.id, p.priorityValue, p.name, p.color),
+                new com.stodo.projectchaos.features.task.dto.service.Column(c.id, c.name, c.position),
+                new com.stodo.projectchaos.features.task.dto.service.Assignee(a.email),
                 null
             )
             FROM TaskEntity t
@@ -36,16 +39,16 @@ public class CustomBoardRepository {
             JOIN t.column c
             LEFT JOIN t.assignee a
             WHERE c.project.id = :projectId
-            """, BoardTasksResponseDTO.class)
+            """, BoardTask.class)
                 .setParameter("projectId", projectId)
                 .getResultList();
 
         List<UUID> taskIds = tasks.stream()
-                .map(BoardTasksResponseDTO::getTaskId)
+                .map(BoardTask::getTaskId)
                 .collect(Collectors.toList());
 
         // Labels for all tasks
-        Map<UUID, List<LabelDTO>> taskLabelsMap = em.createQuery("""
+        Map<UUID, List<Label>> taskLabelsMap = em.createQuery("""
             SELECT tl.task.id as taskId, l 
             FROM TaskLabelsEntity tl 
             JOIN tl.label l 
@@ -60,7 +63,7 @@ public class CustomBoardRepository {
                         Collectors.mapping(
                                 tuple -> {
                                     LabelEntity e = (LabelEntity) tuple.get(1);
-                                    return new LabelDTO(e.getId(), e.getName(), e.getColor());
+                                    return new Label(e.getId(), e.getName(), e.getColor());
                                 },
                                 Collectors.toList()
                         )
@@ -73,8 +76,8 @@ public class CustomBoardRepository {
 
         tasks.sort(
                 Comparator
-                        .comparing(BoardTasksResponseDTO::getPositionInColumn)
-                        .thenComparing(task -> task.getColumn().getPosition())
+                        .comparing(BoardTask::getPositionInColumn)
+                        .thenComparing(task -> task.getColumn().position())
         );
 
         return tasks;

@@ -1,8 +1,7 @@
 package com.stodo.projectchaos.features.label;
 
-import com.stodo.projectchaos.features.label.dto.mapper.LabelMapper;
-import com.stodo.projectchaos.features.label.dto.response.LabelResponseDTO;
-import com.stodo.projectchaos.model.entity.LabelEntity;
+import com.stodo.projectchaos.features.label.dto.service.Labels;
+import com.stodo.projectchaos.features.label.dto.mapper.LabelEntityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,12 +16,10 @@ public class LabelService {
     private final LabelRepository labelRepository;
 
     @Transactional(readOnly = true)
-    public LabelResponseDTO getLabelsByProjectId(UUID projectId) {
-        List<LabelEntity> labels = labelRepository.findProjectLabelsByProjectId(projectId);
-
-        return LabelResponseDTO.builder()
-                .projectId(projectId)
-                .labels(LabelMapper.INSTANCE.toLabelDTOList(labels))
-                .build();
+    public Labels getLabelsByProjectId(UUID projectId) {
+        return LabelEntityMapper.INSTANCE.toLabels(
+                labelRepository.findProjectLabelsByProjectId(projectId),
+                projectId
+        );
     }
 } 

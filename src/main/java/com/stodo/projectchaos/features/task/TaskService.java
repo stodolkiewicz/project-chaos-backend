@@ -1,12 +1,12 @@
 package com.stodo.projectchaos.features.task;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
-import com.stodo.projectchaos.features.task.dto.mapper.UpdateTaskColumnMapper;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
-import com.stodo.projectchaos.features.task.dto.response.BoardTasksResponseDTO;
-import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
+import com.stodo.projectchaos.features.task.dto.service.BoardTask;
+import com.stodo.projectchaos.features.task.dto.service.Task;
 import com.stodo.projectchaos.features.task.dto.request.UpdateTaskColumnRequestDTO;
-import com.stodo.projectchaos.features.task.dto.response.UpdateTaskColumnResponseDTO;
+import com.stodo.projectchaos.features.task.dto.service.TaskColumnUpdate;
+import com.stodo.projectchaos.features.task.dto.mapper.TaskEntityMapper;
 import com.stodo.projectchaos.model.entity.ColumnEntity;
 import com.stodo.projectchaos.model.entity.TaskEntity;
 import com.stodo.projectchaos.features.column.ColumnRepository;
@@ -30,11 +30,11 @@ public class TaskService {
 
     private static final Double MINIMUM_DISTANCE_BETWEEN_TASKS = 0.000001;
 
-    public List<BoardTasksResponseDTO> getBoardTasks(UUID projectId) {
+    public List<BoardTask> getBoardTasks(UUID projectId) {
         return customBoardRepository.findBoardTasks(projectId);
     }
 
-    public CreateTaskResponseDTO createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
+    public Task createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
         return customTaskRepository.createTask(requestDTO, projectId);
     }
 
@@ -43,7 +43,7 @@ public class TaskService {
         labelRepository.deleteUnusedLabels(projectId);
     }
 
-    public UpdateTaskColumnResponseDTO updateTaskColumn(UpdateTaskColumnRequestDTO requestDTO, UUID taskId) {
+    public TaskColumnUpdate updateTaskColumn(UpdateTaskColumnRequestDTO requestDTO, UUID taskId) {
         boolean ifReindexingNeeded = checkIfTaskPositionsInColumnNeedReindexing(
                 requestDTO.positionInColumn(),
                 requestDTO.nearestNeighboursPositionInColumn());
@@ -68,7 +68,7 @@ public class TaskService {
 
         TaskEntity savedTask = taskRepository.save(task);
 
-        return UpdateTaskColumnMapper.INSTANCE.toUpdateTaskColumnResponseDTO(savedTask);
+        return TaskEntityMapper.INSTANCE.toTaskColumnUpdate(savedTask);
     }
 
     private boolean checkIfTaskPositionsInColumnNeedReindexing(Double positionInColumn, List<Double> nearestNeighboursPositionInColumn) {

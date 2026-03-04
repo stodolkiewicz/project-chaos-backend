@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.features.priority;
 
 import com.stodo.projectchaos.features.priority.dto.response.TaskPriorityResponseDTO;
+import com.stodo.projectchaos.features.priority.dto.mapper.TaskPriorityMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,9 @@ public class ProjectTaskPrioritiesController {
 
     @GetMapping("/{projectId}/task-priorities")
     public ResponseEntity<List<TaskPriorityResponseDTO>> getTaskPrioritiesByProjectId(@PathVariable UUID projectId) {
-        return ResponseEntity.ok(taskPriorityService.findTaskPrioritiesByProjectId(projectId));
+        List<TaskPriorityResponseDTO> response = TaskPriorityMapper.INSTANCE.toTaskPriorityResponseDTOList(
+                taskPriorityService.findTaskPrioritiesByProjectId(projectId)
+        );
+        return ResponseEntity.ok(response);
     }
 }

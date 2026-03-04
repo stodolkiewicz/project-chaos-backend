@@ -92,8 +92,9 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
             userRepository.saveAndFlush(newUserEntity);
 
+            // todo:
             // check if user has an invitation. yes -> assign project and default project.
-//            invitationService.
+            //            invitationService.
         }
     }
 }

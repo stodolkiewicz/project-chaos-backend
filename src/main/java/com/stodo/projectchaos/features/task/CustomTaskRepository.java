@@ -3,7 +3,8 @@ package com.stodo.projectchaos.features.task;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.request.LabelDTO;
-import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
+import com.stodo.projectchaos.features.task.dto.service.Task;
+import com.stodo.projectchaos.features.task.dto.mapper.TaskEntityMapper;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.features.user.UserRepository;
 import com.stodo.projectchaos.model.entity.TaskPriorityEntity;
@@ -39,7 +40,7 @@ public class CustomTaskRepository {
     private final TaskLabelsRepository taskLabelsRepository;
 
     @Transactional
-    public CreateTaskResponseDTO createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
+    public Task createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
         String email = requestDTO.assigneeEmail();
 
         UserEntity userEntity = userRepository.findByEmail(email).orElse(null);
@@ -108,7 +109,7 @@ public class CustomTaskRepository {
             savedTaskEntity.setTaskLabels(taskLabels);
         }
 
-        return CreateTaskResponseDTO.fromEntity(savedTaskEntity);
+        return TaskEntityMapper.INSTANCE.toTask(savedTaskEntity);
     }
 
     private LabelEntity saveOrUpdateLabel(String normalizedLabelName, String color, ProjectEntity projectEntity) {

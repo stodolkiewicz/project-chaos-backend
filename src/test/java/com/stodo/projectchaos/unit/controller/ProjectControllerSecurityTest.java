@@ -1,7 +1,7 @@
 package com.stodo.projectchaos.unit.controller;
 
 import com.stodo.projectchaos.features.project.ProjectController;
-import com.stodo.projectchaos.features.project.dto.response.DeleteProjectResponseDTO;
+import com.stodo.projectchaos.features.project.dto.service.ProjectDelete;
 import com.stodo.projectchaos.security.method.ProjectSecurity;
 import com.stodo.projectchaos.security.service.JwtService;
 import com.stodo.projectchaos.features.project.ProjectService;
@@ -61,7 +61,7 @@ class ProjectControllerSecurityTest {
     void shouldReturn200WhenUserIsAdminInProject() throws Exception {
         when(projectService.isUserAdminInProject(eq(ADMIN_EMAIL), eq(PROJECT_ID))).thenReturn(true);
         when(projectService.hardDeleteProject(eq(PROJECT_ID)))
-                .thenReturn(new DeleteProjectResponseDTO(PROJECT_ID));
+                .thenReturn(new ProjectDelete(PROJECT_ID));
 
         mockMvc.perform(delete("/api/v1/projects/{projectId}", PROJECT_ID)
                         .with(csrf())

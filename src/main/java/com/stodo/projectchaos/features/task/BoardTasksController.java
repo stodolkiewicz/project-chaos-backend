@@ -2,9 +2,12 @@ package com.stodo.projectchaos.features.task;
 
 import com.stodo.projectchaos.features.task.dto.request.UpdateTaskColumnRequestDTO;
 import com.stodo.projectchaos.features.task.dto.response.UpdateTaskColumnResponseDTO;
+import com.stodo.projectchaos.features.task.dto.service.TaskColumnUpdate;
+import com.stodo.projectchaos.features.task.dto.mapper.UpdateTaskColumnMapper;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.response.BoardTasksResponseDTO;
 import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
+import com.stodo.projectchaos.features.task.dto.mapper.TaskMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +25,11 @@ public class BoardTasksController {
 
     @GetMapping("/{projectId}/tasks")
     public ResponseEntity<List<BoardTasksResponseDTO>> getBoardTasks(@PathVariable UUID projectId) {
-        return ResponseEntity.ok(taskService.getBoardTasks(projectId));
+        List<BoardTasksResponseDTO> response = taskService.getBoardTasks(projectId)
+                .stream()
+                .map(TaskMapper.INSTANCE::toBoardTasksResponseDTO)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(response);
     }
 
     @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
@@ -31,7 +38,9 @@ public class BoardTasksController {
             @PathVariable UUID projectId,
             @Valid @RequestBody CreateTaskRequestDTO requestDTO
     ) {
-        CreateTaskResponseDTO responseDTO = taskService.createTask(requestDTO, projectId);
+        CreateTaskResponseDTO responseDTO = TaskMapper.INSTANCE.toCreateTaskResponseDTO(
+                taskService.createTask(requestDTO, projectId)
+        );
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -49,7 +58,8 @@ public class BoardTasksController {
             @PathVariable UUID taskId,
             @Valid @RequestBody UpdateTaskColumnRequestDTO requestDTO)
     {
-            UpdateTaskColumnResponseDTO updateTaskColumnResponseDTO = taskService.updateTaskColumn(requestDTO, taskId);
-            return ResponseEntity.ok(updateTaskColumnResponseDTO);
-        }
+            TaskColumnUpdate taskColumnUpdate = taskService.updateTaskColumn(requestDTO, taskId);
+            UpdateTaskColumnResponseDTO responseDTO = UpdateTaskColumnMapper.INSTANCE.toUpdateTaskColumnResponseDTO(taskColumnUpdate);
+            return ResponseEntity.ok(responseDTO);
+    }
 }

@@ -3,6 +3,8 @@ package com.stodo.projectchaos.features.invitation;
 import com.stodo.projectchaos.features.invitation.dto.request.CreateInvitationRequestDTO;
 import com.stodo.projectchaos.features.invitation.dto.response.CreateInvitationResponseDTO;
 import com.stodo.projectchaos.features.invitation.dto.response.InvitationResponseDTO;
+import com.stodo.projectchaos.features.invitation.dto.mapper.InvitationMapper;
+import com.stodo.projectchaos.features.invitation.dto.service.Invitation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,16 +30,20 @@ public class InvitationController {
             @Valid @RequestBody CreateInvitationRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
         String invitedByEmail = userDetails.getUsername();
-        CreateInvitationResponseDTO invitation = invitationService.createInvitation(request.email(), projectId, request.role(), invitedByEmail);
-        return ResponseEntity.ok(invitation);
+        Invitation invitation = invitationService.createInvitation(request.email(), projectId, request.role(), invitedByEmail);
+        CreateInvitationResponseDTO responseDTO = InvitationMapper.INSTANCE.toCreateInvitationResponseDTO(invitation);
+        return ResponseEntity.ok(responseDTO);
     }
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
     @GetMapping("/{projectId}/invitations")
     public ResponseEntity<List<InvitationResponseDTO>> getProjectInvitations(
             @PathVariable UUID projectId) {
-        List<InvitationResponseDTO> invitations = invitationService.getInvitationsByProject(projectId);
-        return ResponseEntity.ok(invitations);
+        List<Invitation> invitations = invitationService.getInvitationsByProject(projectId);
+        List<InvitationResponseDTO> responseDTOs = invitations.stream()
+                .map(InvitationMapper.INSTANCE::toInvitationResponseDTO)
+                .toList();
+        return ResponseEntity.ok(responseDTOs);
     }
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
