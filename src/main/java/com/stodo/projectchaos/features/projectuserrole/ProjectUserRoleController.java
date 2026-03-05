@@ -18,7 +18,8 @@ public class ProjectUserRoleController {
 
     private final ProjectService projectService;
 
-    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
+    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication) " +
+            "AND @projectSecurity.affectedUserIsNotAdminInTheProject(#projectId, #userId)")
     @PatchMapping("/{projectId}/users/{userId}/role")
     public ResponseEntity<ChangeUserRoleResponseDTO> changeUserRole (
             @PathVariable UUID projectId,

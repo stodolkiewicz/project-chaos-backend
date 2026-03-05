@@ -1,0 +1,14 @@
+package com.stodo.projectchaos.features.projectuser.dto.request;
+
+import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+
+public record AssignUserToProjectRequestDTO(
+    @NotNull(message = "User email is required")
+    @Email(message = "Valid email is required")
+    String userEmail,
+    
+    @NotNull(message = "Project role is required")
+    ProjectRoleEnum projectRole
+) {} 

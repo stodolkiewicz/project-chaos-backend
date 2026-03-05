@@ -48,7 +48,7 @@ public class ProjectUsersController {
     }
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication) " +
-            "AND @projectSecurity.userAboutToBeDeletedIsNotAdminInTheProject(#projectId, #userId)")
+            "AND @projectSecurity.affectedUserIsNotAdminInTheProject(#projectId, #userId)")
     @DeleteMapping("/{projectId}/users/{userId}")
     public ResponseEntity<Void> removeUserFromProject (
             @PathVariable UUID projectId,

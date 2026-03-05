@@ -38,7 +38,7 @@ public class ProjectSecurity {
         return true;
     }
 
-    public boolean userAboutToBeDeletedIsNotAdminInTheProject(UUID projectId, UUID userAboutToBeDeletedId) {
-        return !projectService.isUserAdminInProject(userAboutToBeDeletedId, projectId);
+    public boolean affectedUserIsNotAdminInTheProject(UUID projectId, UUID affectedUserId) {
+        return !projectService.isUserAdminInProject(affectedUserId, projectId);
     }
 }
