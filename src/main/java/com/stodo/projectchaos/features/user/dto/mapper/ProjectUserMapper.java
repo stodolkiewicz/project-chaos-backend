@@ -1,7 +1,9 @@
 package com.stodo.projectchaos.features.user.dto.mapper;
 
 import com.stodo.projectchaos.features.user.dto.query.ProjectUserQueryResponseDTO;
+import com.stodo.projectchaos.features.user.dto.response.AssignUserToProjectResponseDTO;
 import com.stodo.projectchaos.features.user.dto.response.ProjectUsersResponseDTO;
+import com.stodo.projectchaos.features.user.dto.service.AssignUserToProject;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -14,4 +16,8 @@ public interface ProjectUserMapper {
     default ProjectUsersResponseDTO toProjectUsersResponseDTO(List<ProjectUserQueryResponseDTO> users) {
         return new ProjectUsersResponseDTO(users);
     }
+
+    AssignUserToProjectResponseDTO toAssignUserToProjectResponseDTO(AssignUserToProject assignUserToProject);
+
+
 } 

@@ -15,6 +15,7 @@ import com.stodo.projectchaos.features.user.dto.request.UnassignUserFromProjectR
 import com.stodo.projectchaos.features.user.dto.response.ProjectUsersResponseDTO;
 import com.stodo.projectchaos.features.user.dto.mapper.ProjectUserMapper;
 import com.stodo.projectchaos.features.user.dto.query.ProjectUserQueryResponseDTO;
+import com.stodo.projectchaos.features.user.dto.service.AssignUserToProject;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.model.entity.ProjectUsersEntity;
@@ -250,7 +251,7 @@ public class ProjectService {
         return ProjectUserMapper.INSTANCE.toProjectUsersResponseDTO(users);
     }
 
-    public AssignUserToProjectResponseDTO assignUserToProject(UUID projectId, String userEmail, ProjectRoleEnum userRoleToBeAssigned) {
+    public AssignUserToProject assignUserToProjectAndHandleUserDefaultProject(UUID projectId, String userEmail, ProjectRoleEnum userRoleToBeAssigned) {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("projectId", projectId)
@@ -262,7 +263,6 @@ public class ProjectService {
                         .identifier("email", userEmail)
                         .entityType("UserEntity")
                         .build());
-        // todo: na froncie error handling przy dodawaniu usera ktorego email nie jest w ogole w bazie.
 
         // check if user already is in project
         if(customProjectRepository.ifUserIsInProject(userEmail, projectId)) {
@@ -283,7 +283,7 @@ public class ProjectService {
         projectUsersEntity.setProjectRole(userRoleToBeAssigned);
         projectUsersRepository.save(projectUsersEntity);
 
-        return new AssignUserToProjectResponseDTO(
+        return new AssignUserToProject(
                 projectId,
                 userToAssign.getId(),
                 userRoleToBeAssigned.getRole()

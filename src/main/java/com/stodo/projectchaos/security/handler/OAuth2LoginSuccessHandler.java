@@ -1,7 +1,6 @@
 package com.stodo.projectchaos.security.handler;
 
 import com.stodo.projectchaos.features.invitation.dto.service.Invitation;
-import com.stodo.projectchaos.features.project.ProjectRepository;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
@@ -13,6 +12,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS;
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS;
@@ -58,7 +57,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String pictureUrl = oauth2User.getAttribute("picture");
         String firstName = oauth2User.getAttribute("given_name");
 
-        createUserIfNotExists(userEmail, oauth2User);
+        possiblyCreateUserAndAssignProjectsBasedOnInvitations(userEmail, oauth2User);
 
         String jwtAccessToken = jwtService.generateAccessToken(userEmail, pictureUrl, firstName, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
         String jwtRefreshToken = jwtService.generateRefreshToken(userEmail, JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS);
@@ -87,29 +86,36 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         }
     }
 
-    private void createUserIfNotExists(String userEmail, OAuth2User oauth2User) {
+    @Transactional
+    void possiblyCreateUserAndAssignProjectsBasedOnInvitations(String userEmail, OAuth2User oauth2User) {
         if (!userRepository.existsByEmail(userEmail)) {
-            UserEntity newUserEntity = new UserEntity();
-            newUserEntity.setLastLogin(Instant.now());
-            newUserEntity.setFirstName(oauth2User.getAttribute("given_name"));
-            newUserEntity.setLastName(oauth2User.getAttribute("family_name"));
-            newUserEntity.setEmail(userEmail);
-            newUserEntity.setGooglePictureLink(oauth2User.getAttribute("picture"));
-            newUserEntity.setRole(RoleEnum.valueOf(jwtService.getUserRole(userEmail)));
+            saveNewUser(userEmail, oauth2User);
+            convertInvitationsToProjectMemberships(userEmail);
+        }
+    }
 
-            userRepository.saveAndFlush(newUserEntity);
+    private void saveNewUser(String userEmail, OAuth2User oauth2User) {
+        UserEntity newUserEntity = new UserEntity();
+        newUserEntity.setLastLogin(Instant.now());
+        newUserEntity.setFirstName(oauth2User.getAttribute("given_name"));
+        newUserEntity.setLastName(oauth2User.getAttribute("family_name"));
+        newUserEntity.setEmail(userEmail);
+        newUserEntity.setGooglePictureLink(oauth2User.getAttribute("picture"));
+        newUserEntity.setRole(RoleEnum.valueOf(jwtService.getUserRole(userEmail)));
 
-            // todo:
-            // check if user has an invitation. yes -> assign project and default project.
-            //            invitationService.
-            List<Invitation> invitationsToProjects = invitationService.getInvitationsByEmail(userEmail);
-            for(Invitation invitation: invitationsToProjects) {
-                projectService.assignUserToProject(
-                        invitation.projectId(),
-                        invitation.email(),
-                        ProjectRoleEnum.valueOf(invitation.role())
-                );
-            }
+        userRepository.saveAndFlush(newUserEntity);
+    }
+
+    private void convertInvitationsToProjectMemberships(String userEmail) {
+        List<Invitation> invitationsToProjects = invitationService.getInvitationsByEmail(userEmail);
+        for(Invitation invitation: invitationsToProjects) {
+            projectService.assignUserToProjectAndHandleUserDefaultProject(
+                    invitation.projectId(),
+                    invitation.email(),
+                    ProjectRoleEnum.valueOf(invitation.role())
+            );
+
+            invitationService.deleteInvitation(invitation.id(), invitation.projectId());
         }
     }
 }

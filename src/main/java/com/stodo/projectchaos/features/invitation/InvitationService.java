@@ -1,8 +1,11 @@
 package com.stodo.projectchaos.features.invitation;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
+import com.stodo.projectchaos.features.invitation.dto.response.InvitationStatus;
+import com.stodo.projectchaos.features.invitation.dto.service.CreateInvitation;
 import com.stodo.projectchaos.features.invitation.dto.service.Invitation;
 import com.stodo.projectchaos.features.invitation.dto.mapper.InvitationEntityMapper;
+import com.stodo.projectchaos.features.user.dto.service.AssignUserToProject;
 import com.stodo.projectchaos.model.entity.InvitationEntity;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;
@@ -16,6 +19,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -42,7 +46,7 @@ public class InvitationService {
         this.customProjectRepository = customProjectRepository;
     }
 
-    public Invitation createInvitation(String invitedEmail, UUID projectId, String role, String invitedByEmail) {
+    public CreateInvitation createInvitation(String invitedEmail, UUID projectId, String role, String invitedByEmail) {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("projectId", projectId)
@@ -65,20 +69,32 @@ public class InvitationService {
         boolean invitedUserExists = userRepository.existsByEmail(invitedEmail);
         
         if (invitedUserExists) {
-            projectService.assignUserToProject(projectId, invitedEmail, ProjectRoleEnum.valueOf(role));
+            AssignUserToProject assignUserToProject = projectService.assignUserToProjectAndHandleUserDefaultProject(projectId, invitedEmail, ProjectRoleEnum.valueOf(role));
+            return new CreateInvitation(
+                    projectId,
+                    invitedEmail,
+                    assignUserToProject.projectRole(),
+                    InvitationStatus.ADDED
+
+            );
+        } else {
+            InvitationEntity invitation = InvitationEntity.builder()
+                    .id(UUID.randomUUID())
+                    .email(invitedEmail)
+                    .role(role)
+                    .project(project)
+                    .invitedBy(invitedBy)
+                    .build();
+
+            InvitationEntity savedInvitation = invitationRepository.save(invitation);
+
+            return new CreateInvitation(
+                    savedInvitation.getId(),
+                    invitedEmail,
+                    role,
+                    InvitationStatus.INVITED
+            );
         }
-
-        // user exists/not exists - always create invitation
-        InvitationEntity invitation = InvitationEntity.builder()
-                .id(UUID.randomUUID())
-                .email(invitedEmail)
-                .role(role)
-                .project(project)
-                .invitedBy(invitedBy)
-                .build();
-
-        InvitationEntity savedInvitation = invitationRepository.save(invitation);
-        return InvitationEntityMapper.INSTANCE.toInvitation(savedInvitation);
     }
 
     public List<Invitation> getInvitationsByEmail(String email) {

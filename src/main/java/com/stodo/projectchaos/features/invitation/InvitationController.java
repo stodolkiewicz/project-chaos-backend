@@ -4,9 +4,12 @@ import com.stodo.projectchaos.features.invitation.dto.request.CreateInvitationRe
 import com.stodo.projectchaos.features.invitation.dto.response.CreateInvitationResponseDTO;
 import com.stodo.projectchaos.features.invitation.dto.response.InvitationResponseDTO;
 import com.stodo.projectchaos.features.invitation.dto.mapper.InvitationMapper;
+import com.stodo.projectchaos.features.invitation.dto.response.InvitationStatus;
+import com.stodo.projectchaos.features.invitation.dto.service.CreateInvitation;
 import com.stodo.projectchaos.features.invitation.dto.service.Invitation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,8 +33,20 @@ public class InvitationController {
             @Valid @RequestBody CreateInvitationRequestDTO request,
             @AuthenticationPrincipal UserDetails userDetails) {
         String invitedByEmail = userDetails.getUsername();
-        Invitation invitation = invitationService.createInvitation(request.email(), projectId, request.role(), invitedByEmail);
-        CreateInvitationResponseDTO responseDTO = InvitationMapper.INSTANCE.toCreateInvitationResponseDTO(invitation);
+        CreateInvitation invitation = invitationService.createInvitation(
+                request.email(),
+                projectId,
+                request.role(),
+                invitedByEmail
+        );
+        CreateInvitationResponseDTO responseDTO =
+                InvitationMapper.INSTANCE.toCreateInvitationResponseDTO(invitation);
+
+        if(responseDTO.invitationStatus().getStatus().equals(InvitationStatus.INVITED)) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO); // 201 - invitation created
+        }
+
+        // user added to project
         return ResponseEntity.ok(responseDTO);
     }
 

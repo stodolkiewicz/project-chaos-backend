@@ -6,6 +6,6 @@ public record CreateInvitationResponseDTO(
     UUID id,
     String email,
     String role,
-    UUID projectId
+    InvitationStatus invitationStatus
 ) {
 }
