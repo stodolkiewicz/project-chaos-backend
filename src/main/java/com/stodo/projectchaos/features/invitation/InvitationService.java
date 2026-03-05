@@ -5,7 +5,7 @@ import com.stodo.projectchaos.features.invitation.dto.response.InvitationStatus;
 import com.stodo.projectchaos.features.invitation.dto.service.CreateInvitation;
 import com.stodo.projectchaos.features.invitation.dto.service.Invitation;
 import com.stodo.projectchaos.features.invitation.dto.mapper.InvitationEntityMapper;
-import com.stodo.projectchaos.features.user.dto.service.AssignUserToProject;
+import com.stodo.projectchaos.features.projectuser.dto.service.AssignUserToProject;
 import com.stodo.projectchaos.model.entity.InvitationEntity;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;

@@ -2,36 +2,26 @@ package com.stodo.projectchaos.features.project;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.exception.UserAlreadyInProjectException;
-import com.stodo.projectchaos.features.project.dto.request.CreateProjectRequestDTO;
+import com.stodo.projectchaos.features.column.ColumnRepository;
+import com.stodo.projectchaos.features.label.LabelRepository;
+import com.stodo.projectchaos.features.priority.TaskPriorityRepository;
+import com.stodo.projectchaos.features.project.dto.mapper.ProjectEntityMapper;
 import com.stodo.projectchaos.features.project.dto.query.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.features.project.dto.request.CreateProjectRequestDTO;
 import com.stodo.projectchaos.features.project.dto.service.Project;
 import com.stodo.projectchaos.features.project.dto.service.ProjectDelete;
 import com.stodo.projectchaos.features.project.dto.service.UserProjects;
-import com.stodo.projectchaos.features.project.dto.mapper.ProjectEntityMapper;
-import com.stodo.projectchaos.features.user.dto.response.AssignUserToProjectResponseDTO;
-import com.stodo.projectchaos.features.user.dto.request.ChangeUserRoleRequestDTO;
-import com.stodo.projectchaos.features.user.dto.response.ChangeUserRoleResponseDTO;
-import com.stodo.projectchaos.features.user.dto.request.UnassignUserFromProjectRequestDTO;
-import com.stodo.projectchaos.features.user.dto.response.ProjectUsersResponseDTO;
-import com.stodo.projectchaos.features.user.dto.mapper.ProjectUserMapper;
-import com.stodo.projectchaos.features.user.dto.query.ProjectUserQueryResponseDTO;
-import com.stodo.projectchaos.features.user.dto.service.AssignUserToProject;
-import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
-import com.stodo.projectchaos.model.entity.UserEntity;
-import com.stodo.projectchaos.model.entity.ProjectUsersEntity;
-import com.stodo.projectchaos.model.entity.ColumnEntity;
-import com.stodo.projectchaos.model.entity.TaskPriorityEntity;
-import com.stodo.projectchaos.model.entity.ProjectEntity;
-import com.stodo.projectchaos.features.user.UserRepository;
 import com.stodo.projectchaos.features.projectuser.ProjectUsersRepository;
-import com.stodo.projectchaos.features.column.ColumnRepository;
-import com.stodo.projectchaos.features.priority.TaskPriorityRepository;
+import com.stodo.projectchaos.features.projectuser.dto.service.AssignUserToProject;
 import com.stodo.projectchaos.features.task.AttachmentRepository;
 import com.stodo.projectchaos.features.task.TaskCommentsRepository;
 import com.stodo.projectchaos.features.task.TaskLabelsRepository;
 import com.stodo.projectchaos.features.task.TaskRepository;
-import com.stodo.projectchaos.features.label.LabelRepository;
-import com.stodo.projectchaos.model.entity.ProjectUserId;
+import com.stodo.projectchaos.features.user.UserRepository;
+import com.stodo.projectchaos.features.user.dto.request.ChangeUserRoleRequestDTO;
+import com.stodo.projectchaos.features.user.dto.response.ChangeUserRoleResponseDTO;
+import com.stodo.projectchaos.model.entity.*;
+import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -242,13 +232,12 @@ public class ProjectService {
        return customProjectRepository.isUserAdminInProject(email, projectId);
     }
 
-    public boolean hasAtLeastMemberRole(String email, UUID projectId) {
-        return customProjectRepository.hasAtLeastMemberRole(email, projectId);
+    public boolean isUserAdminInProject(UUID userId, UUID projectId) {
+        return customProjectRepository.isUserAdminInProject(userId, projectId);
     }
 
-    public ProjectUsersResponseDTO findProjectUsersByProjectId(UUID projectId) {
-        List<ProjectUserQueryResponseDTO> users = userRepository.findProjectUsersByProjectId(projectId);
-        return ProjectUserMapper.INSTANCE.toProjectUsersResponseDTO(users);
+    public boolean hasAtLeastMemberRole(String email, UUID projectId) {
+        return customProjectRepository.hasAtLeastMemberRole(email, projectId);
     }
 
     public AssignUserToProject assignUserToProjectAndHandleUserDefaultProject(UUID projectId, String userEmail, ProjectRoleEnum userRoleToBeAssigned) {
@@ -290,11 +279,11 @@ public class ProjectService {
         );
     }
 
-    public void removeUserFromProject(UUID projectId, UnassignUserFromProjectRequestDTO unassignRequest) {
+    public void removeUserFromProject(UUID projectId, UUID userId) {
         // Find user first by email
-        UserEntity user = userRepository.findByEmail(unassignRequest.userEmail())
+        UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("email", unassignRequest.userEmail())
+                        .identifier("id", userId)
                         .entityType("UserEntity")
                         .build());
 
@@ -302,7 +291,7 @@ public class ProjectService {
         ProjectUsersEntity projectUser = projectUsersRepository
                 .findById(new ProjectUserId(projectId, user.getId()))
                 .orElseThrow(() -> EntityNotFoundException.builder()
-                        .identifier("userEmail", unassignRequest.userEmail())
+                        .identifier("ProjectUserId", new ProjectUserId(projectId, user.getId()))
                         .entityType("ProjectUsersEntity")
                         .build());
 

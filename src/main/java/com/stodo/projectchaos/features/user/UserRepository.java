@@ -22,7 +22,8 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     @Query("SELECT u.project.id FROM UserEntity u WHERE u.email = :email")
     Optional<UUID> findDefaultProjectIdByEmail(@Email String email);
 
-    @Query("SELECT new com.stodo.projectchaos.features.user.dto.query.ProjectUserQueryResponseDTO(u.email, u.firstName, u.lastName, CAST(pu.projectRole AS string), u.googlePictureLink, pu.createdDate) " +
+    @Query("SELECT new com.stodo.projectchaos.features.user.dto.query.ProjectUserQueryResponseDTO(" +
+            "u.id, u.email, u.firstName, u.lastName, CAST(pu.projectRole AS string), u.googlePictureLink, pu.createdDate) " +
            "FROM UserEntity u " +
            "JOIN u.projectUsers pu " +
            "WHERE pu.project.id = :projectId")

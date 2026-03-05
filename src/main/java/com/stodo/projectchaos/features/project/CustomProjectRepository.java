@@ -67,6 +67,20 @@ public class CustomProjectRepository {
                 .getSingleResult();
     }
 
+    public boolean isUserAdminInProject(UUID userId, UUID projectId) {
+        return em.createQuery("""
+                    select COUNT(pu) > 0
+                    from ProjectUsersEntity pu
+                    where pu.user.id = :userId and
+                          pu.project.id = :projectId and
+                          pu.projectRole = :role
+                    """, Boolean.class)
+                .setParameter("userId", userId)
+                .setParameter("projectId", projectId)
+                .setParameter("role", ProjectRoleEnum.ADMIN)
+                .getSingleResult();
+    }
+
     public boolean hasAtLeastMemberRole(String email, UUID projectId) {
         return em.createQuery("""
                     select COUNT(pu) > 0
