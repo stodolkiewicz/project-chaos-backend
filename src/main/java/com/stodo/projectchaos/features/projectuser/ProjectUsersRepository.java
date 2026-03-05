@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -19,4 +20,6 @@ public interface ProjectUsersRepository extends JpaRepository<ProjectUsersEntity
     void deleteByProjectId(@Param("projectId") UUID projectId);
 
     long countByProjectIdAndProjectRole(UUID projectId, ProjectRoleEnum projectRole);
+    
+    List<ProjectUsersEntity> findByUserIdAndProjectIdNot(UUID userId, UUID excludeProjectId);
 }

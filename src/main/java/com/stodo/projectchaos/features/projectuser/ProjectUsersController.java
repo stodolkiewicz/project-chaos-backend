@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -54,6 +55,16 @@ public class ProjectUsersController {
             @PathVariable UUID projectId,
             @PathVariable UUID userId) {
         projectService.removeUserFromProject(projectId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
+    @PostMapping("/{projectId}/leave")
+    public ResponseEntity<Void> leaveProject(
+            @PathVariable UUID projectId,
+            Authentication authentication) {
+        
+        projectUserService.leaveProject(projectId, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 
