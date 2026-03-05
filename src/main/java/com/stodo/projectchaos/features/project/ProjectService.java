@@ -280,8 +280,6 @@ public class ProjectService {
         projectUsersEntity.setId(new ProjectUserId(projectId, userToAssign.getId()));
         projectUsersEntity.setProject(project);
         projectUsersEntity.setUser(userToAssign);
-        
-        // if projectUsers entity already exists, only role may have changed
         projectUsersEntity.setProjectRole(userRoleToBeAssigned);
         projectUsersRepository.save(projectUsersEntity);
 

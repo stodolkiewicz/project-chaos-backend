@@ -1,6 +1,10 @@
 package com.stodo.projectchaos.security.handler;
 
+import com.stodo.projectchaos.features.invitation.dto.service.Invitation;
+import com.stodo.projectchaos.features.project.ProjectRepository;
+import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.model.entity.UserEntity;
+import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.model.enums.RoleEnum;
 import com.stodo.projectchaos.features.user.UserRepository;
 import com.stodo.projectchaos.security.service.JwtService;
@@ -17,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS;
@@ -28,16 +33,18 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final String frontendDashboardUrl;
     private final UserRepository userRepository;
     private final InvitationService invitationService;
+    private final ProjectService projectService;
 
     public OAuth2LoginSuccessHandler(
             JwtService jwtService,
             @Value("${app.frontend-dashboard-url}") String frontendDashboardUrl,
-            UserRepository userRepository, InvitationService invitationService
+            UserRepository userRepository, InvitationService invitationService, ProjectService projectService
     ) {
         this.jwtService = jwtService;
         this.frontendDashboardUrl = frontendDashboardUrl;
         this.userRepository = userRepository;
         this.invitationService = invitationService;
+        this.projectService = projectService;
     }
 
     @Override
@@ -95,6 +102,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             // todo:
             // check if user has an invitation. yes -> assign project and default project.
             //            invitationService.
+            List<Invitation> invitationsToProjects = invitationService.getInvitationsByEmail(userEmail);
+            for(Invitation invitation: invitationsToProjects) {
+                projectService.assignUserToProject(
+                        invitation.projectId(),
+                        invitation.email(),
+                        ProjectRoleEnum.valueOf(invitation.role())
+                );
+            }
         }
     }
 }

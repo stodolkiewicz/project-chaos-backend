@@ -93,8 +93,8 @@ public class InvitationService {
                 .toList();
     }
 
-    public void deleteInvitation(UUID invitationId) {
-        InvitationEntity invitation = invitationRepository.findById(invitationId)
+    public void deleteInvitation(UUID invitationId, UUID projectId) {
+        InvitationEntity invitation = invitationRepository.findByIdAndProjectId(invitationId, projectId)
                 .orElseThrow(() -> EntityNotFoundException.builder()
                         .identifier("invitationId", invitationId)
                         .entityType("InvitationEntity")

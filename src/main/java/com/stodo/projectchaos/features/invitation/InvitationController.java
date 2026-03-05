@@ -35,7 +35,6 @@ public class InvitationController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
     @GetMapping("/{projectId}/invitations")
     public ResponseEntity<List<InvitationResponseDTO>> getProjectInvitations(
             @PathVariable UUID projectId) {
@@ -47,10 +46,11 @@ public class InvitationController {
     }
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
-    @DeleteMapping("/invitations/{invitationId}")
+    @DeleteMapping("/{projectId}/invitations/{invitationId}")
     public ResponseEntity<Void> deleteInvitation(
-            @PathVariable UUID invitationId) {
-        invitationService.deleteInvitation(invitationId);
+            @PathVariable UUID invitationId,
+            @PathVariable UUID projectId) {
+        invitationService.deleteInvitation(invitationId, projectId);
         return ResponseEntity.noContent().build();
     }
 }
