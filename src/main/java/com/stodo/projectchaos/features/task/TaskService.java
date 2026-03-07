@@ -9,8 +9,10 @@ import com.stodo.projectchaos.features.task.dto.service.TaskColumnUpdate;
 import com.stodo.projectchaos.features.task.dto.mapper.TaskEntityMapper;
 import com.stodo.projectchaos.model.entity.ColumnEntity;
 import com.stodo.projectchaos.model.entity.TaskEntity;
+import com.stodo.projectchaos.model.entity.TaskComments;
 import com.stodo.projectchaos.features.column.ColumnRepository;
 import com.stodo.projectchaos.features.label.LabelRepository;
+import com.stodo.projectchaos.features.taskcomments.TaskCommentsRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final ColumnRepository columnRepository;
     private final LabelRepository labelRepository;
+    private final TaskCommentsRepository taskCommentsRepository;
 
     private static final Double MINIMUM_DISTANCE_BETWEEN_TASKS = 0.000001;
 
@@ -39,6 +42,9 @@ public class TaskService {
     }
 
     public void deleteTask(UUID projectId, UUID taskId) {
+        List<TaskComments> comments = taskCommentsRepository.findByTaskId(taskId);
+        taskCommentsRepository.deleteAll(comments);
+        
         taskRepository.deleteById(taskId);
         labelRepository.deleteUnusedLabels(projectId);
     }

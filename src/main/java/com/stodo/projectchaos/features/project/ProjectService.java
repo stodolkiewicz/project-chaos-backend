@@ -14,7 +14,7 @@ import com.stodo.projectchaos.features.project.dto.service.UserProjects;
 import com.stodo.projectchaos.features.projectuser.ProjectUsersRepository;
 import com.stodo.projectchaos.features.projectuser.dto.service.AssignUserToProject;
 import com.stodo.projectchaos.features.task.AttachmentRepository;
-import com.stodo.projectchaos.features.task.TaskCommentsRepository;
+import com.stodo.projectchaos.features.taskcomments.TaskCommentsRepository;
 import com.stodo.projectchaos.features.task.TaskLabelsRepository;
 import com.stodo.projectchaos.features.task.TaskRepository;
 import com.stodo.projectchaos.features.user.UserRepository;
