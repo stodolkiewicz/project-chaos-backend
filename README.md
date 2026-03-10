@@ -64,7 +64,19 @@ Then, it tags the image with the same tag as the git tag + latest.
 Finally, it pushes it to GCP Artifact Registry.
 
 **Example:**
+0. Commit and push your changes
 
+1. Check if all tests pass
+```
+./mvnw clean install
+```
+
+2. Check the last tag on the main branch (on which you are on)
+```
+git describe --tags --abbrev=0 // 1.32.4
+```
+
+3. Tag appropriately and push the tag
 ```declarative
 git tag 1.32.5
 git push origin 1.32.5

@@ -5,6 +5,7 @@ import com.stodo.projectchaos.features.project.dto.service.ProjectDelete;
 import com.stodo.projectchaos.security.method.ProjectSecurity;
 import com.stodo.projectchaos.security.service.JwtService;
 import com.stodo.projectchaos.features.project.ProjectService;
+import com.stodo.projectchaos.features.user.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -44,6 +45,9 @@ class ProjectControllerSecurityTest {
 
     @MockBean
     private JwtService jwtService;
+
+    @MockBean
+    private UserRepository userRepository;
 
     private static final UUID PROJECT_ID = UUID.randomUUID();
 
