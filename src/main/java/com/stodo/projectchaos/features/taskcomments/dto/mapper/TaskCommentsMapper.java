@@ -1,7 +1,9 @@
 package com.stodo.projectchaos.features.taskcomments.dto.mapper;
 
 import com.stodo.projectchaos.features.taskcomments.dto.response.TaskCommentResponseDTO;
+import com.stodo.projectchaos.features.taskcomments.dto.response.TaskCommentWithRepliesResponseDTO;
 import com.stodo.projectchaos.features.taskcomments.dto.service.TaskComment;
+import com.stodo.projectchaos.features.taskcomments.dto.service.TaskCommentWithReplies;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -13,5 +15,7 @@ public interface TaskCommentsMapper {
 
     TaskCommentResponseDTO toTaskCommentResponseDTO(TaskComment taskComment);
 
-    List<TaskCommentResponseDTO> toTaskCommentResponseDTOs(List<TaskComment> taskComments);
+    List<TaskCommentWithReplies> toTaskCommentWithReplies(List<TaskComment> taskComments);
+
+    TaskCommentWithRepliesResponseDTO toTaskCommentWithRepliesResponseDTO(TaskCommentWithReplies taskCommentWithReplies);
 }

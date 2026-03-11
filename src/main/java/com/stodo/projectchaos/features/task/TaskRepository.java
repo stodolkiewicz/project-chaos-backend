@@ -15,4 +15,11 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
     @Modifying
     @Query("DELETE FROM TaskEntity t WHERE t.column.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
+
+    @Query("""
+        SELECT CASE WHEN COUNT(t) = 0 THEN true ELSE false END
+        FROM TaskEntity t
+        WHERE t.id = :taskId AND t.column.project.id = :projectId
+    """)
+    boolean notExistByIdAndProjectId(UUID taskId, UUID projectId);
 }

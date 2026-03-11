@@ -21,6 +21,11 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yml
 
+  data:
+    web:
+      pageable:
+        max-page-size: 50
+
 jwt:
   secret: ${JWT_SECRET}
 

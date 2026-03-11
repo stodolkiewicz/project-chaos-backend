@@ -4,8 +4,13 @@ import com.stodo.projectchaos.features.taskcomments.dto.mapper.TaskCommentsMappe
 import com.stodo.projectchaos.features.taskcomments.dto.request.CreateTaskCommentRequestDTO;
 import com.stodo.projectchaos.features.taskcomments.dto.request.UpdateTaskCommentRequestDTO;
 import com.stodo.projectchaos.features.taskcomments.dto.response.TaskCommentResponseDTO;
+import com.stodo.projectchaos.features.taskcomments.dto.response.TaskCommentWithRepliesResponseDTO;
 import com.stodo.projectchaos.features.taskcomments.dto.service.TaskComment;
+import com.stodo.projectchaos.features.taskcomments.dto.service.TaskCommentWithReplies;
 import com.stodo.projectchaos.features.user.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.Authentication;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +29,13 @@ public class TaskCommentsController {
     private final UserService userService;
 
     @GetMapping("/{projectId}/tasks/{taskId}/comments")
-    public List<TaskCommentResponseDTO> getAllTaskComments(
+    public Page<TaskCommentWithRepliesResponseDTO> getAllTaskComments(
             @PathVariable UUID projectId,
-            @PathVariable UUID taskId
+            @PathVariable UUID taskId,
+            @PageableDefault(size = 10) Pageable pageable
     ) {
-        List<TaskComment> comments = taskCommentsService.getAllTaskComments(taskId);
-        return TaskCommentsMapper.INSTANCE.toTaskCommentResponseDTOs(comments);
+        Page<TaskCommentWithReplies> allTaskComments = taskCommentsService.getAllTaskComments(projectId, taskId, pageable);
+        return allTaskComments.map(TaskCommentsMapper.INSTANCE::toTaskCommentWithRepliesResponseDTO);
     }
 
     @PostMapping("/{projectId}/tasks/{taskId}/comments")
