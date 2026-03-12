@@ -26,6 +26,18 @@ spring:
       pageable:
         max-page-size: 50
 
+  ai:
+    openai:
+      api-key: ${SPRING_AI_OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4.1-mini
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: never
+
 jwt:
   secret: ${JWT_SECRET}
 

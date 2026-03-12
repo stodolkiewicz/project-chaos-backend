@@ -65,9 +65,10 @@ public class SecurityConfig {
                                 OAUTH2_GOOGLE_LOGIN_START_ENDPOINT,
                                 OAUTH2_GOOGLE_CALLBACK_ENDPOINT,
                                 TOKEN_REFRESH_ENDPOINT
+
                 ).permitAll()
                 // todo - delete it. Testing purposes
-                .requestMatchers("/api/v1/demo/permitted").permitAll()
+                .requestMatchers("/api/v1/test-llm").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(auth ->
