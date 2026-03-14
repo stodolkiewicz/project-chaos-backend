@@ -68,7 +68,7 @@ public class SecurityConfig {
 
                 ).permitAll()
                 // todo - delete it. Testing purposes
-                .requestMatchers("/api/v1/test-llm").permitAll()
+//                .requestMatchers("/api/v1/test-llm").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(auth ->
