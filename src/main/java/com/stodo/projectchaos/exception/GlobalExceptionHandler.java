@@ -33,6 +33,17 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(TooManyAIRequestsException.class)
+    public ProblemDetail handleTooManyAIRequests(TooManyAIRequestsException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.TOO_MANY_REQUESTS);
+        problem.setTitle("Too many AI requests");
+        problem.setDetail(ex.getMessage());
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
+
+        return problem;
+    }
+
     @ExceptionHandler(UserAlreadyInProjectException.class)
     public ProblemDetail handleUserAlreadyInProjectException(UserAlreadyInProjectException ex, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT); // 409

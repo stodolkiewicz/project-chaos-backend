@@ -19,6 +19,9 @@ app:
     cookie:
       domain: theprojectchaos.com
       secure: true
+  ai:
+    number-of-requests-in-time-window-limit: 50
+    time-window-in-minutes: 10
 
 # check forward-headers-strategy.md in the docs folder
 #server:

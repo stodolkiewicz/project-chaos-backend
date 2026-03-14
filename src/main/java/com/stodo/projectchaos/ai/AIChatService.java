@@ -1,10 +1,12 @@
 package com.stodo.projectchaos.ai;
 
+import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.user.UserService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -26,7 +28,20 @@ public class AIChatService {
         this.userService = userService;
     }
 
+    @Value("${app.ai.number-of-requests-in-time-window-limit:10}")
+    int numberOfRequestsInTimeWindowLimit;
+
+    @Value("${app.ai.time-window-in-minutes:60}")
+    int timeWindowInMinutes;
+
     public Flux<String> talk(String question, UUID conversationId, String userEmail) {
+        UUID userId = userService.getUserIdByEmail(userEmail);
+        if(aiUsageLogsService.isNumberOfRequestsInTimeWindowReached(
+                userId, numberOfRequestsInTimeWindowLimit, timeWindowInMinutes))
+        {
+            throw new TooManyAIRequestsException(timeWindowInMinutes, numberOfRequestsInTimeWindowLimit);
+        }
+
         long start = System.currentTimeMillis();
 
         AtomicReference<ChatResponse> finalResponse = new AtomicReference<>();
@@ -55,7 +70,7 @@ public class AIChatService {
                     int promptTokens = usage.getPromptTokens();
                     int completionTokens = usage.getCompletionTokens();
 
-                    UUID userId = userService.getUserIdByEmail(userEmail);
+
                     aiUsageLogsService.saveUsage(
                             userId,
                             conversationId,
