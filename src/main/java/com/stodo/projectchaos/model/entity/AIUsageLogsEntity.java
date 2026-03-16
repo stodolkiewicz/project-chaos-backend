@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "ai_usage_logs")
+@Table(name = "AI_USAGE_LOGS")
 @EntityListeners(AuditingEntityListener.class)
 public class AIUsageLogsEntity {
     @Builder.Default
@@ -25,8 +25,8 @@ public class AIUsageLogsEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(nullable = false)
-    private UUID conversationId;
+    @Column(name = "conversation_id", nullable = false)
+    private String conversationId;
 
     @Column(nullable = false)
     private String modelId;

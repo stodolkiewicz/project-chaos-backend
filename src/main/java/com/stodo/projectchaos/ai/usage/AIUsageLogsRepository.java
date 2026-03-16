@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.ai;
+package com.stodo.projectchaos.ai.usage;
 
 import com.stodo.projectchaos.model.entity.AIUsageLogsEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,9 +1,8 @@
-package com.stodo.projectchaos.ai;
+package com.stodo.projectchaos.ai.usage;
 
 import com.stodo.projectchaos.features.user.UserRepository;
 import com.stodo.projectchaos.model.entity.AIUsageLogsEntity;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +35,7 @@ public class AIUsageLogsService {
 
     @Transactional
     @Async
-    public void saveUsage(UUID userId, UUID conversationId, String modelId,
+    public void saveUsage(UUID userId, String conversationId, String modelId,
                           Integer promptTokens, Integer completionTokens,
                           String requestId, Long latencyMs) {
         AIUsageLogsEntity aiUsageLogsEntity = AIUsageLogsEntity.builder()

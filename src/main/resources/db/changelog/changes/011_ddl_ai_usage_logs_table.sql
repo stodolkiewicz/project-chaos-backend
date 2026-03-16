@@ -1,10 +1,10 @@
 --liquibase formatted sql
 
---changeset stodo:26 context:dev,prod
+--changeset stodo:27 context:dev,prod
 CREATE TABLE IF NOT EXISTS AI_USAGE_LOGS (
     id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id           UUID NOT NULL,
-    conversation_id   UUID NOT NULL,
+    conversation_id   VARCHAR(36) NOT NULL,
     model_id          VARCHAR(255) NOT NULL,
     prompt_tokens     INTEGER NOT NULL,
     completion_tokens INTEGER NOT NULL,

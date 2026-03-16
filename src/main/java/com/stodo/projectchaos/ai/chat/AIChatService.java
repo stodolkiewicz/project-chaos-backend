@@ -1,12 +1,19 @@
-package com.stodo.projectchaos.ai;
+package com.stodo.projectchaos.ai.chat;
 
+import com.stodo.projectchaos.ai.conversation.AIConversationService;
+import com.stodo.projectchaos.ai.conversation.dto.service.AIConversation;
+import com.stodo.projectchaos.ai.usage.AIUsageLogsService;
 import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.user.UserService;
+import com.stodo.projectchaos.model.entity.AIConversationEntity;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -21,11 +28,15 @@ public class AIChatService {
     private final ChatClient chatClient;
     private final AIUsageLogsService aiUsageLogsService;
     private final UserService userService;
+    private final AIConversationService aiConversationService;
+    private final ChatMemory messageWindowChatMemory;
 
-    public AIChatService(ChatClient chatClient, AIUsageLogsService aiUsageLogsService, UserService userService) {
+    public AIChatService(ChatClient chatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory) {
         this.chatClient = chatClient;
         this.aiUsageLogsService = aiUsageLogsService;
         this.userService = userService;
+        this.aiConversationService = aiConversationService;
+        this.messageWindowChatMemory = messageWindowChatMemory;
     }
 
     @Value("${app.ai.number-of-requests-in-time-window-limit:10}")
@@ -34,8 +45,7 @@ public class AIChatService {
     @Value("${app.ai.time-window-in-minutes:60}")
     int timeWindowInMinutes;
 
-    public Flux<String> talk(String question, UUID conversationId, String userEmail) {
-        UUID userId = userService.getUserIdByEmail(userEmail);
+    public Flux<String> chat(String question, String conversationId, UUID userId, boolean conversationHasTitle) {
         if(aiUsageLogsService.isNumberOfRequestsInTimeWindowReached(
                 userId, numberOfRequestsInTimeWindowLimit, timeWindowInMinutes))
         {
@@ -49,7 +59,10 @@ public class AIChatService {
         return chatClient.prompt()
                 .system("You are helpful adviser. Your answers are cheerful, but rather on the concise side.")
                 .user(question)
-                .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, conversationId))
+                .advisors(advisorSpec -> advisorSpec
+                        .advisors(MessageChatMemoryAdvisor.builder(messageWindowChatMemory).build())
+                        .param(CONVERSATION_ID, conversationId)
+                )
                 .stream()
                 .chatResponse()
                 // save last response
@@ -80,6 +93,10 @@ public class AIChatService {
                             requestId,
                             latency
                     );
+
+                    if(!conversationHasTitle) {
+                        createAndSaveConversationTitle(conversationId, question);
+                    }
                 })
 
                 .map(response -> Optional.ofNullable(response.getResult())
@@ -87,6 +104,30 @@ public class AIChatService {
                     .map(AssistantMessage::getText)
                     .orElse("")
                 );
+    }
+
+    public Flux<String> createConversationAndChat(UUID projectId, UUID userId, String conversationId, String question) {
+        AIConversation conversation =
+                aiConversationService.findByConversationId(conversationId)
+                        .orElseGet(() ->
+                                aiConversationService.createConversation(
+                                        projectId,
+                                        userId,
+                                        conversationId,
+                                        "New conversation"
+                                )
+                        );
+
+        return chat(question, conversationId, userId, conversation.conversationHasTitle());
+    }
+
+    public void createAndSaveConversationTitle(String conversationId, String question) {
+        String title = chatClient.prompt()
+                .system("Generate a short, maximum 5-word title for this chat based on the user question. Return only the title text.")
+                .user(question)
+                .call()
+                .content();
+        aiConversationService.updateConversationTitle(conversationId, title);
     }
 
 }

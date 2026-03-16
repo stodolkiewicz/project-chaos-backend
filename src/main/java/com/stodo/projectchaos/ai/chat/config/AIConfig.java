@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.ai.config;
+package com.stodo.projectchaos.ai.chat.config;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -32,11 +32,10 @@ public class AIConfig {
 
         return chatClientBuilder
             .defaultOptions(options)
-            .defaultAdvisors(
-                    MessageChatMemoryAdvisor.builder(chatMemory).build()
-            ).build();
+            .build();
     }
 
+    @Bean
     ChatMemory messageWindowChatMemory() {
         return MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
