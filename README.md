@@ -43,6 +43,11 @@ To get GOOGLE_OAUTH2_CLIENT_ID, GOOGLE_OAUTH2_CLIENT_SECRET:
 
 You can add those variables to Intellij's run configuration as environment variables.
 
+### Access Token
+--- DEV ACCESS TOKEN --- is printed in the console on application start.
+
+Alternatively, you can get JWT access token by starting frontend and backend, logging in and extracting access_token cookie value.
+
 # Current Database Schema
 
 ![Alt text](docs/images/db_schema.png)
