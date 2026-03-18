@@ -92,7 +92,8 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
-                "X-Requested-With"
+                "X-Requested-With",
+                "x_ai_conversation_id"
         ));
         configuration.setAllowCredentials(true);
 
@@ -112,7 +113,8 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(Arrays.asList(
                 "Authorization",
                 "Content-Type",
-                "X-Requested-With"
+                "X-Requested-With",
+                "x_ai_conversation_id"
         ));
         configuration.setAllowCredentials(true);
 

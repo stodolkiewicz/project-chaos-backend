@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +21,21 @@ public class SpringAIChatMemoryService {
         return ChatMemoryEntityMapper.INSTANCE.toChatMemoryList(entities);
     }
 
+    public List<ChatMemory> getChatHistory(String conversationId, UUID projectId, UUID userId) {
+        List<SpringAIChatMemoryEntity> entities = repository.findByConversation_IdAndConversation_Project_IdAndConversation_User_IdOrderByTimestampAsc(
+                conversationId, projectId, userId);
+        return ChatMemoryEntityMapper.INSTANCE.toChatMemoryList(entities);
+    }
+
     @Transactional
     public void deleteChatHistory(String conversationId) {
         repository.deleteByConversationId(conversationId);
+    }
+
+    @Transactional
+    public void deleteChatHistory(String conversationId, UUID projectId, UUID userId) {
+        repository.deleteByConversation_IdAndConversation_Project_IdAndConversation_User_Id(
+                conversationId, projectId, userId);
     }
 
 }

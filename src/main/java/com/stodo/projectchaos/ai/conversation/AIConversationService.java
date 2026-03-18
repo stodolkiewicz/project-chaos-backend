@@ -58,6 +58,7 @@ public class AIConversationService {
         conversation.setConversationHasTitle(true);
     }
 
+    // todo - preauthorize method to check if it is called by the user with userId in the parameters
     public List<AIConversation> getConversationsByProjectIdAndUserId(UUID projectId, UUID userId) {
         if (!projectRepository.existsById(projectId)) {
             throw EntityNotFoundException.builder()

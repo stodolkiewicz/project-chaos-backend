@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record ConversationResponseDTO(
-        UUID id,
+        String id,
         UUID projectId,
         String title,
         Instant createdAt

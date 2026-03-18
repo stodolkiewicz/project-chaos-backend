@@ -12,5 +12,11 @@ public interface SpringAIChatMemoryRepository extends JpaRepository<SpringAIChat
 
     List<SpringAIChatMemoryEntity> findByConversationIdOrderByTimestampAsc(String conversationId);
 
+    List<SpringAIChatMemoryEntity> findByConversation_IdAndConversation_Project_IdAndConversation_User_IdOrderByTimestampAsc(
+            String conversationId, UUID projectId, UUID userId);
+
     void deleteByConversationId(String conversationId);
+
+    void deleteByConversation_IdAndConversation_Project_IdAndConversation_User_Id(
+            String conversationId, UUID projectId, UUID userId);
 }

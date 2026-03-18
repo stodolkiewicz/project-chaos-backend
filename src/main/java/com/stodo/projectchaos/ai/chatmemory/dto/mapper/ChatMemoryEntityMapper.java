@@ -13,6 +13,7 @@ public interface ChatMemoryEntityMapper {
     ChatMemoryEntityMapper INSTANCE = Mappers.getMapper(ChatMemoryEntityMapper.class);
 
     @Mapping(target = "type", expression = "java(mapMessageType(entity.getType()))")
+    @Mapping(target = "conversationId", source = "conversation.id")
     ChatMemory toChatMemory(SpringAIChatMemoryEntity entity);
 
     List<ChatMemory> toChatMemoryList(List<SpringAIChatMemoryEntity> entities);

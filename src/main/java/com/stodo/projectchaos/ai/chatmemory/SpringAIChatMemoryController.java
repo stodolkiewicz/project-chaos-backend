@@ -8,25 +8,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/chat-memory")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class SpringAIChatMemoryController {
 
     private final SpringAIChatMemoryService service;
 
-    @GetMapping("/conversation/{conversationId}")
+    @GetMapping("/projects/{projectId}/users/{userId}/conversation/{conversationId}")
     public ResponseEntity<List<ChatMemoryResponseDTO>> getChatHistory(
+            @PathVariable UUID projectId,
+            @PathVariable UUID userId,
             @PathVariable String conversationId) {
-        List<ChatMemory> chatHistory = service.getChatHistory(conversationId);
+        List<ChatMemory> chatHistory = service.getChatHistory(conversationId, projectId, userId);
         List<ChatMemoryResponseDTO> response = ChatMemoryMapper.INSTANCE.toChatMemoryResponseDTOList(chatHistory);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/conversation/{conversationId}")
-    public ResponseEntity<Void> deleteChatHistory(@PathVariable String conversationId) {
-        service.deleteChatHistory(conversationId);
+    @DeleteMapping("/projects/{projectId}/users/{userId}/conversation/{conversationId}")
+    public ResponseEntity<Void> deleteChatHistory(
+            @PathVariable UUID projectId,
+            @PathVariable UUID userId,
+            @PathVariable String conversationId) {
+        service.deleteChatHistory(conversationId, projectId, userId);
         return ResponseEntity.noContent().build();
     }
 }
