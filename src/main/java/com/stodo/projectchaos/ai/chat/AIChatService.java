@@ -4,8 +4,9 @@ import com.stodo.projectchaos.ai.conversation.AIConversationService;
 import com.stodo.projectchaos.ai.conversation.dto.service.AIConversation;
 import com.stodo.projectchaos.ai.usage.AIUsageLogsService;
 import com.stodo.projectchaos.exception.TooManyAIRequestsException;
+import com.stodo.projectchaos.features.project.ProjectService;
+import com.stodo.projectchaos.features.project.dto.service.Project;
 import com.stodo.projectchaos.features.user.UserService;
-import com.stodo.projectchaos.model.entity.AIConversationEntity;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -13,7 +14,7 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -30,13 +31,15 @@ public class AIChatService {
     private final UserService userService;
     private final AIConversationService aiConversationService;
     private final ChatMemory messageWindowChatMemory;
+    private final ProjectService projectService;
 
-    public AIChatService(ChatClient chatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory) {
+    public AIChatService(ChatClient chatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory, ProjectService projectService) {
         this.chatClient = chatClient;
         this.aiUsageLogsService = aiUsageLogsService;
         this.userService = userService;
         this.aiConversationService = aiConversationService;
         this.messageWindowChatMemory = messageWindowChatMemory;
+        this.projectService = projectService;
     }
 
     @Value("${app.ai.number-of-requests-in-time-window-limit:10}")
@@ -45,7 +48,10 @@ public class AIChatService {
     @Value("${app.ai.time-window-in-minutes:60}")
     int timeWindowInMinutes;
 
-    public Flux<String> chat(String question, String conversationId, UUID userId, boolean conversationHasTitle) {
+    @Value("classpath:/promptTemplates/system-prompt.st")
+    private Resource systemPromptTemplate;
+
+    public Flux<String> chat(String question, UUID projectId, UUID userId, String conversationId, boolean conversationHasTitle) {
         if(aiUsageLogsService.isNumberOfRequestsInTimeWindowReached(
                 userId, numberOfRequestsInTimeWindowLimit, timeWindowInMinutes))
         {
@@ -54,10 +60,17 @@ public class AIChatService {
 
         long start = System.currentTimeMillis();
 
+        Project project = projectService.findProjectById(projectId);
+
         AtomicReference<ChatResponse> finalResponse = new AtomicReference<>();
 
         return chatClient.prompt()
-                .system("You are helpful adviser. Your answers are cheerful, but rather on the concise side.")
+                .system(systemSpec -> systemSpec
+                        .text(systemPromptTemplate)
+                        .param("projectName", project.name())
+                        .param("projectDescription", project.description())
+                        .param("createdAt", project.createdDate())
+                )
                 .user(question)
                 .advisors(advisorSpec -> advisorSpec
                         .advisors(MessageChatMemoryAdvisor.builder(messageWindowChatMemory).build())
@@ -118,7 +131,7 @@ public class AIChatService {
                                 )
                         );
 
-        return chat(question, conversationId, userId, conversation.conversationHasTitle());
+        return chat(question, projectId, userId, conversationId, conversation.conversationHasTitle());
     }
 
     public void createAndSaveConversationTitle(String conversationId, String question) {
