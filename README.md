@@ -34,12 +34,12 @@ You will need the following env variables to run the app locally:
 - GOOGLE_OAUTH2_CLIENT_ID
 - GOOGLE_OAUTH2_CLIENT_SECRET
 - JWT_SECRET
+- SPRING_AI_OPENAI_API_KEY
 
 To generate JWT_SECRET on ubuntu/linux you can use:
 > openssl rand -base64 64
 
-To get GOOGLE_OAUTH2_CLIENT_ID, GOOGLE_OAUTH2_CLIENT_SECRET:
-- go to Secret Manager in the GCP Project and look it up.
+For devs of this project: The rest of the variables can be found in Secret Manager in the GCP project.
 
 You can add those variables to Intellij's run configuration as environment variables.
 
