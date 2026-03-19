@@ -70,8 +70,10 @@ public class AIChatService {
                 .system(systemSpec -> systemSpec
                         .text(systemPromptTemplate)
                         .param("projectName", project.name())
+                        .param("projectId", projectId)
                         .param("projectDescription", project.description())
                         .param("createdAt", project.createdDate())
+                        .param("userId", userId)
                 )
                 .user(question)
                 .advisors(advisorSpec -> advisorSpec
