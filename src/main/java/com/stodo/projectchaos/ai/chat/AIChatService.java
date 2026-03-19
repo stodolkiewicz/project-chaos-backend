@@ -1,8 +1,8 @@
 package com.stodo.projectchaos.ai.chat;
 
-import com.stodo.projectchaos.ai.conversation.AIConversationService;
-import com.stodo.projectchaos.ai.conversation.dto.service.AIConversation;
-import com.stodo.projectchaos.ai.usage.AIUsageLogsService;
+import com.stodo.projectchaos.ai.features.conversation.AIConversationService;
+import com.stodo.projectchaos.ai.features.conversation.dto.service.AIConversation;
+import com.stodo.projectchaos.ai.features.usage.AIUsageLogsService;
 import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.dto.service.Project;
@@ -27,14 +27,16 @@ import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 @Service
 public class AIChatService {
     private final ChatClient chatClient;
+    private final ChatClient simpleChatClient;
     private final AIUsageLogsService aiUsageLogsService;
     private final UserService userService;
     private final AIConversationService aiConversationService;
     private final ChatMemory messageWindowChatMemory;
     private final ProjectService projectService;
 
-    public AIChatService(ChatClient chatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory, ProjectService projectService) {
+    public AIChatService(ChatClient chatClient, ChatClient simpleChatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory, ProjectService projectService) {
         this.chatClient = chatClient;
+        this.simpleChatClient = simpleChatClient;
         this.aiUsageLogsService = aiUsageLogsService;
         this.userService = userService;
         this.aiConversationService = aiConversationService;
@@ -135,7 +137,7 @@ public class AIChatService {
     }
 
     public void createAndSaveConversationTitle(String conversationId, String question) {
-        String title = chatClient.prompt()
+        String title = simpleChatClient.prompt()
                 .system("Generate a short, maximum 5-word title for this chat based on the user question. Return only the title text.")
                 .user(question)
                 .call()

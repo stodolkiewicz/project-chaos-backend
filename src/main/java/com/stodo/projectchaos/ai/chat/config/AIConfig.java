@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.ai.chat.config;
 
+import com.stodo.projectchaos.ai.tools.DateTimeTools;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -20,6 +21,11 @@ public class AIConfig {
     }
 
     @Bean
+    ChatClient simpleChatClient(ChatClient.Builder builder) {
+        return builder.build();
+    }
+
+    @Bean
     ChatClient chatClient(
             ChatClient.Builder chatClientBuilder,
             ChatMemory chatMemory
@@ -32,6 +38,7 @@ public class AIConfig {
 
         return chatClientBuilder
             .defaultOptions(options)
+            .defaultTools(new DateTimeTools())
             .build();
     }
 
