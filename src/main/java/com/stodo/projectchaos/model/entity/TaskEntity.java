@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.model.entity;
 
 import com.stodo.projectchaos.model.entity.superclass.Auditable;
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,10 @@ public class TaskEntity extends Auditable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_id")
     private TaskPriorityEntity priority;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stage", nullable = false, length = 10)
+    private TaskStageEnum stage = TaskStageEnum.BOARD;
 
     @OneToMany(mappedBy = "task", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TaskLabelsEntity> taskLabels = new HashSet<>();
