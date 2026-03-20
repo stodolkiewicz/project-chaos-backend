@@ -2,6 +2,7 @@ package com.stodo.projectchaos.features.task.dto.response;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +11,7 @@ import java.util.UUID;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardTasksResponseDTO {
+public class TasksResponseDTO {
     private UUID taskId;
     private String title;
     private String description;
@@ -19,4 +20,5 @@ public class BoardTasksResponseDTO {
     private ColumnDTO column;
     private AssigneeDTO assignee;
     private List<LabelDTO> labels;
+    private Instant createdDate;
 }

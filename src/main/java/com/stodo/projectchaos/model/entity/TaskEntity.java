@@ -37,6 +37,13 @@ public class TaskEntity extends Auditable {
     @JoinColumn(name = "column_id", nullable = false)
     private ColumnEntity column;
 
+    // optional = false -> hibernate will make sure that
+    // this field is not null during merge or persist
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    // nullable = false -> during hibernate creating tables
+    @JoinColumn(name = "project_id", nullable = false)
+    private ProjectEntity project;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_id")
     private TaskPriorityEntity priority;

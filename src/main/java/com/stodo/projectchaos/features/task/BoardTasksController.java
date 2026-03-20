@@ -1,13 +1,14 @@
 package com.stodo.projectchaos.features.task;
 
 import com.stodo.projectchaos.features.task.dto.request.UpdateTaskColumnRequestDTO;
+import com.stodo.projectchaos.features.task.dto.response.TasksResponseDTO;
 import com.stodo.projectchaos.features.task.dto.response.UpdateTaskColumnResponseDTO;
 import com.stodo.projectchaos.features.task.dto.service.TaskColumnUpdate;
 import com.stodo.projectchaos.features.task.dto.mapper.UpdateTaskColumnMapper;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
-import com.stodo.projectchaos.features.task.dto.response.BoardTasksResponseDTO;
 import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
 import com.stodo.projectchaos.features.task.dto.mapper.TaskMapper;
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +25,10 @@ public class BoardTasksController {
     private final TaskService taskService;
 
     @GetMapping("/{projectId}/tasks")
-    public ResponseEntity<List<BoardTasksResponseDTO>> getBoardTasks(@PathVariable UUID projectId) {
-        List<BoardTasksResponseDTO> response = taskService.getBoardTasks(projectId)
+    public ResponseEntity<List<TasksResponseDTO>> getTasks(
+            @PathVariable UUID projectId,
+            @RequestParam(required = false) TaskStageEnum stage) {
+        List<TasksResponseDTO> response = taskService.getTasks(projectId, stage)
                 .stream()
                 .map(TaskMapper.INSTANCE::toBoardTasksResponseDTO)
                 .collect(java.util.stream.Collectors.toList());

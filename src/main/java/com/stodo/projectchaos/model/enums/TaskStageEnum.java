@@ -3,7 +3,7 @@ package com.stodo.projectchaos.model.enums;
 public enum TaskStageEnum {
     BACKLOG("BACKLOG"),
     BOARD("BOARD"),
-    DONE("DONE");
+    ARCHIVED("ARCHIVED");
 
     private final String value;
 

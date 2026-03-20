@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,4 +20,5 @@ public class BoardTask {
     private Column column;
     private Assignee assignee;
     private List<Label> labels;
+    private Instant createdDate;
 }

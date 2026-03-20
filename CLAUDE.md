@@ -1,5 +1,12 @@
 # Claude Code Configuration
 
+## ⚠️ CRITICAL REMINDER: ALWAYS RUN APPLICATION AFTER CHANGES!
+**MUST ALWAYS RUN AFTER COMPLETING CHANGES** - User requirement
+Run: `JWT_SECRET=789a4fb3-b389-4389-8def-6b2319080270 mvn spring-boot:run -Dspring-boot.run.profiles=dev`
+To prove you are not lying, always search for DEV ACCESS TOKEN in the logs and show it to the user
+
+NO POLISH COMMENTS IN THE CODE
+
 ## Project Information
 This is a Java Spring Boot backend project for project-chaos.
 
@@ -7,7 +14,7 @@ This is a Java Spring Boot backend project for project-chaos.
 - Build: `mvn clean compile`
 - Test: `mvn test`  
 - Package: `mvn clean package`
-- Run: `JWT_SECRET=mysecretkey123456789012345678901234567890 mvn spring-boot:run -Dspring-boot.run.profiles=dev`
+- Run: `JWT_SECRET=789a4fb3-b389-4389-8def-6b2319080270 mvn spring-boot:run -Dspring-boot.run.profiles=dev`
 
 ## Database Migrations (Liquibase)
 - **Location**: `src/main/resources/db/changelog/changes/`

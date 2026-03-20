@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.features.task.dto.request;
 
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,6 +19,7 @@ public record CreateTaskRequestDTO (
         UUID columnId,
         UUID priorityId,
         @Valid
-        List<LabelDTO> labels
+        List<LabelDTO> labels,
+        TaskStageEnum stage
         ) {
 }

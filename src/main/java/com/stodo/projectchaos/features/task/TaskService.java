@@ -10,6 +10,7 @@ import com.stodo.projectchaos.features.task.dto.mapper.TaskEntityMapper;
 import com.stodo.projectchaos.model.entity.ColumnEntity;
 import com.stodo.projectchaos.model.entity.TaskEntity;
 import com.stodo.projectchaos.model.entity.TaskComments;
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import com.stodo.projectchaos.features.column.ColumnRepository;
 import com.stodo.projectchaos.features.label.LabelRepository;
 import com.stodo.projectchaos.features.taskcomments.TaskCommentsRepository;
@@ -33,8 +34,13 @@ public class TaskService {
 
     private static final Double MINIMUM_DISTANCE_BETWEEN_TASKS = 0.000001;
 
-    public List<BoardTask> getBoardTasks(UUID projectId) {
-        return customBoardRepository.findBoardTasks(projectId);
+    public List<BoardTask> getTasks(UUID projectId, TaskStageEnum stage) {
+        if (stage == null) {
+            return customBoardRepository.findAllTasks(projectId);
+        } else if (stage == TaskStageEnum.BOARD) {
+            return customBoardRepository.findSortedBoardTasksByPositionInColumn(projectId);
+        }
+        return customBoardRepository.findTasksByStage(projectId, stage);
     }
 
     public Task createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {

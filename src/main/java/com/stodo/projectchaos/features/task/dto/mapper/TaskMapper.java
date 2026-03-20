@@ -1,7 +1,7 @@
 package com.stodo.projectchaos.features.task.dto.mapper;
 
 import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
-import com.stodo.projectchaos.features.task.dto.response.BoardTasksResponseDTO;
+import com.stodo.projectchaos.features.task.dto.response.TasksResponseDTO;
 import com.stodo.projectchaos.features.task.dto.service.Task;
 import com.stodo.projectchaos.features.task.dto.service.BoardTask;
 import org.mapstruct.Mapper;
@@ -13,5 +13,5 @@ public interface TaskMapper {
 
     CreateTaskResponseDTO toCreateTaskResponseDTO(Task task);
     
-    BoardTasksResponseDTO toBoardTasksResponseDTO(BoardTask boardTask);
+    TasksResponseDTO toBoardTasksResponseDTO(BoardTask boardTask);
 }

@@ -20,6 +20,7 @@ import com.stodo.projectchaos.model.entity.ProjectBacklogEntity;
 import com.stodo.projectchaos.model.entity.TaskEntity;
 import com.stodo.projectchaos.model.entity.TaskLabelsEntity;
 import com.stodo.projectchaos.model.entity.TaskLabelId;
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -52,9 +53,21 @@ public class CustomTaskRepository {
                         .build()
         );
 
+        ProjectEntity projectEntity = projectRepository.findById(projectId).orElseThrow(() ->
+                EntityNotFoundException.builder()
+                        .entityType("Project")
+                        .identifier("id", projectId.toString())
+                        .build()
+        );
+
         ColumnEntity column = null;
         if(requestDTO.columnId() != null) {
             column = columnRepository.findById(requestDTO.columnId()).orElse(null);
+        }
+
+        // Validate stage and column relationship
+        if (requestDTO.stage() == TaskStageEnum.BOARD && requestDTO.columnId() == null) {
+            throw new IllegalArgumentException("Column ID is required when stage is BOARD");
         }
 
         // create a task entity
@@ -66,16 +79,11 @@ public class CustomTaskRepository {
                 .assignee(userEntity)
                 .column(column)
                 .priority(taskPriorityEntity)
+                .project(projectEntity)
+                .stage(requestDTO.stage())
                 .build();
 
         TaskEntity savedTaskEntity = taskRepository.save(taskEntityToBeSaved);
-
-        ProjectEntity projectEntity = projectRepository.findById(projectId).orElseThrow(() ->
-                EntityNotFoundException.builder()
-                        .entityType("Project")
-                        .identifier("id", projectId.toString())
-                        .build()
-        );
 
         // todo - check this when project_backlog is worked on
         // if columnId is null, create a project_backlog

@@ -1,11 +1,9 @@
 package com.stodo.projectchaos.features.task;
 
 import com.stodo.projectchaos.features.task.dto.service.BoardTask;
-import com.stodo.projectchaos.features.task.dto.service.Priority;
-import com.stodo.projectchaos.features.task.dto.service.Column;
-import com.stodo.projectchaos.features.task.dto.service.Assignee;
 import com.stodo.projectchaos.features.task.dto.service.Label;
 import com.stodo.projectchaos.model.entity.LabelEntity;
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
@@ -21,7 +19,7 @@ public class CustomBoardRepository {
     private EntityManager em;
 
     @Transactional
-    public List<BoardTask> findBoardTasks(UUID projectId) {
+    public List<BoardTask> findAllTasks(UUID projectId) {
         // Data for tasks (without labels)
         List<BoardTask> tasks = em.createQuery("""
             SELECT new com.stodo.projectchaos.features.task.dto.service.BoardTask(
@@ -32,13 +30,14 @@ public class CustomBoardRepository {
                 new com.stodo.projectchaos.features.task.dto.service.Priority(p.id, p.priorityValue, p.name, p.color),
                 new com.stodo.projectchaos.features.task.dto.service.Column(c.id, c.name, c.position),
                 new com.stodo.projectchaos.features.task.dto.service.Assignee(a.email),
-                null
+                null,
+                t.createdDate
             )
             FROM TaskEntity t
             LEFT JOIN t.priority p
-            JOIN t.column c
+            LEFT JOIN t.column c
             LEFT JOIN t.assignee a
-            WHERE c.project.id = :projectId
+            WHERE t.project.id = :projectId
             """, BoardTask.class)
                 .setParameter("projectId", projectId)
                 .getResultList();
@@ -74,11 +73,133 @@ public class CustomBoardRepository {
                 task.setLabels(taskLabelsMap.getOrDefault(task.getTaskId(), new ArrayList<>()))
         );
 
+        tasks.sort(Comparator.comparing(BoardTask::getCreatedDate));
+
+        return tasks;
+    }
+
+
+    @Transactional
+    public List<BoardTask> findSortedBoardTasksByPositionInColumn(UUID projectId) {
+        // Data for tasks (without labels)
+        List<BoardTask> tasks = em.createQuery("""
+        SELECT new com.stodo.projectchaos.features.task.dto.service.BoardTask(
+            t.id,
+            t.title,
+            t.description,
+            t.positionInColumn,
+            new com.stodo.projectchaos.features.task.dto.service.Priority(p.id, p.priorityValue, p.name, p.color),
+            new com.stodo.projectchaos.features.task.dto.service.Column(c.id, c.name, c.position),
+            new com.stodo.projectchaos.features.task.dto.service.Assignee(a.email),
+            null,
+            t.createdDate
+        )
+        FROM TaskEntity t
+        LEFT JOIN t.priority p
+        LEFT JOIN t.column c
+        LEFT JOIN t.assignee a
+        WHERE c.project.id = :projectId
+        AND t.positionInColumn IS NOT NULL
+        """, BoardTask.class)
+                .setParameter("projectId", projectId)
+                .getResultList();
+
+        List<UUID> taskIds = tasks.stream()
+                .map(BoardTask::getTaskId)
+                .collect(Collectors.toList());
+
+        // Labels for all tasks
+        Map<UUID, List<Label>> taskLabelsMap = em.createQuery("""
+        SELECT tl.task.id as taskId, l 
+        FROM TaskLabelsEntity tl 
+        JOIN tl.label l 
+        WHERE tl.task.id IN :taskIds
+        """, Tuple.class)
+                .setParameter("taskIds", taskIds)
+                .getResultStream()
+                .collect(Collectors.groupingBy(
+                        // generates key for map
+                        tuple -> (UUID) tuple.get("taskId"),
+                        // generates value for map - list of labels
+                        Collectors.mapping(
+                                tuple -> {
+                                    LabelEntity e = (LabelEntity) tuple.get(1);
+                                    return new Label(e.getId(), e.getName(), e.getColor());
+                                },
+                                Collectors.toList()
+                        )
+                ));
+
+        // Assign labels to tasks
+        tasks.forEach(task ->
+                task.setLabels(taskLabelsMap.getOrDefault(task.getTaskId(), new ArrayList<>()))
+        );
+
         tasks.sort(
                 Comparator
                         .comparing(BoardTask::getPositionInColumn)
                         .thenComparing(task -> task.getColumn().position())
         );
+
+        return tasks;
+    }
+
+    @Transactional
+    public List<BoardTask> findTasksByStage(UUID projectId, TaskStageEnum stage) {
+        List<BoardTask> tasks = em.createQuery("""
+            SELECT new com.stodo.projectchaos.features.task.dto.service.BoardTask(
+                t.id,
+                t.title,
+                t.description,
+                t.positionInColumn,
+                new com.stodo.projectchaos.features.task.dto.service.Priority(p.id, p.priorityValue, p.name, p.color),
+                new com.stodo.projectchaos.features.task.dto.service.Column(c.id, c.name, c.position),
+                new com.stodo.projectchaos.features.task.dto.service.Assignee(a.email),
+                null,
+                t.createdDate
+            )
+            FROM TaskEntity t
+            LEFT JOIN t.priority p
+            LEFT JOIN t.column c
+            LEFT JOIN t.assignee a
+            WHERE t.project.id = :projectId AND t.stage = :stage
+            """, BoardTask.class)
+                .setParameter("projectId", projectId)
+                .setParameter("stage", stage)
+                .getResultList();
+
+        List<UUID> taskIds = tasks.stream()
+                .map(BoardTask::getTaskId)
+                .collect(Collectors.toList());
+
+        if (taskIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Map<UUID, List<Label>> taskLabelsMap = em.createQuery("""
+            SELECT tl.task.id as taskId, l 
+            FROM TaskLabelsEntity tl 
+            JOIN tl.label l 
+            WHERE tl.task.id IN :taskIds
+            """, Tuple.class)
+                .setParameter("taskIds", taskIds)
+                .getResultStream()
+                .collect(Collectors.groupingBy(
+                        tuple -> (UUID) tuple.get("taskId"),
+                        Collectors.mapping(
+                                tuple -> {
+                                    LabelEntity e = (LabelEntity) tuple.get(1);
+                                    return new Label(e.getId(), e.getName(), e.getColor());
+                                },
+                                Collectors.toList()
+                        )
+                ));
+
+        tasks.forEach(task ->
+                task.setLabels(taskLabelsMap.getOrDefault(task.getTaskId(), new ArrayList<>()))
+        );
+
+        tasks.sort(Comparator.comparing(BoardTask::getCreatedDate));
 
         return tasks;
     }
