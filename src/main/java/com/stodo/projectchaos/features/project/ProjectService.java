@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.features.project;
 
+import com.stodo.projectchaos.ai.features.conversation.AIConversationRepository;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.exception.UserAlreadyInProjectException;
 import com.stodo.projectchaos.features.column.ColumnRepository;
@@ -47,8 +48,9 @@ public class ProjectService {
     private final ProjectBacklogRepository projectBacklogRepository;
     private final TaskRepository taskRepository;
     private final LabelRepository labelRepository;
+    private final AIConversationRepository aiConversationRepository;
 
-    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository) {
+    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository, AIConversationRepository aiConversationRepository) {
         this.customProjectRepository = customProjectRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -61,6 +63,7 @@ public class ProjectService {
         this.projectBacklogRepository = projectBacklogRepository;
         this.taskRepository = taskRepository;
         this.labelRepository = labelRepository;
+        this.aiConversationRepository = aiConversationRepository;
     }
 
     public ProjectDelete hardDeleteProject(UUID projectId) {
@@ -79,6 +82,8 @@ public class ProjectService {
         taskCommentsRepository.deleteByProjectId(projectId);
         taskLabelsRepository.deleteByProjectId(projectId);
         projectBacklogRepository.deleteByProjectId(projectId);
+        aiConversationRepository.deleteByProjectId(projectId);
+
         // --------------------------------
         // Level 2: Delete tasks (must be after level 1)
         taskRepository.deleteByProjectId(projectId);
