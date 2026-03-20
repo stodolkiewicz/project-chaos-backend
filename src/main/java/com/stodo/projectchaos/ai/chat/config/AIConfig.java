@@ -3,6 +3,7 @@ package com.stodo.projectchaos.ai.chat.config;
 import com.stodo.projectchaos.ai.tools.CurrentUserInfoTools;
 import com.stodo.projectchaos.ai.tools.DateTimeTools;
 import com.stodo.projectchaos.ai.tools.ProjectInfoTools;
+import com.stodo.projectchaos.ai.tools.TavilyWebSearchTool;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -20,11 +21,13 @@ public class AIConfig {
     private final JdbcChatMemoryRepository chatMemoryRepository;
     private final ProjectInfoTools projectInfoTools;
     private final CurrentUserInfoTools currentUserInfoTools;
+    private final TavilyWebSearchTool tavilyWebSearchTool;
 
-    public AIConfig(JdbcChatMemoryRepository chatMemoryRepository, ProjectInfoTools projectInfoTools, CurrentUserInfoTools currentUserInfoTools) {
+    public AIConfig(JdbcChatMemoryRepository chatMemoryRepository, ProjectInfoTools projectInfoTools, CurrentUserInfoTools currentUserInfoTools, TavilyWebSearchTool tavilyWebSearchTool) {
         this.chatMemoryRepository = chatMemoryRepository;
         this.projectInfoTools = projectInfoTools;
         this.currentUserInfoTools = currentUserInfoTools;
+        this.tavilyWebSearchTool = tavilyWebSearchTool;
     }
 
     @Bean
@@ -45,7 +48,7 @@ public class AIConfig {
 
         return chatClientBuilder
             .defaultOptions(options)
-            .defaultTools(new DateTimeTools(), projectInfoTools, currentUserInfoTools)
+            .defaultTools(new DateTimeTools(), projectInfoTools, currentUserInfoTools, tavilyWebSearchTool)
             .build();
     }
 

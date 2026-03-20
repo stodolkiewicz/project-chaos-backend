@@ -31,7 +31,7 @@ spring:
       api-key: ${SPRING_AI_OPENAI_API_KEY}
       chat:
         options:
-          model: gpt-4.1-mini
+          model: gpt-5.4-mini
     chat:
       memory:
         repository:
@@ -40,6 +40,10 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET}
+
+tavily:
+  api:
+    key: ${TAVILY_API_KEY}
 
 management:
   endpoints:

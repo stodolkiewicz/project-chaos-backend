@@ -24,7 +24,7 @@ public class ProjectInfoTools {
 
     @Tool(description = "Get all users assigned to the project")
     public List<ProjectUser> getAllUsersAssignedToTheProject(
-            @ToolParam(description = "technical UUID identifier of the project.", required = true) UUID projectId
+            @ToolParam(description = "technical UUID identifier of the project", required = true) UUID projectId
     ) {
         List<ProjectUser> projectUsers = projectUserService.findProjectUsersByProjectId(projectId);
         return projectUsers;
@@ -32,7 +32,7 @@ public class ProjectInfoTools {
 
     @Tool(description = "Get all tasks on the kanban board in the project")
     public List<BoardTask> getAllTasksOnTheKanbanBoard(
-            @ToolParam(description = "technical UUID identifier of the project.", required = true) UUID projectId
+            @ToolParam(description = "technical UUID identifier of the project", required = true) UUID projectId
     ) {
         List<BoardTask> boardTasks = taskService.getBoardTasks(projectId);
         return boardTasks;
