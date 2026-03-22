@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -22,4 +23,9 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
         WHERE t.id = :taskId AND t.column.project.id = :projectId
     """)
     boolean notExistByIdAndProjectId(UUID taskId, UUID projectId);
+
+    @Query("SELECT MAX(t.positionInColumn) FROM TaskEntity t WHERE t.column.id = :columnId")
+    Double findMaxPositionInColumnByColumnId(@Param("columnId") UUID columnId);
+
+    List<TaskEntity> findAllByIdInAndProjectId(List<UUID> taskIds, UUID projectId);
 }

@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -77,10 +78,73 @@ public class TaskService {
 
         task.setColumn(column);
         task.setPositionInColumn(requestDTO.positionInColumn());
+        task.setStage(TaskStageEnum.BOARD);
 
         TaskEntity savedTask = taskRepository.save(task);
 
         return TaskEntityMapper.INSTANCE.toTaskColumnUpdate(savedTask);
+    }
+
+    public void moveTasksToBacklog(List<UUID> taskIds, UUID projectId) {
+        List<TaskEntity> tasks = validateTasksBelongToProject(taskIds, projectId);
+        
+        for (TaskEntity task : tasks) {
+            task.setStage(TaskStageEnum.BACKLOG);
+            task.setColumn(null);
+            task.setPositionInColumn(null);
+        }
+        
+        taskRepository.saveAll(tasks);
+    }
+
+    public void moveTasksToArchive(List<UUID> taskIds, UUID projectId) {
+        List<TaskEntity> tasks = validateTasksBelongToProject(taskIds, projectId);
+        
+        for (TaskEntity task : tasks) {
+            task.setStage(TaskStageEnum.ARCHIVED);
+            task.setColumn(null);
+            task.setPositionInColumn(null);
+        }
+        
+        taskRepository.saveAll(tasks);
+    }
+
+    public void moveTasksToBoard(List<UUID> taskIds, UUID projectId) {
+        List<TaskEntity> tasks = validateTasksBelongToProject(taskIds, projectId);
+
+        List<ColumnEntity> columns = columnRepository.findByProjectIdOrderByPosition(projectId);
+        if (columns.isEmpty()) {
+            throw EntityNotFoundException.builder()
+                    .entityType("ColumnEntity")
+                    .identifier("projectId", projectId)
+                    .build();
+        }
+        
+        ColumnEntity firstColumn = columns.get(0);
+        
+        Double maxPosition = taskRepository.findMaxPositionInColumnByColumnId(firstColumn.getId());
+        double nextPosition = (maxPosition != null ? maxPosition : 0.0) + 1.0;
+        
+        for (TaskEntity task : tasks) {
+            task.setStage(TaskStageEnum.BOARD);
+            task.setColumn(firstColumn);
+            task.setPositionInColumn(nextPosition++);
+        }
+        
+        taskRepository.saveAll(tasks);
+    }
+
+    private List<TaskEntity> validateTasksBelongToProject(List<UUID> taskIds, UUID projectId) {
+        List<TaskEntity> tasks = taskRepository.findAllByIdInAndProjectId(taskIds, projectId);
+        
+        if (tasks.size() != taskIds.size()) {
+            throw EntityNotFoundException.builder()
+                    .entityType("TaskEntity")
+                    .identifier("some task IDs", "not found or not in project")
+                    .build();
+        }
+        
+        return tasks;
     }
 
     private boolean checkIfTaskPositionsInColumnNeedReindexing(Double positionInColumn, List<Double> nearestNeighboursPositionInColumn) {

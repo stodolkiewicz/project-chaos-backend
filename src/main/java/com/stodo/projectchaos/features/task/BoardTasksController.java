@@ -8,6 +8,7 @@ import com.stodo.projectchaos.features.task.dto.mapper.UpdateTaskColumnMapper;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
 import com.stodo.projectchaos.features.task.dto.mapper.TaskMapper;
+import com.stodo.projectchaos.features.task.dto.request.MoveTasksRequestDTO;
 import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -64,5 +65,32 @@ public class BoardTasksController {
             TaskColumnUpdate taskColumnUpdate = taskService.updateTaskColumn(requestDTO, taskId);
             UpdateTaskColumnResponseDTO responseDTO = UpdateTaskColumnMapper.INSTANCE.toUpdateTaskColumnResponseDTO(taskColumnUpdate);
             return ResponseEntity.ok(responseDTO);
+    }
+
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
+    @PostMapping("/{projectId}/tasks/move-to-backlog")
+    public ResponseEntity<Void> moveTasksToBacklog(
+            @PathVariable UUID projectId,
+            @Valid @RequestBody MoveTasksRequestDTO requestDTO) {
+        taskService.moveTasksToBacklog(requestDTO.taskIds(), projectId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
+    @PostMapping("/{projectId}/tasks/move-to-archive")
+    public ResponseEntity<Void> moveTasksToArchive(
+            @PathVariable UUID projectId,
+            @Valid @RequestBody MoveTasksRequestDTO requestDTO) {
+        taskService.moveTasksToArchive(requestDTO.taskIds(), projectId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
+    @PostMapping("/{projectId}/tasks/move-to-board")
+    public ResponseEntity<Void> moveTasksToBoard(
+            @PathVariable UUID projectId,
+            @Valid @RequestBody MoveTasksRequestDTO requestDTO) {
+        taskService.moveTasksToBoard(requestDTO.taskIds(), projectId);
+        return ResponseEntity.noContent().build();
     }
 }
