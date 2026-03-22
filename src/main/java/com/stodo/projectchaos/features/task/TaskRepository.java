@@ -20,7 +20,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
     @Query("""
         SELECT CASE WHEN COUNT(t) = 0 THEN true ELSE false END
         FROM TaskEntity t
-        WHERE t.id = :taskId AND t.column.project.id = :projectId
+        WHERE t.id = :taskId AND t.project.id = :projectId
     """)
     boolean notExistByIdAndProjectId(UUID taskId, UUID projectId);
 
