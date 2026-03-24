@@ -34,7 +34,10 @@ You will need the following env variables to run the app locally:
 - GOOGLE_OAUTH2_CLIENT_ID
 - GOOGLE_OAUTH2_CLIENT_SECRET
 - JWT_SECRET
-- SPRING_AI_OPENAI_API_KEY
+- SPRING_AI_OPENAI_API_KEY  
+  (for uploading documents to Google Cloud Storage)
+- GCP_PROJECT_ID
+- GCP_BUCKET_NAME
 
 To generate JWT_SECRET on ubuntu/linux you can use:
 > openssl rand -base64 64
