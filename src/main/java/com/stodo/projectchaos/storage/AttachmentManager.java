@@ -2,11 +2,14 @@ package com.stodo.projectchaos.storage;
 
 import com.stodo.projectchaos.exception.FileTooLargeException;
 import com.stodo.projectchaos.exception.StorageLimitExceededException;
+import com.stodo.projectchaos.features.attachment.AttachmentInfo;
+import com.stodo.projectchaos.features.attachment.AttachmentService;
 import com.stodo.projectchaos.features.project.ProjectRepository;
-import com.stodo.projectchaos.features.task.AttachmentRepository;
+import com.stodo.projectchaos.features.attachment.AttachmentRepository;
 import com.stodo.projectchaos.features.task.TaskRepository;
 import com.stodo.projectchaos.features.user.UserRepository;
 import com.stodo.projectchaos.model.entity.*;
+import com.stodo.projectchaos.model.enums.StorageStatusEnum;
 import com.stodo.projectchaos.model.enums.VectorStatusEnum;
 import com.stodo.projectchaos.storage.projectlimit.ProjectLimitService;
 import com.stodo.projectchaos.storage.projectlimit.dto.service.ProjectStorageUsage;
@@ -23,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,11 +41,12 @@ public class AttachmentManager {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final AttachmentRepository attachmentRepository;
+    private final AttachmentService attachmentService;
 
     @Value("${storage.limits.file.default}")
     private Long singleFileUploadLimitInBytes;
 
-    public AttachmentManager(StorageService storageService, ProjectLimitService projectLimitService, UserLimitService userLimitService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, AttachmentRepository attachmentRepository) {
+    public AttachmentManager(StorageService storageService, ProjectLimitService projectLimitService, UserLimitService userLimitService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
         this.storageService = storageService;
         this.projectLimitService = projectLimitService;
         this.userLimitService = userLimitService;
@@ -49,8 +54,29 @@ public class AttachmentManager {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.attachmentRepository = attachmentRepository;
+        this.attachmentService = attachmentService;
     }
 
+    public List<AttachmentInfo> generatePresignedUrl(UUID projectId, UUID taskId) {
+        List<AttachmentInfo> taskAttachments = attachmentService.findTaskAttachments(projectId, taskId);
+
+        List<CompletableFuture<AttachmentInfo>> futures = taskAttachments.stream()
+                .map(attachment ->
+                        storageService
+                            .generatePresignedUrl(attachment.filePath())
+                            .thenApply(url -> attachment.withUrl(url))
+                )
+                .toList();
+
+        return futures.stream()
+                .map(CompletableFuture::join)
+                .toList();
+    }
+
+    /*
+        known issues: if something breaks after file is uploaded, there will be an orphaned file in GCS.
+        See file 8-attachment-upload-consistency-strategy.md
+    */
     @Transactional
     public String uploadFile(MultipartFile file, UUID projectId, UUID userId, UUID taskId) throws IOException {
         String originalFilename = file.getOriginalFilename();
@@ -90,6 +116,7 @@ public class AttachmentManager {
                 .contentType(contentType)
                 .fileSizeInBytes(bytesToBeUploaded)
                 .vectorStatus(VectorStatusEnum.PENDING)
+                .storageStatus(StorageStatusEnum.PENDING_UPLOAD)
                 .extractedText(extractedText)
                 .build();
 

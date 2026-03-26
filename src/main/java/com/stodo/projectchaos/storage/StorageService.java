@@ -22,8 +22,8 @@ public class StorageService {
         this.storage = StorageOptions.getDefaultInstance().getService();
     }
 
-    public String uploadFile(MultipartFile file, String objectPath) throws IOException {
-        BlobId blobId = BlobId.of(bucketName, objectPath);
+    public String uploadFile(MultipartFile file, String filePath) throws IOException {
+        BlobId blobId = BlobId.of(bucketName, filePath);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
                 .setContentType(file.getContentType())
                 .build();
@@ -31,12 +31,12 @@ public class StorageService {
 
         storage.create(blobInfo, file.getBytes());
 
-        return objectPath;
+        return filePath;
     }
 
     @Async
-    public CompletableFuture<String> generatePresignedUrl(String objectPath) {
-        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, objectPath).build();
+    public CompletableFuture<String> generatePresignedUrl(String filePath) {
+        BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, filePath).build();
 
         URL signedUrl = storage.signUrl(
                 blobInfo,

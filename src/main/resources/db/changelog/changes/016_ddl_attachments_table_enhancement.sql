@@ -23,6 +23,9 @@ ALTER TABLE attachments ADD COLUMN extracted_text TEXT;
 -- Add vector_status enum column
 ALTER TABLE attachments ADD COLUMN vector_status VARCHAR(20) DEFAULT 'PENDING' CHECK (vector_status IN ('PENDING', 'PROCESSED', 'FAILED'));
 
+-- Add storage_status enum column
+ALTER TABLE attachments ADD COLUMN storage_status VARCHAR(20) NOT NULL DEFAULT 'SAVED' CHECK (storage_status IN ('PENDING_UPLOAD', 'SAVED'));
+
 -- Drop old uploaded_by column (replaced by user_id)
 ALTER TABLE attachments DROP CONSTRAINT fk_attachments_user;
 ALTER TABLE attachments DROP COLUMN uploaded_by;
@@ -47,3 +50,4 @@ ALTER TABLE attachments DROP COLUMN uploaded_at;
 --rollback ALTER TABLE attachments DROP COLUMN content_type;
 --rollback ALTER TABLE attachments DROP COLUMN extracted_text;
 --rollback ALTER TABLE attachments DROP COLUMN vector_status;
+--rollback ALTER TABLE attachments DROP COLUMN storage_status;

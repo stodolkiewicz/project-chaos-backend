@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.model.entity;
 
 import com.stodo.projectchaos.model.entity.superclass.Auditable;
+import com.stodo.projectchaos.model.enums.StorageStatusEnum;
 import com.stodo.projectchaos.model.enums.VectorStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -53,4 +54,8 @@ public class AttachmentEntity extends Auditable {
     @Enumerated(EnumType.STRING)
     @Column(name = "vector_status", length = 20)
     private VectorStatusEnum vectorStatus = VectorStatusEnum.PENDING;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "storage_status", length = 20, nullable = false)
+    private StorageStatusEnum storageStatus = StorageStatusEnum.SAVED;
 }
