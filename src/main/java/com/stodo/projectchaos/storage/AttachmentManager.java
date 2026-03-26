@@ -59,18 +59,19 @@ public class AttachmentManager {
 
         String contentType = file.getContentType();
         Long bytesToBeUploaded = file.getSize();
+
         checkStorageLimits(originalFilename, bytesToBeUploaded, projectId, userId);
 
         String filePath = String.format("projects/%s/tasks/%s/%s", projectId, taskId, cloudStorageFilename);
 
         storageService.uploadFile(file, filePath);
 
-        projectLimitService.increaseUsedBytes(projectId, bytesToBeUploaded);
-        userLimitService.increaseUsedBytes(userId, bytesToBeUploaded);
+        increaseStorageUsage(projectId, userId, bytesToBeUploaded);
 
         ProjectEntity projectEntityReference = projectRepository.getReferenceById(projectId);
         TaskEntity taskEntityReference = taskRepository.getReferenceById(taskId);
         UserEntity userEntityReference = userRepository.getReferenceById(userId);
+
         String extractedText = "";
         try {
             extractedText = FileTextExtractor.extractText(file.getBytes());
@@ -78,9 +79,8 @@ public class AttachmentManager {
             log.warn("Text could not be extracted from {}.", originalFilename);
         }
 
-        // todo: save attachment entity
         AttachmentEntity attachment = AttachmentEntity.builder()
-                .id(UUID.randomUUID()) // Identyfikator w Twojej bazie
+                .id(UUID.randomUUID())
                 .project(projectEntityReference)
                 .task(taskEntityReference)
                 .user(userEntityReference)
@@ -94,6 +94,7 @@ public class AttachmentManager {
                 .build();
 
         attachmentRepository.save(attachment);
+
         return filePath;
     }
 
@@ -132,6 +133,16 @@ public class AttachmentManager {
         if(!singleFileLimitOk) {
             throw new FileTooLargeException(filename, singleFileUploadLimitInBytes);
         }
+    }
+
+    private void increaseStorageUsage(UUID projectId, UUID userId, Long bytesToBeUploaded) {
+        CompletableFuture<Void> projectStorageIncreaseCF = 
+                CompletableFuture.runAsync(() -> projectLimitService.increaseUsedBytes(projectId, bytesToBeUploaded));
+        CompletableFuture<Void> userStorageIncreaseCF = 
+                CompletableFuture.runAsync(() -> userLimitService.increaseUsedBytes(userId, bytesToBeUploaded));
+        
+        CompletableFuture<Void> allIncreasesCF = CompletableFuture.allOf(projectStorageIncreaseCF, userStorageIncreaseCF);
+        allIncreasesCF.join();
     }
 
 }
