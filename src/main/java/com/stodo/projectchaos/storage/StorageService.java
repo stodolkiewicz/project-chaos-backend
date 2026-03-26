@@ -48,4 +48,11 @@ public class StorageService {
         return CompletableFuture.completedFuture(signedUrl.toString());
     }
 
+    public boolean deleteFile(String filePath) {
+        BlobId blobId = BlobId.of(bucketName, filePath);
+        boolean isDeleted = storage.delete(blobId);
+
+        return isDeleted;
+    }
+
 }

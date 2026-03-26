@@ -56,4 +56,20 @@ public class StorageController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
+    @DeleteMapping("/projects/{projectId}/tasks/{taskId}/storage/{attachmentId}")
+    public ResponseEntity<Void> deleteFile(
+            @PathVariable UUID projectId,
+            @PathVariable UUID taskId,
+            @PathVariable UUID attachmentId
+    ) {
+        boolean deleted = attachmentManager.deleteFile(projectId, taskId, attachmentId);
+        
+        if (deleted) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

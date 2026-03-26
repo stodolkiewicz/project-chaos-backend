@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.storage;
 
+import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.exception.FileTooLargeException;
 import com.stodo.projectchaos.exception.StorageLimitExceededException;
 import com.stodo.projectchaos.features.attachment.AttachmentInfo;
@@ -27,6 +28,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -57,6 +59,34 @@ public class AttachmentManager {
         this.attachmentService = attachmentService;
     }
 
+    public boolean deleteFile(UUID projectId, UUID taskId, UUID attachmentId) {
+        String filePath = checkIfAttachmentExistsAndGetFilePath(projectId, taskId, attachmentId);
+
+        boolean isDeleted = storageService.deleteFile(filePath);
+
+        if (isDeleted) {
+            attachmentRepository.deleteById(attachmentId);
+            return true;
+        } else {
+            log.warn("Could not delete attachment from Cloud Storage");
+        }
+
+        return false;
+    }
+
+    private String checkIfAttachmentExistsAndGetFilePath(UUID projectId, UUID taskId, UUID attachmentId) {
+        Optional<String> maybeFilePath = attachmentRepository.getFilePathByProjectIdAndTaskIdAndId(projectId, taskId, attachmentId);
+        if (maybeFilePath.isEmpty()) {
+            throw EntityNotFoundException.builder()
+                    .entityType("Attachment")
+                    .identifier("id", attachmentId)
+                    .build();
+        }
+
+        return maybeFilePath.get();
+    }
+
+    @Transactional
     public List<AttachmentInfo> generatePresignedUrl(UUID projectId, UUID taskId) {
         List<AttachmentInfo> taskAttachments = attachmentService.findTaskAttachments(projectId, taskId);
 

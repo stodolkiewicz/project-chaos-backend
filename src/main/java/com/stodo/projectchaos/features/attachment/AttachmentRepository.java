@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -30,4 +31,7 @@ public interface AttachmentRepository extends JpaRepository<AttachmentEntity, UU
     WHERE a.project.id = :projectId AND a.task.id = :taskId
     """)
     List<AttachmentInfo> findByProjectIdAndTaskId(@Param("projectId") UUID projectId, @Param("taskId") UUID taskId);
+
+    @Query("SELECT a.filePath FROM AttachmentEntity a WHERE a.project.id = :projectId AND a.task.id = :taskId AND a.id = :attachmentId")
+    Optional<String> getFilePathByProjectIdAndTaskIdAndId(@Param("projectId") UUID projectId, @Param("taskId") UUID taskId, @Param("attachmentId") UUID attachmentId);
 }
