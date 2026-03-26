@@ -98,7 +98,7 @@ public class JwtService {
         return createCommonTokenConfiguration.apply(userEmail)
                 .expiration(new Date(System.currentTimeMillis() + 1000 * expirationInSeconds)) // 15 min
                 .claim(TOKEN_TYPE_CLAIM_NAME, TokenType.ACCESS)
-                .claim("userId", userId)
+                .claim(USER_ID_CLAIM_NAME, userId)
                 .claim("pictureUrl", pictureUrl)
                 .claim("firstName", firstName)
                 .compact();

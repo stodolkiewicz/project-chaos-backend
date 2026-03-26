@@ -1,8 +1,8 @@
 package com.stodo.projectchaos.storage;
 
 import com.stodo.projectchaos.features.user.UserService;
+import com.stodo.projectchaos.security.annotation.CurrentUserId;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,10 +26,9 @@ public class StorageController {
             @RequestParam("file") MultipartFile file,
             @PathVariable UUID projectId,
             @PathVariable UUID taskId,
-            Authentication authentication
+            @CurrentUserId UUID userId
     ) throws Exception {
-        String userEmail = authentication.getName();
-        UUID userId = userService.getUserIdByEmail(userEmail);
+
         String objectPath = attachmentManager.uploadFile(file, projectId, userId, taskId);
         return ResponseEntity.created(URI.create(objectPath)).build();
     }

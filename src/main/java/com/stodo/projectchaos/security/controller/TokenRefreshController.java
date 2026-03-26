@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS;
 
+/*
+Not used yet
+*/
 @RestController
 @RequestMapping("/token")
 public class TokenRefreshController {
@@ -21,6 +24,9 @@ public class TokenRefreshController {
         this.jwtService = jwtService;
     }
 
+    /*
+        Not used yet
+    */
     @PostMapping("/refresh")
     public ResponseEntity<Void> refreshToken(@RequestHeader("Refresh-Token") String refreshToken) {
         try {
@@ -30,7 +36,9 @@ public class TokenRefreshController {
             }
 
             String userEmail = jwtService.extractEmail(refreshToken);
-            String newAccessToken = jwtService.generateAccessToken(userEmail, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
+
+            // todo - use generate access token with userId as param
+             String newAccessToken = jwtService.generateAccessToken(userEmail, JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS);
 
             return ResponseEntity.ok()
                     .header("Authorization", "Bearer " + newAccessToken)

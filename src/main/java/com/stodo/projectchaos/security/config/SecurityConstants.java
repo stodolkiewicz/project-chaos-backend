@@ -7,6 +7,7 @@ public final class SecurityConstants {
     public static final int JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS = 216000; // 60 hours
 
     public static final String ROLE_CLAIM_NAME = "role";
+    public static final String USER_ID_CLAIM_NAME = "userId";
     public static final String TOKEN_TYPE_CLAIM_NAME = "tokenType";
     public static final String TOKEN_EXPIRATION_DATE_CLAIM_NAME = "exp";
     public static final String TOKEN_ISSUE_DATE_CLAIM_NAME = "iat";

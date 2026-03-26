@@ -20,6 +20,8 @@ public class AccessTokenGeneratorRunner implements CommandLineRunner {
     public void run(String... args) {
         String token = jwtService.generateAccessToken(
     "projectchaos32167@gmail.com",
+            null,
+            "Dawid",
             28800  // 8h
         );
 

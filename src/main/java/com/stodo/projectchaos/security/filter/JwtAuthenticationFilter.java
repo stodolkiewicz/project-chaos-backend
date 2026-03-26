@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.security.filter;
 
+import com.stodo.projectchaos.features.user.UserService;
 import com.stodo.projectchaos.security.service.JwtService;
 import com.stodo.projectchaos.security.model.TokenType;
 import jakarta.servlet.FilterChain;
@@ -9,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,16 +17,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.stodo.projectchaos.security.config.SecurityConstants.*;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    JwtService jwtService;
+    private final JwtService jwtService;
+    private final UserService userService;
 
-    public JwtAuthenticationFilter(JwtService jwtService) {
+    public JwtAuthenticationFilter(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     @Override
@@ -41,9 +44,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (isValidTokenOfType(token, TokenType.ACCESS)) {
                 String userEmail = jwtService.extractEmail(token);
                 String userRole = jwtService.extractRole(token);
+                UUID userId = userService.getUserIdByEmail(userEmail);
 
-                UserDetails userDetails = new User(
+                UserDetails userDetails = new AppUserDetails(
                         userEmail,
+                        userId,
                         "",
                         List.of(new SimpleGrantedAuthority(userRole))
                 );
