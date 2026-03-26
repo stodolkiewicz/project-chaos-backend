@@ -57,6 +57,32 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(StorageLimitExceededException.class)
+    public ProblemDetail handleStorageLimitExceededException(StorageLimitExceededException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.PAYLOAD_TOO_LARGE); // 413
+        problem.setTitle("Storage limit exceeded");
+        problem.setDetail(ex.getMessage());
+        // on what endpoint the error occurred
+        problem.setInstance(URI.create(request.getRequestURI()));
+
+        problem.setProperty("timestamp", Instant.now());
+
+        return problem;
+    }
+
+    @ExceptionHandler(FileTooLargeException.class)
+    public ProblemDetail handleFileTooLargeException(FileTooLargeException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.PAYLOAD_TOO_LARGE); // 413
+        problem.setTitle("Max file size exceeded");
+        problem.setDetail(ex.getMessage());
+        // on what endpoint the error occurred
+        problem.setInstance(URI.create(request.getRequestURI()));
+
+        problem.setProperty("timestamp", Instant.now());
+
+        return problem;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);

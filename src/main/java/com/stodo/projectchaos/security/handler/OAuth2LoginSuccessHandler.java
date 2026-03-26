@@ -8,6 +8,7 @@ import com.stodo.projectchaos.model.enums.RoleEnum;
 import com.stodo.projectchaos.features.user.UserRepository;
 import com.stodo.projectchaos.security.service.JwtService;
 import com.stodo.projectchaos.features.invitation.InvitationService;
+import com.stodo.projectchaos.storage.userlimit.UserLimitService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,17 +34,19 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final UserRepository userRepository;
     private final InvitationService invitationService;
     private final ProjectService projectService;
+    private final UserLimitService userLimitService;
 
     public OAuth2LoginSuccessHandler(
             JwtService jwtService,
             @Value("${app.frontend-dashboard-url}") String frontendDashboardUrl,
-            UserRepository userRepository, InvitationService invitationService, ProjectService projectService
+            UserRepository userRepository, InvitationService invitationService, ProjectService projectService, UserLimitService userLimitService
     ) {
         this.jwtService = jwtService;
         this.frontendDashboardUrl = frontendDashboardUrl;
         this.userRepository = userRepository;
         this.invitationService = invitationService;
         this.projectService = projectService;
+        this.userLimitService = userLimitService;
     }
 
     @Override
@@ -103,7 +106,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         newUserEntity.setGooglePictureLink(oauth2User.getAttribute("picture"));
         newUserEntity.setRole(RoleEnum.valueOf(jwtService.getUserRole(userEmail)));
 
-        userRepository.saveAndFlush(newUserEntity);
+        UserEntity savedUser = userRepository.saveAndFlush(newUserEntity);
+        userLimitService.createUserStorageUsage(savedUser.getId());
     }
 
     private void convertInvitationsToProjectMemberships(String userEmail) {

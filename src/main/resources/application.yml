@@ -52,6 +52,15 @@ tavily:
   api:
     key: ${TAVILY_API_KEY}
 
+storage:
+  limits:
+    file:
+      default: 20971520 # 20MB in bytes
+    user:
+      default: 314572800  # 300MB in bytes
+    project:
+      default: 629145600  # 600MB in bytes
+
 management:
   endpoints:
     web:

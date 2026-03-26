@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.model.entity;
 
 import com.stodo.projectchaos.model.entity.superclass.Auditable;
+import com.stodo.projectchaos.model.enums.VectorStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,16 +23,34 @@ public class AttachmentEntity extends Auditable {
     @JoinColumn(name = "task_id", nullable = false)
     private TaskEntity task;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "project_id", nullable = false)
+    private ProjectEntity project;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private UserEntity user;
+
     @Column(name = "file_name", nullable = false)
     private String fileName;
 
-    @Column(name = "file_url", nullable = false, columnDefinition = "TEXT")
-    private String fileUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploaded_by")
-    private UserEntity uploadedBy;
+    @Column(name = "file_size_in_bytes")
+    private Long fileSizeInBytes;
 
-    @Column(name = "uploaded_at", nullable = false)
-    private Instant uploadedAt;
+    @Column(name = "file_path", length = 500)
+    private String filePath;
+
+    @Column(name = "original_name")
+    private String originalName;
+
+    @Column(name = "content_type", length = 100)
+    private String contentType;
+
+    @Column(name = "extracted_text", columnDefinition = "TEXT")
+    private String extractedText;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "vector_status", length = 20)
+    private VectorStatusEnum vectorStatus = VectorStatusEnum.PENDING;
 }

@@ -17,6 +17,6 @@ public interface AttachmentRepository extends JpaRepository<AttachmentEntity, UU
     @Query("DELETE FROM AttachmentEntity a WHERE a.task.column.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
     
-    @Query("SELECT a.fileUrl FROM AttachmentEntity a WHERE a.task.column.project.id = :projectId")
+    @Query("SELECT a.filePath FROM AttachmentEntity a WHERE a.task.column.project.id = :projectId")
     List<String> findFilePathsByProjectId(@Param("projectId") UUID projectId);
 }

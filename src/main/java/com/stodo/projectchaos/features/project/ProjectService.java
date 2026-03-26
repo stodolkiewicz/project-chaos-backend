@@ -23,6 +23,7 @@ import com.stodo.projectchaos.features.user.dto.request.ChangeUserRoleRequestDTO
 import com.stodo.projectchaos.features.user.dto.response.ChangeUserRoleResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
+import com.stodo.projectchaos.storage.projectlimit.ProjectLimitService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -49,8 +50,9 @@ public class ProjectService {
     private final TaskRepository taskRepository;
     private final LabelRepository labelRepository;
     private final AIConversationRepository aiConversationRepository;
+    private final ProjectLimitService projectLimitService;
 
-    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository, AIConversationRepository aiConversationRepository) {
+    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository, AIConversationRepository aiConversationRepository, ProjectLimitService projectLimitService) {
         this.customProjectRepository = customProjectRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -64,6 +66,7 @@ public class ProjectService {
         this.taskRepository = taskRepository;
         this.labelRepository = labelRepository;
         this.aiConversationRepository = aiConversationRepository;
+        this.projectLimitService = projectLimitService;
     }
 
     public ProjectDelete hardDeleteProject(UUID projectId) {
@@ -123,6 +126,8 @@ public class ProjectService {
         saveColumns(createProjectRequestDTO, savedProjectEntity);
 
         saveDefaultTaskPriorities(savedProjectEntity);
+        
+        projectLimitService.createProjectStorageUsage(savedProjectEntity.getId());
 
         return ProjectEntityMapper.INSTANCE.toProject(savedProjectEntity);
     }

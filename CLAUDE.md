@@ -1,10 +1,5 @@
 # Claude Code Configuration
 
-## ⚠️ CRITICAL REMINDER: ALWAYS RUN APPLICATION AFTER CHANGES!
-**MUST ALWAYS RUN AFTER COMPLETING CHANGES** - User requirement
-Run: `JWT_SECRET=789a4fb3-b389-4389-8def-6b2319080270 mvn spring-boot:run -Dspring-boot.run.profiles=dev`
-To prove you are not lying, always search for DEV ACCESS TOKEN in the logs and show it to the user
-
 NO POLISH COMMENTS IN THE CODE
 
 ## Project Information
@@ -38,19 +33,12 @@ This is a Java Spring Boot backend project for project-chaos.
 - Source code in `src/` directory
 - Built artifacts in `target/` directory
 - **JWT Secret**: Application requires `JWT_SECRET` environment variable to start
-- **Test App Startup**: After making changes, ALWAYS test that application starts properly
 
 ## Communication Guidelines
 - **When asked a question, ALWAYS provide direct answers first**
 - **Do NOT suggest code changes or modifications unless explicitly asked**
 - **Answer what was asked, not what you think should be changed**
 
-## Testing Protocol
-⚠️ **IMPORTANT**: After any code changes, verify application startup with:
-```bash
-JWT_SECRET=mysecretkey123456789012345678901234567890 mvn spring-boot:run -Dspring-boot.run.profiles=dev
-```
-Application should show: `"Started ProjectChaos in X.XXX seconds"`
 
 ## Architecture Patterns
 

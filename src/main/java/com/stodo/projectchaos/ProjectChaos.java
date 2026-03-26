@@ -22,8 +22,19 @@ public class ProjectChaos {
 	// 2. Auth: Create AppUserDetails extends User (with UUID userId field) for backward compatibility.
 	// 3. Filter: In JwtFilter, instantiate AppUserDetails by extracting the ID from claims.
 
-	// todo
-	// Add project_id to task_priorities
-	// Add project_id to labels
-	// tests for ProjectService.moveDefaultProjectToFront()
+
+	// to do
+//	Tabela projects:
+//	id (UUID)
+//	name (String)
+//	storage_limit (Long) – np. 5368709120 dla 5GB.
+//	current_storage_usage (Long) – suma bajtów.
+//
+//	Tabela attachments:
+//	id (UUID)
+//	project_id (UUID) – klucz obcy.
+//	file_path (String) – ścieżka w GCS.
+//			original_name (String).
+//	content_type (String).
+//	file_size (Long) – rozmiar w bajtach (potrzebny, żeby wiedzieć ile odjąć przy usuwaniu).
 }
