@@ -110,27 +110,17 @@ public String uploadFile(MultipartFile file, UUID projectId, UUID userId, UUID t
     attachment.setStorageStatus(StorageStatusEnum.SAVED);
     attachmentRepository.save(attachment);
 
-    // 4. Trigger text extraction asynchronously — non-critical
-    applicationEventPublisher.publishEvent(new TextExtractionRequestedEvent(attachment.getId()));
+    // 4. Extract text inline — failure is non-fatal
+    String extractedText = "";
+    try {
+        extractedText = FileTextExtractor.extractText(file.getBytes());
+    } catch (TikaException | SAXException e) {
+        log.warn("Text could not be extracted from {}.", originalFilename);
+    }
+    attachment.setExtractedText(extractedText);
+    attachmentRepository.save(attachment);
 
     return filePath;
-}
-```
-
-#### Async text extraction
-
-```java
-@Async
-@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-public void handleTextExtraction(TextExtractionRequestedEvent event) {
-    try {
-        byte[] bytes = storageService.downloadFile(event.filePath());
-        String extractedText = FileTextExtractor.extractText(bytes);
-        attachmentService.saveExtractedText(event.attachmentId(), extractedText);
-    } catch (Exception e) {
-        log.warn("Text extraction failed for attachment {}", event.attachmentId());
-        attachmentService.markVectorizationFailed(event.attachmentId());
-    }
 }
 ```
 
@@ -166,7 +156,7 @@ public void cleanupPendingAttachments() {
 | During `uploadFile` (GCS error) | rolled back | no file | ✅ Clean |
 | After `uploadFile`, before `save(SAVED)` | PENDING remains | file exists | ⏳ Cleaned by job after 1h |
 | Server crash between upload and second save | PENDING remains | file exists | ⏳ Cleaned by job after 1h |
-| Text extraction fails | SAVED, vectorStatus=FAILED | file exists | ✅ Acceptable — retryable |
+| Text extraction fails (Tika/SAX) | SAVED, extractedText="" | file exists | ✅ Acceptable — logged, empty string saved |
 
 ---
 
@@ -178,7 +168,7 @@ If the server crashes after `uploadFile` but before `increaseStorageUsage`, stor
 
 ### Text extraction is best-effort
 
-Extraction and vectorization happen asynchronously after commit. A failure here does not affect file availability. Records with `vectorStatus = FAILED` can be retried independently.
+Text extraction via Tika runs synchronously inside the upload method. Failures are caught and logged — the attachment is saved with an empty `extractedText` field. This is acceptable; vectorization can be retriggered later based on `vectorStatus`.
 
 ### Cleanup job runs in-process
 

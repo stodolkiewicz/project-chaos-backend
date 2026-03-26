@@ -90,20 +90,9 @@ public class AttachmentManager {
 
         String filePath = String.format("projects/%s/tasks/%s/%s", projectId, taskId, cloudStorageFilename);
 
-        storageService.uploadFile(file, filePath);
-
-        increaseStorageUsage(projectId, userId, bytesToBeUploaded);
-
         ProjectEntity projectEntityReference = projectRepository.getReferenceById(projectId);
         TaskEntity taskEntityReference = taskRepository.getReferenceById(taskId);
         UserEntity userEntityReference = userRepository.getReferenceById(userId);
-
-        String extractedText = "";
-        try {
-            extractedText = FileTextExtractor.extractText(file.getBytes());
-        } catch (TikaException | SAXException e) {
-            log.warn("Text could not be extracted from {}.", originalFilename);
-        }
 
         AttachmentEntity attachment = AttachmentEntity.builder()
                 .id(UUID.randomUUID())
@@ -117,8 +106,22 @@ public class AttachmentManager {
                 .fileSizeInBytes(bytesToBeUploaded)
                 .vectorStatus(VectorStatusEnum.PENDING)
                 .storageStatus(StorageStatusEnum.PENDING_UPLOAD)
-                .extractedText(extractedText)
                 .build();
+        attachmentRepository.save(attachment);
+
+        storageService.uploadFile(file, filePath);
+
+        increaseStorageUsage(projectId, userId, bytesToBeUploaded);
+        attachment.setStorageStatus(StorageStatusEnum.SAVED);
+
+        String extractedText = "";
+        try {
+            extractedText = FileTextExtractor.extractText(file.getBytes());
+        } catch (TikaException | SAXException e) {
+            log.warn("Text could not be extracted from {}.", originalFilename);
+        }
+
+        attachment.setExtractedText(extractedText);
 
         attachmentRepository.save(attachment);
 
