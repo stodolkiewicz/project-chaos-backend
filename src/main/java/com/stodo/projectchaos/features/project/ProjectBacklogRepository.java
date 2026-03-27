@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface ProjectBacklogRepository extends JpaRepository<ProjectBacklogEntity, UUID> {
     
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM ProjectBacklogEntity pb WHERE pb.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 }

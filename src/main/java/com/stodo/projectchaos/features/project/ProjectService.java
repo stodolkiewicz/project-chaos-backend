@@ -15,6 +15,7 @@ import com.stodo.projectchaos.features.project.dto.service.UserProjects;
 import com.stodo.projectchaos.features.projectuser.ProjectUsersRepository;
 import com.stodo.projectchaos.features.projectuser.dto.service.AssignUserToProject;
 import com.stodo.projectchaos.features.attachment.AttachmentRepository;
+import com.stodo.projectchaos.storage.AttachmentManager;
 import com.stodo.projectchaos.features.taskcomments.TaskCommentsRepository;
 import com.stodo.projectchaos.features.task.TaskLabelsRepository;
 import com.stodo.projectchaos.features.task.TaskRepository;
@@ -51,8 +52,9 @@ public class ProjectService {
     private final LabelRepository labelRepository;
     private final AIConversationRepository aiConversationRepository;
     private final ProjectLimitService projectLimitService;
+    private final AttachmentManager attachmentManager;
 
-    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository, AIConversationRepository aiConversationRepository, ProjectLimitService projectLimitService) {
+    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository, AIConversationRepository aiConversationRepository, ProjectLimitService projectLimitService, AttachmentManager attachmentManager) {
         this.customProjectRepository = customProjectRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -67,6 +69,7 @@ public class ProjectService {
         this.labelRepository = labelRepository;
         this.aiConversationRepository = aiConversationRepository;
         this.projectLimitService = projectLimitService;
+        this.attachmentManager = attachmentManager;
     }
 
     public ProjectDelete hardDeleteProject(UUID projectId) {
@@ -76,16 +79,17 @@ public class ProjectService {
         // 1. Handle default_project_id reassignment BEFORE deleting anything
         handleUsersDefaultProjectId(projectId);
 
-        // Get file URLs before deleting attachments (for future GCS cleanup)
-        List<String> fileUrls = attachmentRepository.findFilePathsByProjectId(projectId);
-        // TODO: Delete physical files from GCS using fileUrls list
+        // Delete all attachments (files from GCS and database records)
+        attachmentManager.deleteProjectFiles(projectId);
+
+        taskRepository.clearPriorityByProjectId(projectId);
 
         // Level 1: Delete lowest level dependencies
-        attachmentRepository.deleteByProjectId(projectId);
         taskCommentsRepository.deleteByProjectId(projectId);
         taskLabelsRepository.deleteByProjectId(projectId);
         projectBacklogRepository.deleteByProjectId(projectId);
         aiConversationRepository.deleteByProjectId(projectId);
+        taskPriorityRepository.deleteByProjectId(projectId);
 
         // --------------------------------
         // Level 2: Delete tasks (must be after level 1)
@@ -95,7 +99,6 @@ public class ProjectService {
         columnRepository.deleteByProjectId(projectId);
         projectUsersRepository.deleteByProjectId(projectId);
         labelRepository.deleteByProjectId(projectId);
-        taskPriorityRepository.deleteByProjectId(projectId);
 
         // -----------------------------------------
         // Level 4: Delete project (final step)

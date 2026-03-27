@@ -14,6 +14,7 @@ import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import com.stodo.projectchaos.features.column.ColumnRepository;
 import com.stodo.projectchaos.features.label.LabelRepository;
 import com.stodo.projectchaos.features.taskcomments.TaskCommentsRepository;
+import com.stodo.projectchaos.storage.AttachmentManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class TaskService {
     private final ColumnRepository columnRepository;
     private final LabelRepository labelRepository;
     private final TaskCommentsRepository taskCommentsRepository;
+    private final AttachmentManager attachmentManager;
 
     private static final Double MINIMUM_DISTANCE_BETWEEN_TASKS = 0.000001;
 
@@ -51,6 +53,8 @@ public class TaskService {
     public void deleteTask(UUID projectId, UUID taskId) {
         List<TaskComments> comments = taskCommentsRepository.findByTaskId(taskId);
         taskCommentsRepository.deleteAll(comments);
+        
+        attachmentManager.deleteTaskFiles(projectId, taskId);
         
         taskRepository.deleteById(taskId);
         labelRepository.deleteUnusedLabels(projectId);

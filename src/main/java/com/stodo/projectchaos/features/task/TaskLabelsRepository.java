@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface TaskLabelsRepository extends JpaRepository<TaskLabelsEntity, UUID> {
 
-    @Modifying
-    @Query("DELETE FROM TaskLabelsEntity tl WHERE tl.task.column.project.id = :projectId")
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM TaskLabelsEntity tl WHERE tl.task.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 }

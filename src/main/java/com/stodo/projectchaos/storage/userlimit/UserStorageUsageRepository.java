@@ -15,7 +15,7 @@ public interface UserStorageUsageRepository extends JpaRepository<UserStorageUsa
 
     Optional<UserStorageUsageEntity> findByUserId(UUID userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE UserStorageUsageEntity u SET u.usedBytes = u.usedBytes + :bytes WHERE u.user.id = :userId")
     void increaseUsedBytes(@Param("userId") UUID userId, @Param("bytes") long bytes);
 }

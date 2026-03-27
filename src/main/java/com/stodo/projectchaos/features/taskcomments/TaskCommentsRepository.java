@@ -15,8 +15,8 @@ import java.util.UUID;
 @Repository
 public interface TaskCommentsRepository extends JpaRepository<TaskComments, UUID> {
 
-    @Modifying
-    @Query("DELETE FROM TaskComments tc WHERE tc.task.column.project.id = :projectId")
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM TaskComments tc WHERE tc.task.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 
     List<TaskComments> findByTaskId(UUID taskId);

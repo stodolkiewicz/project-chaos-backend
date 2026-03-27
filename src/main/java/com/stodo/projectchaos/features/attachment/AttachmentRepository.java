@@ -14,11 +14,11 @@ import java.util.UUID;
 @Repository
 public interface AttachmentRepository extends JpaRepository<AttachmentEntity, UUID> {
 
-    @Modifying
-    @Query("DELETE FROM AttachmentEntity a WHERE a.task.column.project.id = :projectId")
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM AttachmentEntity a WHERE a.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 
-    @Query("SELECT a.filePath FROM AttachmentEntity a WHERE a.task.column.project.id = :projectId")
+    @Query("SELECT a.filePath FROM AttachmentEntity a WHERE a.project.id = :projectId")
     List<String> findFilePathsByProjectId(@Param("projectId") UUID projectId);
 
     @Query("""
@@ -34,4 +34,11 @@ public interface AttachmentRepository extends JpaRepository<AttachmentEntity, UU
 
     @Query("SELECT a.filePath FROM AttachmentEntity a WHERE a.project.id = :projectId AND a.task.id = :taskId AND a.id = :attachmentId")
     Optional<String> getFilePathByProjectIdAndTaskIdAndId(@Param("projectId") UUID projectId, @Param("taskId") UUID taskId, @Param("attachmentId") UUID attachmentId);
+
+    @Query("SELECT a.filePath FROM AttachmentEntity a WHERE a.project.id = :projectId AND a.task.id = :taskId")
+    List<String> findAllFilePathsByProjectIdAndTaskId(@Param("projectId") UUID projectId, @Param("taskId") UUID taskId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM AttachmentEntity a WHERE a.project.id = :projectId AND a.task.id = :taskId")
+    void deleteAllByProjectIdAndTaskId(@Param("projectId") UUID projectId, @Param("taskId") UUID taskId);
 }

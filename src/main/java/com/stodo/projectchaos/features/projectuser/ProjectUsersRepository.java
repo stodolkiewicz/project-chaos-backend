@@ -15,7 +15,7 @@ import java.util.UUID;
 @Repository
 public interface ProjectUsersRepository extends JpaRepository<ProjectUsersEntity, ProjectUserId> {
     
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM ProjectUsersEntity pu WHERE pu.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 

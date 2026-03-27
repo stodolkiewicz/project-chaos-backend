@@ -36,7 +36,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     //    to (but not the deleted project), but only for users who:
     //            1. Currently have the deleted project as default
     //            2. And simultaneously have access to some other project (i.e., have an alternative)
-    @Modifying(clearAutomatically = true) // true == clear the underlying persistence context after executing the modifying query.
+    @Modifying(clearAutomatically = true, flushAutomatically = true) // true == clear the underlying persistence context after executing the modifying query.
     @Query("""
         UPDATE UserEntity u SET u.project.id = (
             SELECT CAST(MIN(CAST(pu.project.id AS string)) AS uuid) 
@@ -53,7 +53,7 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
         """)
     int batchUpdateDefaultProjectsForUsersWithAlternatives(@Param("projectIdBeingDeleted") UUID projectIdBeingDeleted);
 
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE UserEntity u SET u.project = NULL WHERE u.project.id = :projectId")
     void clearDefaultProjectForProject(@Param("projectId") UUID projectId);
     // ----------------------------------------------------------------------------------------------------------------

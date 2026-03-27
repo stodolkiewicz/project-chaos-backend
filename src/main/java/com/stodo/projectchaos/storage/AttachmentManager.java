@@ -195,6 +195,52 @@ public class AttachmentManager {
         }
     }
 
+    @Transactional
+    public boolean deleteTaskFiles(UUID projectId, UUID taskId) {
+        List<String> filePaths = attachmentRepository.findAllFilePathsByProjectIdAndTaskId(projectId, taskId);
+        
+        boolean allDeletedFromStorage = true;
+        for (String filePath : filePaths) {
+            boolean isDeleted = storageService.deleteFile(filePath);
+            if (!isDeleted) {
+                log.warn("Could not delete file from Cloud Storage: {}", filePath);
+                allDeletedFromStorage = false;
+            }
+        }
+        
+        if (allDeletedFromStorage) {
+            attachmentRepository.deleteAllByProjectIdAndTaskId(projectId, taskId);
+            return true;
+        } else {
+            log.warn("Could not delete all task attachments from Cloud Storage for task {}", taskId);
+        }
+        
+        return false;
+    }
+
+    @Transactional
+    public boolean deleteProjectFiles(UUID projectId) {
+        List<String> filePaths = attachmentRepository.findFilePathsByProjectId(projectId);
+        
+        boolean allDeletedFromStorage = true;
+        for (String filePath : filePaths) {
+            boolean isDeleted = storageService.deleteFile(filePath);
+            if (!isDeleted) {
+                log.warn("Could not delete file from Cloud Storage: {}", filePath);
+                allDeletedFromStorage = false;
+            }
+        }
+        
+        // Always delete from database to avoid foreign key constraints
+        attachmentRepository.deleteByProjectId(projectId);
+        
+        if (!allDeletedFromStorage) {
+            log.warn("Some project attachments could not be deleted from Cloud Storage for project {}, but database records were cleaned up", projectId);
+        }
+        
+        return allDeletedFromStorage;
+    }
+
     private void increaseStorageUsage(UUID projectId, UUID userId, Long bytesToBeUploaded) {
         CompletableFuture<Void> projectStorageIncreaseCF = 
                 CompletableFuture.runAsync(() -> projectLimitService.increaseUsedBytes(projectId, bytesToBeUploaded));

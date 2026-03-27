@@ -15,7 +15,7 @@ public interface ProjectStorageUsageRepository extends JpaRepository<ProjectStor
 
     Optional<ProjectStorageUsageEntity> findByProjectId(UUID projectId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE ProjectStorageUsageEntity p SET p.usedBytes = p.usedBytes + :bytes WHERE p.project.id = :projectId")
     void increaseUsedBytes(@Param("projectId") UUID projectId, @Param("bytes") long bytes);
 }

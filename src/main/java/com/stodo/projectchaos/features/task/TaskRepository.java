@@ -13,8 +13,8 @@ import java.util.UUID;
 @Repository
 public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
     
-    @Modifying
-    @Query("DELETE FROM TaskEntity t WHERE t.column.project.id = :projectId")
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM TaskEntity t WHERE t.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 
     @Query("""
@@ -28,4 +28,8 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
     Double findMaxPositionInColumnByColumnId(@Param("columnId") UUID columnId);
 
     List<TaskEntity> findAllByIdInAndProjectId(List<UUID> taskIds, UUID projectId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE TaskEntity t SET t.priority = NULL WHERE t.project.id = :projectId")
+    void clearPriorityByProjectId(@Param("projectId") UUID projectId);
 }

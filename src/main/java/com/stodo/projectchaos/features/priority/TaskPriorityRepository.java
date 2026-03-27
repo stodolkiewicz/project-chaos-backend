@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface TaskPriorityRepository extends JpaRepository<TaskPriorityEntity, UUID> {
     List<TaskPriorityEntity> findByProjectId(UUID projectId);
     
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM TaskPriorityEntity tp WHERE tp.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 }

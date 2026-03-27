@@ -19,7 +19,7 @@ public interface LabelRepository extends JpaRepository<LabelEntity, UUID> {
             "WHERE l.project.id = :projectId")
     List<LabelEntity> findProjectLabelsByProjectId(UUID projectId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
     DELETE FROM LabelEntity l
     WHERE l.project.id = :projectId
@@ -31,7 +31,7 @@ public interface LabelRepository extends JpaRepository<LabelEntity, UUID> {
     )
     void deleteUnusedLabels(@Param("projectId") UUID projectId);
     
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE FROM LabelEntity l WHERE l.project.id = :projectId")
     void deleteByProjectId(@Param("projectId") UUID projectId);
 }
