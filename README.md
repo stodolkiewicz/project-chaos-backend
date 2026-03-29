@@ -18,7 +18,7 @@ docker compose up -d
 
 alternatively,
 ```
-docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 postgres:15
+docker run -d --name project-chaos -e POSTGRES_DB=project-chaos -e POSTGRES_USER=admin -e POSTGRES_PASSWORD=admin123 -p 5432:5432 pgvector/pgvector:pg15
 ```
 
 ### Set up dev profile

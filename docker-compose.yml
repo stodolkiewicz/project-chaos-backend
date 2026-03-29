@@ -1,6 +1,6 @@
 services:
   project-chaos:
-    image: postgres:15
+    image: pgvector/pgvector:pg15
     container_name: project-chaos
     environment:
       POSTGRES_DB: project-chaos

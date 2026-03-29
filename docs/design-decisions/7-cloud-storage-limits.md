@@ -272,10 +272,13 @@ Rejected:
 
 The system enforces storage limits using:
 
-1. **File size limit** → prevents large uploads
-2. **User + project limits (DB)** → primary control
-3. **Global kill switch (bucket size)** → fail-safe
+1. **File size limit** → prevents large uploads = done
+2. **User + project limits (DB)** → primary control = done
+3. **Global kill switch (bucket size)** → fail-safe 
 4. **Cloud Scheduler + HTTP** → reliable execution
 5. **OIDC security** → production-grade access control
+
+6. Cloud Storage API	Internet Egress Bandwidth per second per region was set to 120MB per second = done
+7. bucket4j to limit requests to cloud storage endpoints
 
 This ensures **predictable costs, abuse prevention, and Cloud Run compatibility** without adding unnecessary infrastructure.

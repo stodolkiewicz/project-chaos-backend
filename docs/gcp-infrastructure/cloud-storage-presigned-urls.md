@@ -55,3 +55,6 @@ When the user’s browser hits the URL, Google Cloud Storage (GCS) performs a in
 `gcloud auth application-default login --impersonate-service-account=SA-ID`
 * **Purpose:** Local environment sync.
 * **Effect:** Forces your local Spring Boot app to act as the Service Account.
+
+### 5. Enable Cloud Run SA to call IAM  API and sign data
+`gcloud projects add-iam-policy-binding [PROJECT-ID] --member="serviceAccount:[SA-EMAIL]"   --role="roles/iam.serviceAccountTokenCreator"`
