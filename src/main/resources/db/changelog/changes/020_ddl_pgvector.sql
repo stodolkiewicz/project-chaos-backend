@@ -12,15 +12,21 @@ CREATE TABLE attachment_embeddings (
        task_id       uuid REFERENCES tasks(id) ON DELETE CASCADE,
        project_id    uuid NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
        chunk_index   int  NOT NULL DEFAULT 0,
-       chunk_text    text,
+       content    text,
+       metadata      jsonb,
        embedding     vector(1536) NOT NULL,
-       created_at    timestamptz DEFAULT now()
+    -- Auditing columns
+       created_date TIMESTAMP NOT NULL
 );
+
 
 CREATE INDEX ON attachment_embeddings USING HNSW (embedding vector_cosine_ops);
 CREATE INDEX ON attachment_embeddings (project_id);
 CREATE INDEX ON attachment_embeddings (task_id) WHERE task_id IS NOT NULL;
 CREATE INDEX ON attachment_embeddings (attachment_id);
+-- Metadata index (GIN for fast JSON searching)
+CREATE INDEX idx_attachment_embeddings_metadata ON attachment_embeddings USING GIN (metadata);
+
 --rollback DROP TABLE IF EXISTS attachment_embeddings;
 --rollback DROP EXTENSION IF EXISTS vector;
 --rollback DROP EXTENSION IF EXISTS hstore;

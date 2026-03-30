@@ -32,18 +32,31 @@ spring:
       chat:
         options:
           model: gpt-5.4-mini
+      embedding:
+        options:
+          model: text-embedding-3-small
     chat:
       memory:
         repository:
           jdbc:
             initialize-schema: never
-
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+        max-document-batch-size: 500
+        table-name: attachment_embeddings
   cloud:
     gcp:
       project-id: ${GCP_PROJECT_ID}
       storage:
         enabled: true
         bucket-name: ${GCP_BUCKET_NAME}
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 21MB
 
 jwt:
   secret: ${JWT_SECRET}

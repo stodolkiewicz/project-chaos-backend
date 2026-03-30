@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.features.attachment;
 
 import com.stodo.projectchaos.model.entity.AttachmentEntity;
+import com.stodo.projectchaos.model.enums.VectorStatusEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,11 @@ public interface AttachmentRepository extends JpaRepository<AttachmentEntity, UU
 
     @Query("SELECT a.filePath FROM AttachmentEntity a WHERE a.project.id = :projectId")
     List<String> findFilePathsByProjectId(@Param("projectId") UUID projectId);
+
+    @Query("""
+            select a.id FROM AttachmentEntity a WHERE vectorStatus = :vectorStatus
+            """)
+    List<UUID> findByVectorStatus(VectorStatusEnum vectorStatus);
 
     @Query("""
     SELECT new com.stodo.projectchaos.features.attachment.AttachmentInfo(

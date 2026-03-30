@@ -1,11 +1,7 @@
 package com.stodo.projectchaos.ai.chat.config;
 
-import com.stodo.projectchaos.ai.tools.CurrentUserInfoTools;
-import com.stodo.projectchaos.ai.tools.DateTimeTools;
-import com.stodo.projectchaos.ai.tools.ProjectInfoTools;
-import com.stodo.projectchaos.ai.tools.TavilyWebSearchTool;
+import com.stodo.projectchaos.ai.tools.*;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.memory.repository.jdbc.JdbcChatMemoryRepository;
@@ -13,7 +9,6 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.tool.execution.ToolExecutionExceptionProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 @Configuration
 public class AIConfig {
@@ -22,12 +17,14 @@ public class AIConfig {
     private final ProjectInfoTools projectInfoTools;
     private final CurrentUserInfoTools currentUserInfoTools;
     private final TavilyWebSearchTool tavilyWebSearchTool;
+    private final VectorSearchTools vectorSearchTools;
 
-    public AIConfig(JdbcChatMemoryRepository chatMemoryRepository, ProjectInfoTools projectInfoTools, CurrentUserInfoTools currentUserInfoTools, TavilyWebSearchTool tavilyWebSearchTool) {
+    public AIConfig(JdbcChatMemoryRepository chatMemoryRepository, ProjectInfoTools projectInfoTools, CurrentUserInfoTools currentUserInfoTools, TavilyWebSearchTool tavilyWebSearchTool, VectorSearchTools vectorSearchTools) {
         this.chatMemoryRepository = chatMemoryRepository;
         this.projectInfoTools = projectInfoTools;
         this.currentUserInfoTools = currentUserInfoTools;
         this.tavilyWebSearchTool = tavilyWebSearchTool;
+        this.vectorSearchTools = vectorSearchTools;
     }
 
     @Bean
@@ -48,7 +45,7 @@ public class AIConfig {
 
         return chatClientBuilder
             .defaultOptions(options)
-            .defaultTools(new DateTimeTools(), projectInfoTools, currentUserInfoTools, tavilyWebSearchTool)
+            .defaultTools(new DateTimeTools(), projectInfoTools, currentUserInfoTools, tavilyWebSearchTool, vectorSearchTools)
             .build();
     }
 
