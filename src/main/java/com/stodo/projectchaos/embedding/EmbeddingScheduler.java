@@ -10,20 +10,20 @@ import java.util.UUID;
 
 @Component
 public class EmbeddingScheduler {
-    
-    private final AttachmentRepository attachmentRepository;
-    private final AttachmentEmbeddingService attachmentEmbeddingService;
-
-    public EmbeddingScheduler(AttachmentRepository attachmentRepository, AttachmentEmbeddingService attachmentEmbeddingService) {
-        this.attachmentRepository = attachmentRepository;
-        this.attachmentEmbeddingService = attachmentEmbeddingService;
-    }
-
-    @Scheduled(fixedDelay = 35000)
-    public void scheduleEmbeddings() {
-        List<UUID> vectorizationPendingAttachmentUUIDS = attachmentRepository.findByVectorStatus(VectorStatusEnum.PENDING);
-        for(UUID attachmentUUID: vectorizationPendingAttachmentUUIDS) {
-            attachmentEmbeddingService.embedAttachment(attachmentUUID);
-        }
-    }
+//
+//    private final AttachmentRepository attachmentRepository;
+//    private final AttachmentEmbeddingService attachmentEmbeddingService;
+//
+//    public EmbeddingScheduler(AttachmentRepository attachmentRepository, AttachmentEmbeddingService attachmentEmbeddingService) {
+//        this.attachmentRepository = attachmentRepository;
+//        this.attachmentEmbeddingService = attachmentEmbeddingService;
+//    }
+//
+//    @Scheduled(fixedDelay = 35000)
+//    public void scheduleEmbeddings() {
+//        List<UUID> vectorizationPendingAttachmentUUIDS = attachmentRepository.findByVectorStatus(VectorStatusEnum.PENDING);
+//        for(UUID attachmentUUID: vectorizationPendingAttachmentUUIDS) {
+//            attachmentEmbeddingService.embedAttachment(attachmentUUID);
+//        }
+//    }
 }

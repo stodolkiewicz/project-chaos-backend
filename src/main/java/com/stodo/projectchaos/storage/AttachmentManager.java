@@ -9,6 +9,9 @@ import com.stodo.projectchaos.features.project.ProjectRepository;
 import com.stodo.projectchaos.features.attachment.AttachmentRepository;
 import com.stodo.projectchaos.features.task.TaskRepository;
 import com.stodo.projectchaos.features.user.UserRepository;
+import com.stodo.projectchaos.kafka.VectorizationRequestedEvent;
+import com.stodo.projectchaos.features.vectorizationoutbox.VectorizationOutboxService;
+import com.stodo.projectchaos.features.vectorizationoutbox.dto.service.VectorizationOutbox;
 import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.StorageStatusEnum;
 import com.stodo.projectchaos.model.enums.VectorStatusEnum;
@@ -21,6 +24,7 @@ import com.stodo.projectchaos.storage.utils.FileTextExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,11 +48,13 @@ public class AttachmentManager {
     private final TaskRepository taskRepository;
     private final AttachmentRepository attachmentRepository;
     private final AttachmentService attachmentService;
+    private final ApplicationEventPublisher eventPublisher;
+    private final VectorizationOutboxService vectorizationOutboxService;
 
     @Value("${storage.limits.file.default}")
     private Long singleFileUploadLimitInBytes;
 
-    public AttachmentManager(StorageService storageService, ProjectLimitService projectLimitService, UserLimitService userLimitService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService) {
+    public AttachmentManager(StorageService storageService, ProjectLimitService projectLimitService, UserLimitService userLimitService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, ApplicationEventPublisher eventPublisher, VectorizationOutboxService vectorizationOutboxService) {
         this.storageService = storageService;
         this.projectLimitService = projectLimitService;
         this.userLimitService = userLimitService;
@@ -57,6 +63,8 @@ public class AttachmentManager {
         this.taskRepository = taskRepository;
         this.attachmentRepository = attachmentRepository;
         this.attachmentService = attachmentService;
+        this.eventPublisher = eventPublisher;
+        this.vectorizationOutboxService = vectorizationOutboxService;
     }
 
     public boolean deleteFile(UUID projectId, UUID taskId, UUID attachmentId) {
@@ -144,6 +152,21 @@ public class AttachmentManager {
         increaseStorageUsage(projectId, userId, bytesToBeUploaded);
         attachment.setStorageStatus(StorageStatusEnum.SAVED);
 
+        extractAndSaveText(file, originalFilename, attachment);
+
+        VectorizationOutbox vectorizationOutbox = vectorizationOutboxService.save(attachment);
+
+        eventPublisher.publishEvent(
+            new VectorizationRequestedEvent(
+                attachment.getId(),
+                vectorizationOutbox.id()
+            )
+        );
+
+        return filePath;
+    }
+
+    private void extractAndSaveText(MultipartFile file, String originalFilename, AttachmentEntity attachment) throws IOException {
         String extractedText = "";
         try {
             extractedText = FileTextExtractor.extractText(file.getBytes());
@@ -152,10 +175,7 @@ public class AttachmentManager {
         }
 
         attachment.setExtractedText(extractedText);
-
         attachmentRepository.save(attachment);
-
-        return filePath;
     }
 
     private void checkStorageLimits(String filename, Long bytesToBeUploaded , UUID projectId, UUID userId) {

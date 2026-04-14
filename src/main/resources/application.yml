@@ -83,3 +83,9 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+app:
+  kafka:
+    topic:
+      attachment-vectorization-requested: attachment.vectorization.requested
+    attachment-vectorization-max-retry-count: 12
