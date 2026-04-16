@@ -1,5 +1,6 @@
 package com.stodo.projectchaos.kafka;
 
+import com.stodo.projectchaos.features.attachment.AttachmentService;
 import com.stodo.projectchaos.features.vectorizationoutbox.VectorizationOutboxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +16,20 @@ import java.util.concurrent.CompletableFuture;
 @Slf4j
 public class KafkaVectorizationService {
     private final VectorizationOutboxService vectorizationOutboxService;
+    private final AttachmentService attachmentService;
     @Value("${app.kafka.topic.attachment-vectorization-requested}")
     private String attachmentVectorizationRequestedTopicName;
 
     private final KafkaTemplate<Void, VectorizationMessage> kafkaTemplate;
 
     public CompletableFuture<Boolean> sendVectorizationMessage(UUID attachmentId, UUID vectorizationOutboxId) {
+        String extractedText = attachmentService.findById(attachmentId).getExtractedText();
+        if (extractedText == null || extractedText.isBlank()) {
+            log.info("Attachment {} has no extracted text, skipping vectorization", attachmentId);
+            vectorizationOutboxService.deleteById(vectorizationOutboxId);
+            return CompletableFuture.completedFuture(true);
+        }
+
         VectorizationMessage vectorizationMessage = new VectorizationMessage(attachmentId);
         return kafkaTemplate.send(attachmentVectorizationRequestedTopicName, vectorizationMessage)
             .thenApply(result -> {
