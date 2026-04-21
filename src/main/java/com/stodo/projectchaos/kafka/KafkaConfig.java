@@ -20,7 +20,7 @@ public class KafkaConfig {
     @Value("${app.kafka.topic.attachment-vectorization-requested}")
     private String attachmentVectorizationRequestedTopicName;
 
-    @Value("${spring.kafka.producer.bootstrap-servers}")
+    @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
     @Value("${spring.kafka.producer.key-serializer}")
