@@ -96,4 +96,4 @@ This project documents non-obvious technical decisions as ADRs (Architecture Dec
 See [docs/design-decisions](./docs/design-decisions) for the full list.
 
 # Architecture
-![architecture](architecture.png)
+![architecture](docs/images/architecture.png)
