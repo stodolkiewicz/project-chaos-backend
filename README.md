@@ -90,7 +90,10 @@ git tag 1.32.5
 git push origin 1.32.5
 ```
 
-# Architecture & Design Decisions
+# Design Decisions
 
 This project documents non-obvious technical decisions as ADRs (Architecture Decision Records).
 See [docs/design-decisions](./docs/design-decisions) for the full list.
+
+# Architecture
+![architecture](architecture.png)
