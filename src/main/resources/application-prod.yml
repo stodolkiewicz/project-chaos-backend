@@ -3,7 +3,11 @@ spring:
     # https://github.com/GoogleCloudPlatform/spring-cloud-gcp/blob/main/spring-cloud-gcp-samples/spring-cloud-gcp-sql-postgres-sample/src/main/resources/application.properties
     username: ${PROD_DB_USERNAME}
     password: ${PROD_DB_PASSWORD}
-
+    hikari:
+      maximum-pool-size: 4
+      minimum-idle: 0
+      idle-timeout: 30000
+      max-lifetime: 600000
   jpa:
     show-sql: false
 
