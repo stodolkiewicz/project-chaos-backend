@@ -14,10 +14,10 @@ spring:
       basic.auth.credentials.source: URL
       security.protocol: SSL
       ssl.truststore.type: PKCS12
-      ssl.truststore.location: /cert/truststore.p12
+      ssl.truststore.location: /cert/truststore/truststore.p12
       ssl.truststore.password: ${TRUSTSTORE_PASSWORD}
       ssl.keystore.type: PKCS12
-      ssl.keystore.location: /cert/keystore.p12
+      ssl.keystore.location: /cert/keystore/keystore.p12
       ssl.keystore.password: ${KEYSTORE_PASSWORD}
 
   cloud:
