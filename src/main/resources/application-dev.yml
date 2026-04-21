@@ -4,6 +4,9 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:admin}
     password: ${SPRING_DATASOURCE_PASSWORD:admin123}
 
+  jpa:
+    show-sql: false
+
   cloud:
     gcp:
       sql:
@@ -24,10 +27,12 @@ spring:
 logging:
   level:
     root: INFO
-    org.springframework.security: DEBUG
-    org.springframework.security.oauth2: DEBUG
+    org.springframework.security: WARN
+    org.springframework.security.oauth2: WARN
     sun.rmi: WARN
     javax.management.remote.rmi: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
 
 app:
   frontend-dashboard-url: http://localhost:3000/dashboard

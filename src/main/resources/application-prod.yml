@@ -4,6 +4,9 @@ spring:
     username: ${PROD_DB_USERNAME}
     password: ${PROD_DB_PASSWORD}
 
+  jpa:
+    show-sql: false
+
   liquibase:
     contexts: prod
 
@@ -25,6 +28,16 @@ spring:
       sql:
         database-name: ${PROD_DB_NAME}
         instance-connection-name: ${GCP_SQL_INSTANCE_CONNECTION_NAME}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: WARN
+    org.springframework.security.oauth2: WARN
+    sun.rmi: WARN
+    javax.management.remote.rmi: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.orm.jdbc.bind: WARN
 
 app:
   frontend-dashboard-url: https://theprojectchaos.com/dashboard
