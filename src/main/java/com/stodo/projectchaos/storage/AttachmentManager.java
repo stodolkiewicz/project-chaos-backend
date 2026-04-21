@@ -71,15 +71,17 @@ public class AttachmentManager {
         String filePath = checkIfAttachmentExistsAndGetFilePath(projectId, taskId, attachmentId);
 
         boolean isDeleted = storageService.deleteFile(filePath);
+        attachmentRepository.deleteById(attachmentId);
 
         if (isDeleted) {
-            attachmentRepository.deleteById(attachmentId);
-            return true;
+            log.info("Deleted attachment from Cloud Storage [projectId={}, taskId={}, attachmentId={}, filePath={}]",
+                    projectId, taskId, attachmentId, filePath);
         } else {
-            log.warn("Could not delete attachment from Cloud Storage");
+            log.warn("Could not delete attachment from Cloud Storage [projectId={}, taskId={}, attachmentId={}, filePath={}]",
+                    projectId, taskId, attachmentId, filePath);
         }
 
-        return false;
+        return isDeleted;
     }
 
     private String checkIfAttachmentExistsAndGetFilePath(UUID projectId, UUID taskId, UUID attachmentId) {
