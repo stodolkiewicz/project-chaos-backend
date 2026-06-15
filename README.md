@@ -97,3 +97,10 @@ See [docs/design-decisions](./docs/design-decisions) for the full list.
 
 # Architecture
 ![architecture](docs/images/architecture.png)
+
+# docker-compose
+docker-compose.yml file starts:  
+- postgres 15 with pgvector database on port 5432
+- single node kafka cluster (v4.2.0)
+- schema registry (v7.9.0)
+- kafka-ui
