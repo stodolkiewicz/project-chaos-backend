@@ -4,6 +4,7 @@ import com.stodo.projectchaos.features.attachment.AttachmentService;
 import com.stodo.projectchaos.features.vectorizationoutbox.VectorizationOutboxService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ public class KafkaVectorizationService {
     @Value("${app.kafka.topic.attachment-vectorization-requested}")
     private String attachmentVectorizationRequestedTopicName;
 
-    private final KafkaTemplate<Void, VectorizationMessage> kafkaTemplate;
+    private final KafkaTemplate<Void, SpecificRecord> kafkaTemplate;
 
     public CompletableFuture<Boolean> sendVectorizationMessage(UUID attachmentId, UUID vectorizationOutboxId) {
         String extractedText = attachmentService.findById(attachmentId).getExtractedText();

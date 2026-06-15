@@ -97,4 +97,5 @@ app:
   kafka:
     topic:
       attachment-vectorization-requested: attachment-vectorization-requested
+      task-updated: task-updated
     attachment-vectorization-max-retry-count: 12
