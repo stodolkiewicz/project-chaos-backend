@@ -46,6 +46,19 @@ For devs of this project: The rest of the variables can be found in Secret Manag
 
 You can add those variables to Intellij's run configuration as environment variables.
 
+### Google Cloud credentials
+Do it if you want to be able to download, uploaded task attachments locally.
+
+The app signs Cloud Storage URLs for attachments (it generates a new temporary presigned URL used to download a file).
+Signing requires a service account, so plain user credentials are not enough.
+Log in with impersonation of the service account:
+```
+gcloud auth application-default login --impersonate-service-account=SA-ID@PROJECT-ID.iam.gserviceaccount.com
+```
+
+The service account is named **Service Account for Project Chaos App** in GCP (IAM & Admin → Service Accounts).
+Restart the application after logging in.
+
 ### Access Token
 --- DEV ACCESS TOKEN --- is printed in the console on application start.
 

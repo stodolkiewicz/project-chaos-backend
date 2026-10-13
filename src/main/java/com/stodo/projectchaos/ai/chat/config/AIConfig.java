@@ -40,8 +40,7 @@ public class AIConfig {
 
         var options = OpenAiChatOptions.builder()
             .temperature(0.8)
-            .streamUsage(true)
-            .build();
+            .streamUsage(true);
 
         return chatClientBuilder
             .defaultOptions(options)
