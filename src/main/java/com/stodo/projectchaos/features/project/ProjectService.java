@@ -27,6 +27,7 @@ import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.storage.projectlimit.ProjectLimitService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Slf4j
 @Service
@@ -56,7 +58,28 @@ public class ProjectService {
     private final ProjectLimitService projectLimitService;
     private final AttachmentManager attachmentManager;
 
-    public ProjectService(CustomProjectRepository customProjectRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectUsersRepository projectUsersRepository, ColumnRepository columnRepository, TaskPriorityRepository taskPriorityRepository, AttachmentRepository attachmentRepository, TaskCommentsRepository taskCommentsRepository, TaskLabelsRepository taskLabelsRepository, ProjectBacklogRepository projectBacklogRepository, TaskRepository taskRepository, LabelRepository labelRepository, AIConversationRepository aiConversationRepository, ProjectLimitService projectLimitService, AttachmentManager attachmentManager) {
+    // Thread pool created by Spring Boot.
+    // Unlike the default pool of CompletableFuture, it passes the trace context to the async tasks.
+    private final Executor applicationTaskExecutor;
+
+    public ProjectService(
+            CustomProjectRepository customProjectRepository,
+            ProjectRepository projectRepository,
+            UserRepository userRepository,
+            ProjectUsersRepository projectUsersRepository,
+            ColumnRepository columnRepository,
+            TaskPriorityRepository taskPriorityRepository,
+            AttachmentRepository attachmentRepository,
+            TaskCommentsRepository taskCommentsRepository,
+            TaskLabelsRepository taskLabelsRepository,
+            ProjectBacklogRepository projectBacklogRepository,
+            TaskRepository taskRepository,
+            LabelRepository labelRepository,
+            AIConversationRepository aiConversationRepository,
+            ProjectLimitService projectLimitService,
+            AttachmentManager attachmentManager,
+            @Qualifier("applicationTaskExecutor") Executor applicationTaskExecutor
+    ) {
         this.customProjectRepository = customProjectRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
@@ -72,6 +95,7 @@ public class ProjectService {
         this.aiConversationRepository = aiConversationRepository;
         this.projectLimitService = projectLimitService;
         this.attachmentManager = attachmentManager;
+        this.applicationTaskExecutor = applicationTaskExecutor;
     }
 
     public ProjectDelete hardDeleteProject(UUID projectId) {
@@ -215,11 +239,16 @@ public class ProjectService {
 
     public UserProjects findProjectsByUserEmail(String email) {
 
+        // Both queries run on applicationTaskExecutor.
+        // Thanks to that, their spans appear in the trace of this request instead of in separate traces.
         CompletableFuture<List<UserProjectQueryResponseDTO>> userProjectsCF = CompletableFuture.supplyAsync(
-                () -> customProjectRepository.findProjectsByUserEmail(email));
+                () -> customProjectRepository.findProjectsByUserEmail(email),
+                applicationTaskExecutor
+        );
 
         CompletableFuture<Optional<UUID>> defaultUserProjectCF = CompletableFuture.supplyAsync(
-                () -> userRepository.findDefaultProjectIdByEmail(email)
+                () -> userRepository.findDefaultProjectIdByEmail(email),
+                applicationTaskExecutor
         );
 
         CompletableFuture<Void> cfs = CompletableFuture.allOf(userProjectsCF, defaultUserProjectCF);

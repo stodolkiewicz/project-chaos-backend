@@ -82,6 +82,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-opentelemetry</artifactId>
 		</dependency>
+		<!-- Copies the trace context from the request thread to the thread that runs an async task.
+			 Spring Boot uses it in applicationTaskExecutor.
+			 Thanks to it, spans created in async tasks stay in the trace of the request. -->
+		<dependency>
+			<groupId>io.micrometer</groupId>
+			<artifactId>context-propagation</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-opentelemetry-test</artifactId>
