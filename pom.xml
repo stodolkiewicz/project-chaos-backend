@@ -19,7 +19,12 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<org.mapstruct.version>1.6.3</org.mapstruct.version>
 		<lombok.version>1.18.48</lombok.version>
-		<spring-cloud-gcp-dependencies.version>5.3.0</spring-cloud-gcp-dependencies.version>
+
+		<!--		https://github.com/GoogleCloudPlatform/spring-cloud-gcp-->
+		<!--		https://googlecloudplatform.github.io/spring-cloud-gcp/8.2.4/reference/html/index.html-->
+		<spring-cloud-gcp-dependencies.version>8.2.2</spring-cloud-gcp-dependencies.version>
+
+		<opentelemetry.logback.appender.version>2.21.0-alpha</opentelemetry.logback.appender.version>
 		<spring-ai.version>2.0.1</spring-ai.version>
 		<tika.version>2.9.2</tika.version>
 	</properties>
@@ -72,6 +77,20 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-opentelemetry</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-opentelemetry-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.opentelemetry.instrumentation</groupId>
+			<artifactId>opentelemetry-logback-appender-1.0</artifactId>
+			<version>${opentelemetry.logback.appender.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>

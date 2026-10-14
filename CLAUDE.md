@@ -40,6 +40,12 @@ This is a Java Spring Boot backend project for project-chaos.
 - **Answer what was asked, not what you think should be changed**
 
 
+## Logging
+- Use `@Slf4j` and parameterized messages, e.g. `log.info("Project deleted [projectId={}]", projectId);`.
+- Log `userId`, never the user's email. The email is personal data.
+- Get the current user's `userId` by casting `authentication.getPrincipal()` to `AppUserDetails`. Do not use `instanceof`.
+- Do not log in controllers. Services log business events and `GlobalExceptionHandler` logs errors.
+
 ## Architecture Patterns
 
 ### Key Principles

@@ -10,12 +10,14 @@ import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AIConversationService {
@@ -43,6 +45,12 @@ public class AIConversationService {
 
         AIConversationEntity savedEntity = conversationRepository.save(entity);
         conversationRepository.flush();
+
+        log.info("AI conversation created [conversationId={}, projectId={}, userId={}]",
+                conversationId,
+                projectId,
+                userId);
+
         return AIConversationEntityMapper.INSTANCE.toAIConversation(savedEntity);
     }
 
@@ -80,6 +88,8 @@ public class AIConversationService {
                     .build();
         }
         conversationRepository.deleteById(conversationId);
+
+        log.info("AI conversation deleted [conversationId={}]", conversationId);
     }
 
     public boolean checkIfExistsByConversationId(String conversationId) {

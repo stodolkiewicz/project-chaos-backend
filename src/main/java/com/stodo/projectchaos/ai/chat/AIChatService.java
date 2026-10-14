@@ -7,6 +7,7 @@ import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.dto.service.Project;
 import com.stodo.projectchaos.features.user.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
+@Slf4j
 @Service
 public class AIChatService {
     private final ChatClient chatClient;
@@ -57,6 +59,12 @@ public class AIChatService {
         if(aiUsageLogsService.isNumberOfRequestsInTimeWindowReached(
                 userId, numberOfRequestsInTimeWindowLimit, timeWindowInMinutes))
         {
+            log.warn("AI request limit reached [userId={}, projectId={}, limit={}, windowMinutes={}]",
+                    userId,
+                    projectId,
+                    numberOfRequestsInTimeWindowLimit,
+                    timeWindowInMinutes);
+
             throw new TooManyAIRequestsException(timeWindowInMinutes, numberOfRequestsInTimeWindowLimit);
         }
 
@@ -82,6 +90,12 @@ public class AIChatService {
                 )
                 .stream()
                 .chatResponse()
+                .doOnError(error -> log.error("AI chat stream failed [userId={}, projectId={}, conversationId={}]",
+                        userId,
+                        projectId,
+                        conversationId,
+                        error))
+
                 // save last response
                 .doOnNext(finalResponse::set)
 

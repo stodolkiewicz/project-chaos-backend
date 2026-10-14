@@ -17,12 +17,14 @@ import com.stodo.projectchaos.features.taskcomments.TaskCommentsRepository;
 import com.stodo.projectchaos.storage.AttachmentManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -58,6 +60,10 @@ public class TaskService {
         
         taskRepository.deleteById(taskId);
         labelRepository.deleteUnusedLabels(projectId);
+
+        log.info("Task deleted [taskId={}, projectId={}]",
+                taskId,
+                projectId);
     }
 
     public TaskColumnUpdate updateTaskColumn(UpdateTaskColumnRequestDTO requestDTO, UUID taskId) {

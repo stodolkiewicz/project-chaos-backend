@@ -11,6 +11,7 @@ import com.stodo.projectchaos.model.entity.TaskComments;
 import com.stodo.projectchaos.model.entity.TaskEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Comparator;
 
+@Slf4j
 @Service
 public class TaskCommentsService {
     private final TaskCommentsRepository taskCommentsRepository;
@@ -112,6 +114,13 @@ public class TaskCommentsService {
         }
         
         TaskComments savedComment = taskCommentsRepository.save(comment);
+
+        log.info("Task comment created [commentId={}, taskId={}, authorId={}, replyToId={}]",
+                savedComment.getId(),
+                request.taskId(),
+                authorId,
+                request.replyToId());
+
         return TaskCommentsEntityMapper.INSTANCE.toTaskComment(savedComment);
     }
 
@@ -143,5 +152,9 @@ public class TaskCommentsService {
         }
         
         taskCommentsRepository.delete(comment);
+
+        log.info("Task comment deleted [commentId={}, authorId={}]",
+                commentId,
+                authorId);
     }
 }

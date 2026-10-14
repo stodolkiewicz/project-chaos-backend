@@ -1,20 +1,24 @@
 package com.stodo.projectchaos.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.stodo.projectchaos.features.projectuser.LastAdminCannotLeaveProjectException;
+import com.stodo.projectchaos.security.filter.AppUserDetails;
 
 import java.net.URI;
 import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -103,7 +107,17 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ProblemDetail handleUnauthorized(AccessDeniedException ex, HttpServletRequest request) {
+    public ProblemDetail handleUnauthorized(
+            AccessDeniedException ex,
+            HttpServletRequest request,
+            Authentication authentication) {
+        AppUserDetails user = (AppUserDetails) authentication.getPrincipal();
+
+        log.warn("Access denied [userId={}, method={}, path={}]",
+                user.getUserId(),
+                request.getMethod(),
+                request.getRequestURI());
+
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         problem.setTitle("Unauthorized");
         problem.setDetail(ex.getMessage());
@@ -135,6 +149,11 @@ public class GlobalExceptionHandler {
     // Fallback
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGeneric(Exception ex, HttpServletRequest request) {
+        log.error("Unexpected error [method={}, path={}]",
+                request.getMethod(),
+                request.getRequestURI(),
+                ex);
+
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         problem.setTitle("Unexpected error");
         problem.setDetail(ex.getMessage());

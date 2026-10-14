@@ -26,6 +26,7 @@ import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.storage.projectlimit.ProjectLimitService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @Transactional
 public class ProjectService {
@@ -103,7 +105,9 @@ public class ProjectService {
         // -----------------------------------------
         // Level 4: Delete project (final step)
         projectRepository.deleteById(projectId);
-        
+
+        log.info("Project deleted [projectId={}]", projectId);
+
         return new ProjectDelete(projectId);
     }
 
@@ -131,6 +135,10 @@ public class ProjectService {
         saveDefaultTaskPriorities(savedProjectEntity);
         
         projectLimitService.createProjectStorageUsage(savedProjectEntity.getId());
+
+        log.info("Project created [projectId={}, userId={}]",
+                savedProjectEntity.getId(),
+                userEntity.getId());
 
         return ProjectEntityMapper.INSTANCE.toProject(savedProjectEntity);
     }
@@ -285,6 +293,11 @@ public class ProjectService {
         projectUsersEntity.setProjectRole(userRoleToBeAssigned);
         projectUsersRepository.save(projectUsersEntity);
 
+        log.info("User assigned to project [projectId={}, userId={}, role={}]",
+                projectId,
+                userToAssign.getId(),
+                userRoleToBeAssigned);
+
         return new AssignUserToProject(
                 projectId,
                 userToAssign.getId(),
@@ -318,6 +331,10 @@ public class ProjectService {
 
         // Remove user from project
         projectUsersRepository.delete(projectUser);
+
+        log.info("User removed from project [projectId={}, userId={}]",
+                projectId,
+                userId);
 
         // If this was user's default project, clear it
         if (user.getProject() != null && user.getProject().getId().equals(projectId)) {
@@ -356,6 +373,12 @@ public class ProjectService {
         // Update user role
         projectUser.setProjectRole(newRole);
         projectUsersRepository.save(projectUser);
+
+        log.info("User role changed [projectId={}, userId={}, oldRole={}, newRole={}]",
+                projectId,
+                userId,
+                currentRole,
+                newRole);
 
         return new ChangeUserRoleResponseDTO(
                 projectId,

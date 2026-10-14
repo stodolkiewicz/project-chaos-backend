@@ -127,7 +127,7 @@ public class JwtService {
 
             return true;
         } catch (Exception e) {
-            log.error("Invalid token: {}", String.valueOf(e));
+            log.warn("Invalid token: {}", String.valueOf(e));
             return false;
         }
     }

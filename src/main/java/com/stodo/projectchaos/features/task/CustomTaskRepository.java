@@ -23,10 +23,12 @@ import com.stodo.projectchaos.model.entity.TaskLabelId;
 import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class CustomTaskRepository {
@@ -116,6 +118,11 @@ public class CustomTaskRepository {
             taskLabelsRepository.saveAll(taskLabels);
             savedTaskEntity.setTaskLabels(taskLabels);
         }
+
+        log.info("Task created [taskId={}, projectId={}, projectName={}]",
+                savedTaskEntity.getId(),
+                projectId,
+                projectEntity.getName());
 
         return TaskEntityMapper.INSTANCE.toTask(savedTaskEntity);
     }

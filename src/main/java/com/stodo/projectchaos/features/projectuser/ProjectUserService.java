@@ -10,11 +10,13 @@ import com.stodo.projectchaos.model.entity.ProjectUserId;
 import com.stodo.projectchaos.model.entity.UserEntity;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProjectUserService {
@@ -50,7 +52,11 @@ public class ProjectUserService {
         }
 
         projectUsersRepository.deleteById(new ProjectUserId(projectId, user.getId()));
-        
+
+        log.info("User left project [projectId={}, userId={}]",
+                projectId,
+                user.getId());
+
         // If this was user's default project, we need to handle it
         if (user.getProject() != null && user.getProject().getId().equals(projectId)) {
             // Find another project this user has access to

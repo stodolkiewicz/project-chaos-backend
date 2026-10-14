@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -27,6 +28,7 @@ import java.util.List;
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_ACCESS_TOKEN_EXPIRATION_IN_SECONDS;
 import static com.stodo.projectchaos.security.config.SecurityConstants.JWT_REFRESH_TOKEN_EXPIRATION_IN_SECONDS;
 
+@Slf4j
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
@@ -108,6 +110,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         UserEntity savedUser = userRepository.saveAndFlush(newUserEntity);
         userLimitService.createUserStorageUsage(savedUser.getId());
+
+        log.info("User registered [userId={}]", savedUser.getId());
     }
 
     private void convertInvitationsToProjectMemberships(String userEmail) {

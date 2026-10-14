@@ -24,15 +24,36 @@ spring:
       properties:
         schema.registry.url: http://localhost:8081
 
+management:
+  otlp:
+    metrics:
+      export:
+        url: http://localhost:4318/v1/metrics
+  opentelemetry:
+    tracing:
+      export:
+        otlp:
+          # goes to Tempo
+          endpoint: http://localhost:4318/v1/traces
+    logging:
+      export:
+        otlp:
+          # goes to Loki
+          endpoint: http://localhost:4318/v1/logs
+  tracing:
+    sampling:
+      probability: 1.0
+
 logging:
   level:
     root: INFO
-    org.springframework.security: WARN
-    org.springframework.security.oauth2: WARN
-    sun.rmi: WARN
-    javax.management.remote.rmi: WARN
-    org.hibernate.SQL: WARN
-    org.hibernate.orm.jdbc.bind: WARN
+    org.springframework.boot.actuator.autoconfigure.opentelemetry: DEBUG
+    org.springframework.security: INFO
+    org.springframework.security.oauth2: INFO
+    sun.rmi: INFO
+    javax.management.remote.rmi: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO
 
 app:
   frontend-dashboard-url: http://localhost:3000/dashboard

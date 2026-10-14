@@ -102,6 +102,12 @@ public class AttachmentEmbeddingService {
             attachmentEmbeddingRepository.saveAll(embeddings);
             attachmentEntity.setVectorStatus(VectorStatusEnum.PROCESSED);
 
+            log.info("Attachment embedded [attachmentId={}, userId={}, fileName={}, chunksCount={}]",
+                    attachmentId,
+                    attachmentEntity.getUser().getId(),
+                    attachmentEntity.getOriginalName(),
+                    chunks.size());
+
         } catch (Exception e) {
             log.error("Failed to embed attachment {}", attachmentId, e);
             markAsFailed(attachmentId);

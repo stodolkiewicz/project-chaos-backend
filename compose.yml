@@ -1,0 +1,9 @@
+# Observability stack for local development/testing
+services:
+  grafana-lgtm:
+    image: "grafana/otel-lgtm:latest"
+    ports:
+      - '3000:3000'
+      - '4317:4317'
+      - '4318:4318'
+      - '9090:9090'

@@ -16,12 +16,14 @@ import com.stodo.projectchaos.features.project.ProjectRepository;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.CustomProjectRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 public class InvitationService {
@@ -88,6 +90,12 @@ public class InvitationService {
 
             InvitationEntity savedInvitation = invitationRepository.save(invitation);
 
+            log.info("Invitation created [invitationId={}, projectId={}, invitedByUserId={}, role={}]",
+                    savedInvitation.getId(),
+                    projectId,
+                    invitedBy.getId(),
+                    role);
+
             return new CreateInvitation(
                     savedInvitation.getId(),
                     invitedEmail,
@@ -117,6 +125,10 @@ public class InvitationService {
                         .build());
         
         invitationRepository.delete(invitation);
+
+        log.info("Invitation deleted [invitationId={}, projectId={}]",
+                invitationId,
+                projectId);
     }
 
 

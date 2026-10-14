@@ -165,6 +165,13 @@ public class AttachmentManager {
             )
         );
 
+        log.info("Attachment uploaded [attachmentId={}, projectId={}, taskId={}, userId={}, sizeInBytes={}]",
+                attachment.getId(),
+                projectId,
+                taskId,
+                userId,
+                bytesToBeUploaded);
+
         return filePath;
     }
 
