@@ -21,6 +21,8 @@ import com.stodo.projectchaos.storage.userlimit.UserLimitService;
 import com.stodo.projectchaos.storage.userlimit.dto.service.UserStorageUsage;
 import com.stodo.projectchaos.storage.utils.FileNameSanitizer;
 import com.stodo.projectchaos.storage.utils.FileTextExtractor;
+import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,11 +52,13 @@ public class AttachmentManager {
     private final AttachmentService attachmentService;
     private final ApplicationEventPublisher eventPublisher;
     private final VectorizationOutboxService vectorizationOutboxService;
+    private final MeterRegistry registry;
+    private final DistributionSummary attachmentUploadedSummary;
 
     @Value("${storage.limits.file.default}")
     private Long singleFileUploadLimitInBytes;
 
-    public AttachmentManager(StorageService storageService, ProjectLimitService projectLimitService, UserLimitService userLimitService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, ApplicationEventPublisher eventPublisher, VectorizationOutboxService vectorizationOutboxService) {
+    public AttachmentManager(StorageService storageService, ProjectLimitService projectLimitService, UserLimitService userLimitService, ProjectRepository projectRepository, UserRepository userRepository, TaskRepository taskRepository, AttachmentRepository attachmentRepository, AttachmentService attachmentService, ApplicationEventPublisher eventPublisher, VectorizationOutboxService vectorizationOutboxService, MeterRegistry registry) {
         this.storageService = storageService;
         this.projectLimitService = projectLimitService;
         this.userLimitService = userLimitService;
@@ -65,6 +69,13 @@ public class AttachmentManager {
         this.attachmentService = attachmentService;
         this.eventPublisher = eventPublisher;
         this.vectorizationOutboxService = vectorizationOutboxService;
+        this.registry = registry;
+        this.attachmentUploadedSummary = DistributionSummary
+                .builder("projectchaos.attachment.uploaded.size")
+                .description("Size of uploaded task attachment")
+                .publishPercentileHistogram()
+                .baseUnit("bytes")
+                .register(this.registry);
     }
 
     public boolean deleteFile(UUID projectId, UUID taskId, UUID attachmentId) {
@@ -150,6 +161,9 @@ public class AttachmentManager {
         attachmentRepository.save(attachment);
 
         storageService.uploadFile(file, filePath);
+
+        // record projectchaos.attachment.uploaded.size metric
+        attachmentUploadedSummary.record(bytesToBeUploaded);
 
         increaseStorageUsage(projectId, userId, bytesToBeUploaded);
         attachment.setStorageStatus(StorageStatusEnum.SAVED);
