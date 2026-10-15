@@ -117,3 +117,8 @@ docker-compose.yml file starts:
 - single node kafka cluster (v4.2.0)
 - schema registry (v7.9.0)
 - kafka-ui
+
+# Custom Metrics
+
+The application exports custom Micrometer metrics (counters, gauges and AI response timers) over OTLP.  
+See [docs/metrics/metrics_list.md](./docs/metrics/metrics_list.md) for the list of metrics.
