@@ -21,10 +21,15 @@ import com.stodo.projectchaos.model.entity.TaskEntity;
 import com.stodo.projectchaos.model.entity.TaskLabelsEntity;
 import com.stodo.projectchaos.model.entity.TaskLabelId;
 import com.stodo.projectchaos.model.enums.TaskStageEnum;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.*;
 
@@ -41,6 +46,15 @@ public class CustomTaskRepository {
     private final ProjectRepository projectRepository;
     private final LabelRepository labelRepository;
     private final TaskLabelsRepository taskLabelsRepository;
+    private final MeterRegistry registry;
+    private Counter tasksCreatedCounter;
+
+    @PostConstruct
+    void initMetrics() {
+        tasksCreatedCounter = Counter.builder("projectchaos.tasks.created")
+                .description("Total number of tasks created")
+                .register(registry);
+    }
 
     @Transactional
     public Task createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
@@ -123,6 +137,15 @@ public class CustomTaskRepository {
                 savedTaskEntity.getId(),
                 projectId,
                 projectEntity.getName());
+
+        // Increments the counter only after the transaction is committed. A rollback does not count the task.
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        tasksCreatedCounter.increment();
+                    }
+                });
 
         return TaskEntityMapper.INSTANCE.toTask(savedTaskEntity);
     }
