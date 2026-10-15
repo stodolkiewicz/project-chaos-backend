@@ -7,6 +7,8 @@ import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.dto.service.Project;
 import com.stodo.projectchaos.features.user.UserService;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -21,6 +23,8 @@ import reactor.core.publisher.Flux;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
@@ -35,8 +39,9 @@ public class AIChatService {
     private final AIConversationService aiConversationService;
     private final ChatMemory messageWindowChatMemory;
     private final ProjectService projectService;
+    private final MeterRegistry registry;
 
-    public AIChatService(ChatClient chatClient, ChatClient simpleChatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory, ProjectService projectService) {
+    public AIChatService(ChatClient chatClient, ChatClient simpleChatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory, ProjectService projectService, MeterRegistry registry) {
         this.chatClient = chatClient;
         this.simpleChatClient = simpleChatClient;
         this.aiUsageLogsService = aiUsageLogsService;
@@ -44,6 +49,7 @@ public class AIChatService {
         this.aiConversationService = aiConversationService;
         this.messageWindowChatMemory = messageWindowChatMemory;
         this.projectService = projectService;
+        this.registry = registry;
     }
 
     @Value("${app.ai.number-of-requests-in-time-window-limit:10}")
@@ -73,6 +79,7 @@ public class AIChatService {
         Project project = projectService.findProjectById(projectId);
 
         AtomicReference<ChatResponse> finalResponse = new AtomicReference<>();
+        AtomicBoolean firstTokenReceived = new AtomicBoolean(false);
 
         return chatClient.prompt()
                 .system(systemSpec -> systemSpec
@@ -97,7 +104,17 @@ public class AIChatService {
                         error))
 
                 // save last response
-                .doOnNext(finalResponse::set)
+                .doOnNext(response -> {
+                    finalResponse.set(response);
+
+                    if (firstTokenReceived.compareAndSet(false, true)) {
+                        Timer.builder("projectchaos.ai.time_to_first_token")
+                                .description("Time from the start of the call to LLM to the first token from it")
+                                .publishPercentileHistogram()
+                                .register(registry)
+                                .record(System.currentTimeMillis() - start, TimeUnit.MILLISECONDS);
+                    }
+                })
 
                 // save ai usage logs when stream ends
                 .doOnComplete(() -> {
@@ -114,6 +131,11 @@ public class AIChatService {
                     int promptTokens = usage.getPromptTokens();
                     int completionTokens = usage.getCompletionTokens();
 
+                    Timer.builder("projectchaos.ai.time_to_message_completion")
+                                    .description("TTime from the start of the call to LLM to the last token of the message")
+                                    .publishPercentileHistogram()
+                                    .register(registry)
+                                    .record(System.currentTimeMillis() - start, TimeUnit.MILLISECONDS);
 
                     aiUsageLogsService.saveUsage(
                             userId,
