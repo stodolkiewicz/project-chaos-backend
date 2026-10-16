@@ -27,6 +27,10 @@ spring:
       ssl.keystore.location: /cert/keystore/keystore.p12
       ssl.keystore.password: ${KEYSTORE_PASSWORD}
   management:
+    metrics:
+      distribution:
+        percentiles-histogram:
+          all: true
     otlp:
       metrics:
         export:

@@ -8,6 +8,7 @@
 | `projectchaos.tasks.created` | `projectchaos_tasks_created_total` | Counter | `features/task/CustomTaskRepository` |
 | `projectchaos.ai.time_to_first_token` | `projectchaos_ai_time_to_first_token_milliseconds_*` | Timer with histogram | `ai/chat/AIChatService` |
 | `projectchaos.ai.time_to_message_completion` | `projectchaos_ai_time_to_message_completion_milliseconds_*` | Timer with histogram | `ai/chat/AIChatService` |
+| `projectchaos.attachment.uploaded.size` | `projectchaos_attachment_uploaded_size_bytes_*` | DistributionSummary with histogram | `storage/AttachmentManager` |
 
 ## projectchaos.users.count
 
@@ -33,3 +34,8 @@ Time from the start of `AIChatService.chat` to the first element of the answer s
 ## projectchaos.ai.time_to_message_completion
 
 Time from the start of `AIChatService.chat` to the end of the answer stream.
+
+## projectchaos.attachment.uploaded.size
+
+Size in bytes of each task attachment uploaded to Cloud Storage.
+The size is recorded in `AttachmentManager.uploadFile` after the file is uploaded.

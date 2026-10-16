@@ -75,6 +75,9 @@ public class AttachmentManager {
                 .description("Size of uploaded task attachment")
                 .publishPercentileHistogram()
                 .baseUnit("bytes")
+                .minimumExpectedValue(1d)
+                // without it, 276 buckets are created. too many for Cloud Monitoring
+                .maximumExpectedValue(20971520d)
                 .register(this.registry);
     }
 
