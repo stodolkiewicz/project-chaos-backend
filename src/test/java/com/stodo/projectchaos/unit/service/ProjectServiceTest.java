@@ -11,12 +11,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.task.SyncTaskExecutor;
 
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -30,6 +33,9 @@ class ProjectServiceTest {
     private ProjectRepository projectRepository;
     @Mock
     private UserRepository userRepository;
+    // Runs async tasks immediately on the test thread, so the queries in findProjectsByUserEmail run synchronously.
+    @Spy
+    private Executor applicationTaskExecutor = new SyncTaskExecutor();
 
     @InjectMocks
     private ProjectService projectService;
