@@ -122,3 +122,17 @@ docker-compose.yml file starts:
 
 The application exports custom Micrometer metrics (counters, gauges and AI response timers) over OTLP.  
 See [docs/metrics/metrics_list.md](./docs/metrics/metrics_list.md) for the list of metrics.
+
+# Metrics in GCP Cloud Monitoring
+
+The "Project Chaos - Business Metrics" dashboard in Cloud Monitoring shows the custom metrics from production.
+It shows the number of projects, tasks and users, the tasks created in the last hour, the 50th and 95th percentiles of AI response times and attachment sizes, and the number of AI tokens used.
+
+The Cloud Run service is deployed with a sidecar container that acts as the OpenTelemetry Collector.
+The application sends metrics, traces and logs over OTLP to the sidecar on `localhost`, and the sidecar exports them to Google Cloud.
+See [Deploy Google-Built OpenTelemetry Collector on Cloud Run](https://docs.cloud.google.com/stackdriver/docs/instrumentation/opentelemetry-collector-cloud-run) for the setup.
+
+The Cloud Run service must use instance-based billing instead of request-based billing.
+With request-based billing, Cloud Run throttles the CPU between requests, so the background export of metrics does not run.
+
+![img.png](docs/images/metrics.png)
