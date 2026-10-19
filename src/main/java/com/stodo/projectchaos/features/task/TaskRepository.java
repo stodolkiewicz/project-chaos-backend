@@ -1,6 +1,7 @@
 package com.stodo.projectchaos.features.task;
 
 import com.stodo.projectchaos.model.entity.TaskEntity;
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,8 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
 
     @Query("SELECT MAX(t.positionInColumn) FROM TaskEntity t WHERE t.column.id = :columnId")
     Double findMaxPositionInColumnByColumnId(@Param("columnId") UUID columnId);
+
+    boolean existsByColumnIdAndStage(UUID columnId, TaskStageEnum stage);
 
     List<TaskEntity> findAllByIdInAndProjectId(List<UUID> taskIds, UUID projectId);
 

@@ -9,7 +9,11 @@ import com.stodo.projectchaos.features.project.dto.mapper.ProjectMapper;
 import com.stodo.projectchaos.features.project.dto.service.Project;
 import com.stodo.projectchaos.features.project.dto.service.ProjectDelete;
 import com.stodo.projectchaos.features.project.dto.service.UserProjects;
+import com.stodo.projectchaos.features.project.dto.request.UpdateProjectRequestDTO;
+import com.stodo.projectchaos.security.filter.AppUserDetails;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,6 +52,17 @@ public class ProjectController {
         UserProjects userProjects = projectService.findProjectsByUserEmail(email);
         UserProjectsResponseDTO responseDTO = ProjectMapper.INSTANCE.toUserProjectsResponseDTO(userProjects);
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")
+    @PutMapping("/{projectId}")
+    public ResponseEntity<Void> updateProject(
+            @PathVariable UUID projectId,
+            @Valid @RequestBody UpdateProjectRequestDTO requestDTO,
+            Authentication authentication) {
+        UUID userId = ((AppUserDetails) authentication.getPrincipal()).getUserId();
+        projectService.updateProject(projectId, requestDTO, userId);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("@projectSecurity.isAdminInProject(#projectId, authentication)")

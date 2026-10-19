@@ -10,6 +10,8 @@ import com.stodo.projectchaos.features.project.dto.mapper.ProjectEntityMapper;
 import com.stodo.projectchaos.features.project.dto.query.UserProjectQueryResponseDTO;
 import com.stodo.projectchaos.features.project.dto.request.CreateColumnRequestDTO;
 import com.stodo.projectchaos.features.project.dto.request.CreateProjectRequestDTO;
+import com.stodo.projectchaos.features.project.dto.request.UpdateColumnRequestDTO;
+import com.stodo.projectchaos.features.project.dto.request.UpdateProjectRequestDTO;
 import com.stodo.projectchaos.features.project.dto.service.Project;
 import com.stodo.projectchaos.features.project.dto.service.ProjectDelete;
 import com.stodo.projectchaos.features.project.dto.service.UserProjects;
@@ -25,6 +27,7 @@ import com.stodo.projectchaos.features.user.dto.request.ChangeUserRoleRequestDTO
 import com.stodo.projectchaos.features.user.dto.response.ChangeUserRoleResponseDTO;
 import com.stodo.projectchaos.model.entity.*;
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
+import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import com.stodo.projectchaos.storage.projectlimit.ProjectLimitService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +39,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -248,6 +253,81 @@ public class ProjectService {
             columnEntity.setColor(color);
             usedColors.add(color);
         }
+    }
+
+    public void updateProject(UUID projectId, UpdateProjectRequestDTO requestDTO, UUID userId) {
+        ProjectEntity projectEntity = projectRepository.findById(projectId)
+                .orElseThrow(() -> EntityNotFoundException.builder()
+                        .identifier("projectId", projectId)
+                        .entityType("ProjectEntity")
+                        .build());
+        projectEntity.setDescription(requestDTO.description());
+
+        Map<UUID, ColumnEntity> existingColumns = columnRepository.findByProjectIdOrderByPosition(projectId)
+                .stream()
+                .collect(Collectors.toMap(ColumnEntity::getId, Function.identity()));
+
+        List<UpdateColumnRequestDTO> requestedColumns = requestDTO.columns();
+        Set<UUID> keptColumnIds = requestedColumns.stream()
+                .map(UpdateColumnRequestDTO::id)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        for (UUID columnId : keptColumnIds) {
+            if (!existingColumns.containsKey(columnId)) {
+                throw EntityNotFoundException.builder()
+                        .identifier("columnId", columnId)
+                        .identifier("projectId", projectId)
+                        .entityType("ColumnEntity")
+                        .build();
+            }
+        }
+
+        deleteRemovedColumns(existingColumns, keptColumnIds);
+
+        // Positions are unique within a project, so the kept columns first move to free negative positions.
+        // Otherwise swapping two columns would break the constraint in the middle of the update.
+        for (short i = 0; i < requestedColumns.size(); i++) {
+            UUID columnId = requestedColumns.get(i).id();
+            if (columnId != null) {
+                existingColumns.get(columnId).setPosition((short) -(i + 1));
+            }
+        }
+        columnRepository.flush();
+
+        List<ColumnEntity> columnEntities = new ArrayList<>();
+        for (short i = 0; i < requestedColumns.size(); i++) {
+            UpdateColumnRequestDTO requestedColumn = requestedColumns.get(i);
+            ColumnEntity columnEntity;
+            if (requestedColumn.id() == null) {
+                columnEntity = new ColumnEntity();
+                columnEntity.setProject(projectEntity);
+                columnEntity.setColor(requestedColumn.color());
+            } else {
+                columnEntity = existingColumns.get(requestedColumn.id());
+            }
+            columnEntity.setName(requestedColumn.name());
+            columnEntity.setPosition((short)(i*100));
+            columnEntities.add(columnEntity);
+        }
+        assignDefaultColors(columnEntities);
+        columnRepository.saveAll(columnEntities);
+
+        log.info("Project updated [projectId={}, userId={}]",
+                projectId,
+                userId);
+    }
+
+    private void deleteRemovedColumns(Map<UUID, ColumnEntity> existingColumns, Set<UUID> keptColumnIds) {
+        List<ColumnEntity> removedColumns = existingColumns.values().stream()
+                .filter(column -> !keptColumnIds.contains(column.getId()))
+                .toList();
+        for (ColumnEntity column : removedColumns) {
+            if (taskRepository.existsByColumnIdAndStage(column.getId(), TaskStageEnum.BOARD)) {
+                throw new ColumnNotEmptyException(column.getName());
+            }
+        }
+        columnRepository.deleteAll(removedColumns);
+        columnRepository.flush();
     }
 
     private void setDefaultProjectIdForUser(UserEntity userEntity, ProjectEntity savedProjectEntity) {

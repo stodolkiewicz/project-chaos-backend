@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.stodo.projectchaos.features.project.ColumnNotEmptyException;
 import com.stodo.projectchaos.features.projectuser.LastAdminCannotLeaveProjectException;
 import com.stodo.projectchaos.security.filter.AppUserDetails;
 
@@ -140,6 +141,16 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleLastAdminCannotLeaveProject(LastAdminCannotLeaveProjectException ex, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
         problem.setTitle("Admin cannot leave project");
+        problem.setDetail(ex.getMessage());
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(ColumnNotEmptyException.class)
+    public ProblemDetail handleColumnNotEmpty(ColumnNotEmptyException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problem.setTitle("Column can not be deleted");
         problem.setDetail(ex.getMessage());
         problem.setInstance(URI.create(request.getRequestURI()));
         problem.setProperty("timestamp", Instant.now());
