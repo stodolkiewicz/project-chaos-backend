@@ -8,6 +8,7 @@ import com.stodo.projectchaos.features.label.LabelRepository;
 import com.stodo.projectchaos.features.priority.TaskPriorityRepository;
 import com.stodo.projectchaos.features.project.dto.mapper.ProjectEntityMapper;
 import com.stodo.projectchaos.features.project.dto.query.UserProjectQueryResponseDTO;
+import com.stodo.projectchaos.features.project.dto.request.CreateColumnRequestDTO;
 import com.stodo.projectchaos.features.project.dto.request.CreateProjectRequestDTO;
 import com.stodo.projectchaos.features.project.dto.service.Project;
 import com.stodo.projectchaos.features.project.dto.service.ProjectDelete;
@@ -30,12 +31,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.stodo.projectchaos.model.enums.ColumnColorEnum;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -207,16 +214,40 @@ public class ProjectService {
 
     private void saveColumns(CreateProjectRequestDTO createProjectRequestDTO, ProjectEntity savedProjectEntity) {
         List<ColumnEntity> columnEntities = new ArrayList<>();
-        List<String> columnNames = createProjectRequestDTO.columns();
-        for (short i = 0; i < columnNames.size(); i++) {
+        List<CreateColumnRequestDTO> columns = createProjectRequestDTO.columns();
+        for (short i = 0; i < columns.size(); i++) {
             ColumnEntity columnEntity = new ColumnEntity();
             columnEntity.setProject(savedProjectEntity);
             columnEntity.setPosition((short)(i*100));
-            columnEntity.setName(columnNames.get(i));
+            columnEntity.setName(columns.get(i).name());
+            columnEntity.setColor(columns.get(i).color());
 
             columnEntities.add(columnEntity);
         }
+        assignDefaultColors(columnEntities);
         columnRepository.saveAll(columnEntities);
+    }
+
+    // Columns without a color get the first palette color that no other column uses; when all are used, the palette repeats
+    private void assignDefaultColors(List<ColumnEntity> columnEntities) {
+        Set<ColumnColorEnum> usedColors = columnEntities.stream()
+                .map(ColumnEntity::getColor)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(ColumnColorEnum.class)));
+        ColumnColorEnum[] palette = ColumnColorEnum.values();
+        int nextRepeatedColor = 0;
+
+        for (ColumnEntity columnEntity : columnEntities) {
+            if (columnEntity.getColor() != null) {
+                continue;
+            }
+            ColumnColorEnum color = Arrays.stream(palette)
+                    .filter(c -> !usedColors.contains(c))
+                    .findFirst()
+                    .orElse(palette[nextRepeatedColor++ % palette.length]);
+            columnEntity.setColor(color);
+            usedColors.add(color);
+        }
     }
 
     private void setDefaultProjectIdForUser(UserEntity userEntity, ProjectEntity savedProjectEntity) {
