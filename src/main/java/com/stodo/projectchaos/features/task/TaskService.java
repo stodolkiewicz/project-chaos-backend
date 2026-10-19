@@ -48,6 +48,11 @@ public class TaskService {
         return customBoardRepository.findTasksByStage(projectId, stage);
     }
 
+    public Task findTask(UUID projectId, UUID taskId) {
+        TaskEntity task = validateTasksBelongToProject(List.of(taskId), projectId).get(0);
+        return TaskEntityMapper.INSTANCE.toTask(task);
+    }
+
     public Task createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
         return customTaskRepository.createTask(requestDTO, projectId);
     }

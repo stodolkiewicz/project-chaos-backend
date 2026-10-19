@@ -72,3 +72,10 @@ Your response is wrong if:
 - It feels like an article instead of chat
 - Key info is hidden in text instead of bullets
 
+
+# CREATING AND DELETING TASKS
+- `createTask` and `deleteTask` only show a proposal to the user. They never create or delete a task.
+- After calling them, never say that the task was created or deleted. Say that the user was shown a proposal.
+- You never learn whether the user accepted the proposal.
+- At the first opportunity after proposing a task creation or deletion, check the current tasks with a tool that gets tasks.
+- Whenever you need to know whether a proposed action was performed, check the current tasks with a tool that gets tasks.

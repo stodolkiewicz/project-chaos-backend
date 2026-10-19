@@ -3,6 +3,7 @@ package com.stodo.projectchaos.ai.chat;
 import com.stodo.projectchaos.ai.features.conversation.AIConversationService;
 import com.stodo.projectchaos.ai.features.conversation.dto.service.AIConversation;
 import com.stodo.projectchaos.ai.features.usage.AIUsageLogsService;
+import com.stodo.projectchaos.ai.tools.TaskProposalTools;
 import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.dto.service.Project;
@@ -18,9 +19,12 @@ import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +65,7 @@ public class AIChatService {
     @Value("classpath:/promptTemplates/system-prompt.st")
     private Resource systemPromptTemplate;
 
-    public Flux<String> chat(String question, UUID projectId, UUID userId, String conversationId, boolean conversationHasTitle) {
+    public Flux<String> chat(String question, UUID projectId, UUID userId, String conversationId, boolean conversationHasTitle, Sinks.Many<ServerSentEvent<Object>> events) {
         if(aiUsageLogsService.isNumberOfRequestsInTimeWindowReached(
                 userId, numberOfRequestsInTimeWindowLimit, timeWindowInMinutes))
         {
@@ -91,6 +95,10 @@ public class AIChatService {
                         .param("userId", userId)
                 )
                 .user(question)
+                .toolContext(Map.of(
+                        TaskProposalTools.EVENTS_KEY, events,
+                        TaskProposalTools.PROJECT_ID_KEY, projectId
+                ))
                 .advisors(advisorSpec -> advisorSpec
                         .advisors(MessageChatMemoryAdvisor.builder(messageWindowChatMemory).build())
                         .param(CONVERSATION_ID, conversationId)
@@ -159,7 +167,7 @@ public class AIChatService {
                 );
     }
 
-    public Flux<String> createConversationAndChat(UUID projectId, UUID userId, String conversationId, String question) {
+    public Flux<String> createConversationAndChat(UUID projectId, UUID userId, String conversationId, String question, Sinks.Many<ServerSentEvent<Object>> events) {
         AIConversation conversation =
                 aiConversationService.findByConversationId(conversationId)
                         .orElseGet(() ->
@@ -171,7 +179,7 @@ public class AIChatService {
                                 )
                         );
 
-        return chat(question, projectId, userId, conversationId, conversation.conversationHasTitle());
+        return chat(question, projectId, userId, conversationId, conversation.conversationHasTitle(), events);
     }
 
     public void createAndSaveConversationTitle(String conversationId, String question) {
