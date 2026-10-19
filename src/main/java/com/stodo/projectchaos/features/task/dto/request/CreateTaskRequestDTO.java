@@ -15,7 +15,7 @@ public record CreateTaskRequestDTO (
         Double positionInColumn,
         @NotNull
         String assigneeEmail,
-        // no columnId -> Task should be created in project_backlog
+        // Backlog and archived tasks have no column
         UUID columnId,
         UUID priorityId,
         @Valid

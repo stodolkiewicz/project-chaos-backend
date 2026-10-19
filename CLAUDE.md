@@ -183,13 +183,6 @@ dto/
 - **Relationships:**
   - `@ManyToOne` project → ProjectEntity (project_id FK, required)
 
-#### ProjectBacklogEntity (project_backlog table)
-- **Composite Primary Key:** `ProjectBacklogId` (@EmbeddedId)
-  - `UUID projectId` + `UUID taskId`
-- **Relationships:**
-  - `@ManyToOne` project → ProjectEntity (@MapsId("project"))
-  - `@ManyToOne` task → TaskEntity (@MapsId("task"))
-
 #### AIConversationEntity (AI_CONVERSATION table)
 - **Primary Key:** `String id`
 - **Fields:** `title` (255 chars), `conversationHasTitle` (Boolean, default false)
@@ -225,7 +218,6 @@ ProjectEntity (1) ←→ (N) ColumnEntity
 ProjectEntity (1) ←→ (N) LabelEntity
 ProjectEntity (1) ←→ (N) TaskPriorityEntity
 ProjectEntity (1) ←→ (N) InvitationEntity [project]
-ProjectEntity (1) ←→ (N) ProjectBacklogEntity ←→ (1) TaskEntity
 ProjectEntity (1) ←→ (N) AIConversationEntity [project]
 
 ColumnEntity (1) ←→ (N) TaskEntity
@@ -242,7 +234,7 @@ TaskComments (1) ←→ (N) TaskComments [replyTo - self-referencing]
 - **Auditable**: Base class with `createdDate`, `lastModifiedDate`, `lastModifiedBy`, `version`
   - **Database columns required**: `created_date TIMESTAMP NOT NULL`, `last_modified_date TIMESTAMP`, `last_modified_by VARCHAR(255)`, `version INTEGER`
   - **Spring Data JPA auditing**: Uses `@CreatedDate`, `@LastModifiedDate`, `@LastModifiedBy`, `@Version`
-  - Used by: UserEntity, ProjectEntity, ProjectUsersEntity, TaskEntity, AttachmentEntity, InvitationEntity, TaskComments, TaskLabelsEntity, ProjectBacklogEntity
+  - Used by: UserEntity, ProjectEntity, ProjectUsersEntity, TaskEntity, AttachmentEntity, InvitationEntity, TaskComments, TaskLabelsEntity
 - **Versioned**: Extends Auditable, adds optimistic locking with `@Version`
   - Used by: ColumnEntity, LabelEntity, TaskPriorityEntity
 - **Custom Auditing**: Entities with only @CreatedDate

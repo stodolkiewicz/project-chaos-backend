@@ -13,10 +13,8 @@ import com.stodo.projectchaos.model.entity.ColumnEntity;
 import com.stodo.projectchaos.features.column.ColumnRepository;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.features.project.ProjectRepository;
-import com.stodo.projectchaos.features.project.ProjectBacklogRepository;
 import com.stodo.projectchaos.model.entity.LabelEntity;
 import com.stodo.projectchaos.features.label.LabelRepository;
-import com.stodo.projectchaos.model.entity.ProjectBacklogEntity;
 import com.stodo.projectchaos.model.entity.TaskEntity;
 import com.stodo.projectchaos.model.entity.TaskLabelsEntity;
 import com.stodo.projectchaos.model.entity.TaskLabelId;
@@ -40,7 +38,6 @@ public class CustomTaskRepository {
 
     private final UserRepository userRepository;
     private final ColumnRepository columnRepository;
-    private final ProjectBacklogRepository projectBacklogRepository;
     private final TaskPriorityRepository taskPriorityRepository;
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
@@ -100,16 +97,6 @@ public class CustomTaskRepository {
                 .build();
 
         TaskEntity savedTaskEntity = taskRepository.save(taskEntityToBeSaved);
-
-        // todo - check this when project_backlog is worked on
-        // if columnId is null, create a project_backlog
-        if(requestDTO.columnId() == null) {
-            ProjectBacklogEntity projectBacklogEntity = new ProjectBacklogEntity();
-            projectBacklogEntity.setProject(projectEntity);
-            projectBacklogEntity.setTask(savedTaskEntity);
-
-            projectBacklogRepository.save(projectBacklogEntity);
-        }
 
         // save the labels
         if (requestDTO.labels() != null && !requestDTO.labels().isEmpty()) {

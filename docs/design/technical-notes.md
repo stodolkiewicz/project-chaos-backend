@@ -1,8 +1,8 @@
 # Technical Notes
 
-## Tasks in project backlog
-Table tasks has a column_id field. 
-If it is empty, it means that the task is in the backlog and should be saved in the project_backlog table.
+## Task stage
+The `tasks.stage` column says where a task is: `BACKLOG`, `BOARD` or `ARCHIVED` (shown as Done).
+Only `BOARD` tasks have a `column_id`.
 
 ## Avro schema distribution (JitPack)
 

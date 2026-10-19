@@ -51,7 +51,6 @@ public class ProjectService {
     private final AttachmentRepository attachmentRepository;
     private final TaskCommentsRepository taskCommentsRepository;
     private final TaskLabelsRepository taskLabelsRepository;
-    private final ProjectBacklogRepository projectBacklogRepository;
     private final TaskRepository taskRepository;
     private final LabelRepository labelRepository;
     private final AIConversationRepository aiConversationRepository;
@@ -72,7 +71,6 @@ public class ProjectService {
             AttachmentRepository attachmentRepository,
             TaskCommentsRepository taskCommentsRepository,
             TaskLabelsRepository taskLabelsRepository,
-            ProjectBacklogRepository projectBacklogRepository,
             TaskRepository taskRepository,
             LabelRepository labelRepository,
             AIConversationRepository aiConversationRepository,
@@ -89,7 +87,6 @@ public class ProjectService {
         this.attachmentRepository = attachmentRepository;
         this.taskCommentsRepository = taskCommentsRepository;
         this.taskLabelsRepository = taskLabelsRepository;
-        this.projectBacklogRepository = projectBacklogRepository;
         this.taskRepository = taskRepository;
         this.labelRepository = labelRepository;
         this.aiConversationRepository = aiConversationRepository;
@@ -113,7 +110,6 @@ public class ProjectService {
         // Level 1: Delete lowest level dependencies
         taskCommentsRepository.deleteByProjectId(projectId);
         taskLabelsRepository.deleteByProjectId(projectId);
-        projectBacklogRepository.deleteByProjectId(projectId);
         aiConversationRepository.deleteByProjectId(projectId);
         taskPriorityRepository.deleteByProjectId(projectId);
 
