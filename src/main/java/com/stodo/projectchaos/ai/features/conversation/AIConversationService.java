@@ -92,6 +92,23 @@ public class AIConversationService {
         log.info("AI conversation deleted [conversationId={}]", conversationId);
     }
 
+    // Chat memory rows are removed by the ON DELETE CASCADE constraint
+    @Transactional
+    public void deleteConversation(String conversationId, UUID projectId, UUID userId) {
+        if (!conversationRepository.existsByIdAndProjectIdAndUserId(conversationId, projectId, userId)) {
+            throw EntityNotFoundException.builder()
+                    .identifier("id", conversationId)
+                    .entityType("AIConversationEntity")
+                    .build();
+        }
+        conversationRepository.deleteById(conversationId);
+
+        log.info("AI conversation deleted [conversationId={}, projectId={}, userId={}]",
+                conversationId,
+                projectId,
+                userId);
+    }
+
     public boolean checkIfExistsByConversationId(String conversationId) {
         return conversationRepository.existsById(conversationId);
     }

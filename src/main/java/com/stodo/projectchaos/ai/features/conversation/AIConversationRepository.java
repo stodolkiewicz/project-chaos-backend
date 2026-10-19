@@ -20,6 +20,8 @@ public interface AIConversationRepository extends JpaRepository<AIConversationEn
     List<AIConversationEntity> findConversationsByProjectId(@Param("projectId") UUID projectId);
 
     boolean existsByIdAndProjectId(String id, UUID projectId);
+
+    boolean existsByIdAndProjectIdAndUserId(String id, UUID projectId, UUID userId);
     
     void deleteByProjectId(UUID projectId);
 }

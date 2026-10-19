@@ -25,4 +25,13 @@ public class AIConversationController {
         List<ConversationResponseDTO> response = AIConversationMapper.INSTANCE.toConversationResponseDTOList(conversations);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/projects/{projectId}/users/{userId}/conversations/{conversationId}")
+    public ResponseEntity<Void> deleteConversation(
+            @PathVariable UUID projectId,
+            @PathVariable UUID userId,
+            @PathVariable String conversationId) {
+        aiConversationService.deleteConversation(conversationId, projectId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }
