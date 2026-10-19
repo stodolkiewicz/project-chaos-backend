@@ -6,6 +6,7 @@ import com.stodo.projectchaos.features.task.dto.response.UpdateTaskColumnRespons
 import com.stodo.projectchaos.features.task.dto.service.TaskColumnUpdate;
 import com.stodo.projectchaos.features.task.dto.mapper.UpdateTaskColumnMapper;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.features.task.dto.request.TasksFilterRequestDTO;
 import com.stodo.projectchaos.features.task.dto.request.UpdateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
 import com.stodo.projectchaos.features.task.dto.mapper.TaskMapper;
@@ -13,6 +14,9 @@ import com.stodo.projectchaos.features.task.dto.request.MoveTasksRequestDTO;
 import com.stodo.projectchaos.model.enums.TaskStageEnum;
 import com.stodo.projectchaos.security.filter.AppUserDetails;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +43,18 @@ public class BoardTasksController {
                 .map(TaskMapper.INSTANCE::toBoardTasksResponseDTO)
                 .collect(java.util.stream.Collectors.toList());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{projectId}/tasks/paged")
+    public Page<TasksResponseDTO> getTasksPage(
+            @PathVariable UUID projectId,
+            @RequestParam TaskStageEnum stage,
+            TasksFilterRequestDTO filter,
+            @PageableDefault(size = 10) Pageable pageable,
+            Authentication authentication) {
+        UUID userId = ((AppUserDetails) authentication.getPrincipal()).getUserId();
+        return taskService.getTasksPage(projectId, stage, filter, userId, pageable)
+                .map(TaskMapper.INSTANCE::toBoardTasksResponseDTO);
     }
 
     @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")

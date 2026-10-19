@@ -2,6 +2,7 @@ package com.stodo.projectchaos.features.task;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.features.task.dto.request.TasksFilterRequestDTO;
 import com.stodo.projectchaos.features.task.dto.request.UpdateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.service.BoardTask;
 import com.stodo.projectchaos.features.task.dto.service.Task;
@@ -19,6 +20,8 @@ import com.stodo.projectchaos.storage.AttachmentManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -53,8 +56,19 @@ public class TaskService {
 
     public List<BoardTask> getTasks(UUID projectId, TaskStageEnum stage, UUID userId) {
         List<BoardTask> tasks = getTasks(projectId, stage);
+        setUnreadCommentsCount(tasks, userId);
+        return tasks;
+    }
+
+    public Page<BoardTask> getTasksPage(UUID projectId, TaskStageEnum stage, TasksFilterRequestDTO filter, UUID userId, Pageable pageable) {
+        Page<BoardTask> tasksPage = customBoardRepository.findTasksPageByStage(projectId, stage, filter, pageable);
+        setUnreadCommentsCount(tasksPage.getContent(), userId);
+        return tasksPage;
+    }
+
+    private void setUnreadCommentsCount(List<BoardTask> tasks, UUID userId) {
         if (tasks.isEmpty()) {
-            return tasks;
+            return;
         }
 
         List<UUID> taskIds = tasks.stream()
@@ -71,8 +85,6 @@ public class TaskService {
         tasks.forEach(task ->
                 task.setUnreadCommentsCount(unreadCommentsMap.getOrDefault(task.getTaskId(), 0L))
         );
-
-        return tasks;
     }
 
     public Task findTask(UUID projectId, UUID taskId) {
