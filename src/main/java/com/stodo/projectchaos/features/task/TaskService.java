@@ -2,6 +2,7 @@ package com.stodo.projectchaos.features.task;
 
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.features.task.dto.request.UpdateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.service.BoardTask;
 import com.stodo.projectchaos.features.task.dto.service.Task;
 import com.stodo.projectchaos.features.task.dto.request.UpdateTaskColumnRequestDTO;
@@ -81,6 +82,10 @@ public class TaskService {
 
     public Task createTask(CreateTaskRequestDTO requestDTO, UUID projectId) {
         return customTaskRepository.createTask(requestDTO, projectId);
+    }
+
+    public void updateTask(UUID projectId, UUID taskId, UpdateTaskRequestDTO requestDTO) {
+        customTaskRepository.updateTask(projectId, taskId, requestDTO);
     }
 
     public void deleteTask(UUID projectId, UUID taskId) {

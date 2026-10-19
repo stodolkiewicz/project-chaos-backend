@@ -6,6 +6,7 @@ import com.stodo.projectchaos.features.task.dto.response.UpdateTaskColumnRespons
 import com.stodo.projectchaos.features.task.dto.service.TaskColumnUpdate;
 import com.stodo.projectchaos.features.task.dto.mapper.UpdateTaskColumnMapper;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
+import com.stodo.projectchaos.features.task.dto.request.UpdateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
 import com.stodo.projectchaos.features.task.dto.mapper.TaskMapper;
 import com.stodo.projectchaos.features.task.dto.request.MoveTasksRequestDTO;
@@ -50,6 +51,17 @@ public class BoardTasksController {
                 taskService.createTask(requestDTO, projectId)
         );
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")
+    @PutMapping("/{projectId}/tasks/{taskId}")
+    public ResponseEntity<Void> updateTask(
+            @PathVariable UUID projectId,
+            @PathVariable UUID taskId,
+            @Valid @RequestBody UpdateTaskRequestDTO requestDTO
+    ) {
+        taskService.updateTask(projectId, taskId, requestDTO);
+        return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("@projectSecurity.hasAtLeastMemberRole(#projectId, authentication)")

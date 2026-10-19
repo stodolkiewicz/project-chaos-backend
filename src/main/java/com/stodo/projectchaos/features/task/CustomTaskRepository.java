@@ -3,6 +3,7 @@ package com.stodo.projectchaos.features.task;
 import com.stodo.projectchaos.exception.EntityNotFoundException;
 import com.stodo.projectchaos.features.task.dto.request.CreateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.request.LabelDTO;
+import com.stodo.projectchaos.features.task.dto.request.UpdateTaskRequestDTO;
 import com.stodo.projectchaos.features.task.dto.service.Task;
 import com.stodo.projectchaos.features.task.dto.mapper.TaskEntityMapper;
 import com.stodo.projectchaos.model.entity.UserEntity;
@@ -135,6 +136,73 @@ public class CustomTaskRepository {
                 });
 
         return TaskEntityMapper.INSTANCE.toTask(savedTaskEntity);
+    }
+
+    @Transactional
+    public void updateTask(UUID projectId, UUID taskId, UpdateTaskRequestDTO requestDTO) {
+        TaskEntity taskEntity = taskRepository.findAllByIdInAndProjectId(List.of(taskId), projectId)
+                .stream()
+                .findFirst()
+                .orElseThrow(() ->
+                        EntityNotFoundException.builder()
+                                .entityType("Task")
+                                .identifier("id", taskId.toString())
+                                .build()
+                );
+
+        String email = requestDTO.assigneeEmail();
+        UserEntity assignee = email == null || email.isBlank() ? null : userRepository.findByEmail(email).orElseThrow(() ->
+                EntityNotFoundException.builder()
+                        .entityType("User")
+                        .identifier("email", email)
+                        .build()
+        );
+
+        TaskPriorityEntity priority = requestDTO.priorityId() == null ? null : taskPriorityRepository.findById(requestDTO.priorityId()).orElseThrow(() ->
+                EntityNotFoundException.builder()
+                        .entityType("TaskPriority")
+                        .identifier("id", requestDTO.priorityId().toString())
+                        .build()
+        );
+
+        taskEntity.setTitle(requestDTO.title());
+        taskEntity.setDescription(requestDTO.description());
+        taskEntity.setAssignee(assignee);
+        taskEntity.setPriority(priority);
+
+        // Keyed by label id, so duplicated names in the request end up as one label
+        Map<UUID, LabelEntity> requestedLabels = new HashMap<>();
+        if (requestDTO.labels() != null) {
+            for (LabelDTO labelDTO : requestDTO.labels()) {
+                String normalizedLabelName = labelDTO.name().trim().toLowerCase();
+                LabelEntity labelEntity = saveOrUpdateLabel(normalizedLabelName, labelDTO.color(), taskEntity.getProject());
+                requestedLabels.put(labelEntity.getId(), labelEntity);
+            }
+        }
+
+        // Removed links are deleted by orphanRemoval
+        Set<TaskLabelsEntity> taskLabels = taskEntity.getTaskLabels();
+        taskLabels.removeIf(taskLabel -> !requestedLabels.containsKey(taskLabel.getLabel().getId()));
+
+        Set<UUID> currentLabelIds = new HashSet<>();
+        taskLabels.forEach(taskLabel -> currentLabelIds.add(taskLabel.getLabel().getId()));
+
+        requestedLabels.values().stream()
+                .filter(labelEntity -> !currentLabelIds.contains(labelEntity.getId()))
+                .forEach(labelEntity -> taskLabels.add(
+                        TaskLabelsEntity.builder()
+                                .task(taskEntity)
+                                .label(labelEntity)
+                                .id(new TaskLabelId(taskEntity.getId(), labelEntity.getId()))
+                                .build()
+                ));
+
+        // Flushes the label changes first, so labels removed from their last task are deleted
+        labelRepository.deleteUnusedLabels(projectId);
+
+        log.info("Task updated [taskId={}, projectId={}]",
+                taskId,
+                projectId);
     }
 
     private LabelEntity saveOrUpdateLabel(String normalizedLabelName, String color, ProjectEntity projectEntity) {
