@@ -21,4 +21,5 @@ public class BoardTask {
     private Assignee assignee;
     private List<Label> labels;
     private Instant createdDate;
+    private Long unreadCommentsCount;
 }

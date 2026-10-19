@@ -8,6 +8,7 @@ import com.stodo.projectchaos.features.taskcomments.dto.response.TaskCommentWith
 import com.stodo.projectchaos.features.taskcomments.dto.service.TaskComment;
 import com.stodo.projectchaos.features.taskcomments.dto.service.TaskCommentWithReplies;
 import com.stodo.projectchaos.features.user.UserService;
+import com.stodo.projectchaos.security.filter.AppUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -64,6 +65,17 @@ public class TaskCommentsController {
         UUID authorId = userService.getUserIdByEmail(userEmail);
         TaskComment comment = taskCommentsService.updateTaskComment(commentId, request, authorId);
         return TaskCommentsMapper.INSTANCE.toTaskCommentResponseDTO(comment);
+    }
+
+    @PutMapping("/{projectId}/tasks/{taskId}/comments/read")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void markTaskCommentsAsRead(
+            @PathVariable UUID projectId,
+            @PathVariable UUID taskId,
+            Authentication authentication
+    ) {
+        UUID userId = ((AppUserDetails) authentication.getPrincipal()).getUserId();
+        taskCommentsService.markTaskCommentsAsRead(projectId, taskId, userId);
     }
 
     @DeleteMapping("/{projectId}/tasks/{taskId}/comments/{commentId}")

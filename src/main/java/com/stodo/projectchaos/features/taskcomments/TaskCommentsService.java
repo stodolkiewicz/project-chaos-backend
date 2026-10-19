@@ -7,6 +7,8 @@ import com.stodo.projectchaos.features.taskcomments.dto.request.CreateTaskCommen
 import com.stodo.projectchaos.features.taskcomments.dto.request.UpdateTaskCommentRequestDTO;
 import com.stodo.projectchaos.features.taskcomments.dto.service.TaskComment;
 import com.stodo.projectchaos.features.taskcomments.dto.service.TaskCommentWithReplies;
+import com.stodo.projectchaos.model.entity.TaskCommentReadEntity;
+import com.stodo.projectchaos.model.entity.TaskCommentReadId;
 import com.stodo.projectchaos.model.entity.TaskComments;
 import com.stodo.projectchaos.model.entity.TaskEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;
@@ -17,7 +19,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Comparator;
@@ -28,12 +32,14 @@ public class TaskCommentsService {
     private final TaskCommentsRepository taskCommentsRepository;
     private final CustomTaskCommentsRepository customTaskCommentsRepository;
     private final TaskRepository taskRepository;
+    private final TaskCommentReadRepository taskCommentReadRepository;
     private final EntityManager entityManager;
 
-    public TaskCommentsService(TaskCommentsRepository taskCommentsRepository, CustomTaskCommentsRepository customTaskCommentsRepository, TaskRepository taskRepository, EntityManager entityManager) {
+    public TaskCommentsService(TaskCommentsRepository taskCommentsRepository, CustomTaskCommentsRepository customTaskCommentsRepository, TaskRepository taskRepository, TaskCommentReadRepository taskCommentReadRepository, EntityManager entityManager) {
         this.taskCommentsRepository = taskCommentsRepository;
         this.customTaskCommentsRepository = customTaskCommentsRepository;
         this.taskRepository = taskRepository;
+        this.taskCommentReadRepository = taskCommentReadRepository;
         this.entityManager = entityManager;
     }
 
@@ -156,5 +162,27 @@ public class TaskCommentsService {
         log.info("Task comment deleted [commentId={}, authorId={}]",
                 commentId,
                 authorId);
+    }
+
+    @Transactional
+    public void markTaskCommentsAsRead(UUID projectId, UUID taskId, UUID userId) {
+        if(taskRepository.notExistByIdAndProjectId(taskId, projectId)) {
+            throw EntityNotFoundException.builder()
+                    .entityType("Task")
+                    .identifier("taskId", taskId)
+                    .identifier("projectId", projectId)
+                    .build();
+        }
+
+        TaskCommentReadId id = new TaskCommentReadId(userId, taskId);
+        TaskCommentReadEntity commentRead = taskCommentReadRepository.findById(id)
+                .orElseGet(() -> TaskCommentReadEntity.builder()
+                        .id(id)
+                        .user(entityManager.getReference(UserEntity.class, userId))
+                        .task(entityManager.getReference(TaskEntity.class, taskId))
+                        .build());
+
+        commentRead.setLastReadAt(Instant.now());
+        taskCommentReadRepository.save(commentRead);
     }
 }

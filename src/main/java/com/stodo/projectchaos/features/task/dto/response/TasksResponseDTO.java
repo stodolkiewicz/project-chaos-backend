@@ -21,4 +21,5 @@ public class TasksResponseDTO {
     private AssigneeDTO assignee;
     private List<LabelDTO> labels;
     private Instant createdDate;
+    private Long unreadCommentsCount;
 }

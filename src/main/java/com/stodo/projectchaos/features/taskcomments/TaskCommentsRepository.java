@@ -24,4 +24,16 @@ public interface TaskCommentsRepository extends JpaRepository<TaskComments, UUID
     @Query("SELECT tc.id FROM TaskComments tc WHERE tc.task.id = :taskId AND tc.replyTo IS NULL ORDER BY tc.createdDate ASC")
     Page<UUID> findRootCommentIds(@Param("taskId") UUID taskId, Pageable pageable);
 
+    // Returns [taskId, count] rows; tasks without unread comments are absent
+    @Query("""
+            SELECT tc.task.id, COUNT(tc)
+            FROM TaskComments tc
+            LEFT JOIN TaskCommentReadEntity r ON r.task.id = tc.task.id AND r.user.id = :userId
+            WHERE tc.task.id IN :taskIds
+            AND tc.author.id <> :userId
+            AND (r.lastReadAt IS NULL OR tc.createdDate > r.lastReadAt)
+            GROUP BY tc.task.id
+            """)
+    List<Object[]> countUnreadCommentsByTaskIds(@Param("taskIds") List<UUID> taskIds, @Param("userId") UUID userId);
+
 }

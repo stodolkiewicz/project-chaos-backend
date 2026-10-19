@@ -21,8 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,6 +48,30 @@ public class TaskService {
             return customBoardRepository.findSortedBoardTasksByPositionInColumn(projectId);
         }
         return customBoardRepository.findTasksByStage(projectId, stage);
+    }
+
+    public List<BoardTask> getTasks(UUID projectId, TaskStageEnum stage, UUID userId) {
+        List<BoardTask> tasks = getTasks(projectId, stage);
+        if (tasks.isEmpty()) {
+            return tasks;
+        }
+
+        List<UUID> taskIds = tasks.stream()
+                .map(BoardTask::getTaskId)
+                .toList();
+
+        Map<UUID, Long> unreadCommentsMap = taskCommentsRepository.countUnreadCommentsByTaskIds(taskIds, userId)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (UUID) row[0],
+                        row -> (Long) row[1]
+                ));
+
+        tasks.forEach(task ->
+                task.setUnreadCommentsCount(unreadCommentsMap.getOrDefault(task.getTaskId(), 0L))
+        );
+
+        return tasks;
     }
 
     public Task findTask(UUID projectId, UUID taskId) {

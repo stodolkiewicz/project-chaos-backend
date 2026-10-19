@@ -10,10 +10,12 @@ import com.stodo.projectchaos.features.task.dto.response.CreateTaskResponseDTO;
 import com.stodo.projectchaos.features.task.dto.mapper.TaskMapper;
 import com.stodo.projectchaos.features.task.dto.request.MoveTasksRequestDTO;
 import com.stodo.projectchaos.model.enums.TaskStageEnum;
+import com.stodo.projectchaos.security.filter.AppUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,8 +30,10 @@ public class BoardTasksController {
     @GetMapping("/{projectId}/tasks")
     public ResponseEntity<List<TasksResponseDTO>> getTasks(
             @PathVariable UUID projectId,
-            @RequestParam(required = false) TaskStageEnum stage) {
-        List<TasksResponseDTO> response = taskService.getTasks(projectId, stage)
+            @RequestParam(required = false) TaskStageEnum stage,
+            Authentication authentication) {
+        UUID userId = ((AppUserDetails) authentication.getPrincipal()).getUserId();
+        List<TasksResponseDTO> response = taskService.getTasks(projectId, stage, userId)
                 .stream()
                 .map(TaskMapper.INSTANCE::toBoardTasksResponseDTO)
                 .collect(java.util.stream.Collectors.toList());

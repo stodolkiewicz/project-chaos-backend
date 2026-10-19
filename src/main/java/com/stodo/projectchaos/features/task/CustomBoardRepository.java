@@ -31,7 +31,8 @@ public class CustomBoardRepository {
                 new com.stodo.projectchaos.features.task.dto.service.Column(c.id, c.name, c.position),
                 new com.stodo.projectchaos.features.task.dto.service.Assignee(a.email),
                 null,
-                t.createdDate
+                t.createdDate,
+                null
             )
             FROM TaskEntity t
             LEFT JOIN t.priority p
@@ -92,7 +93,8 @@ public class CustomBoardRepository {
             new com.stodo.projectchaos.features.task.dto.service.Column(c.id, c.name, c.position),
             new com.stodo.projectchaos.features.task.dto.service.Assignee(a.email),
             null,
-            t.createdDate
+            t.createdDate,
+            null
         )
         FROM TaskEntity t
         LEFT JOIN t.priority p
@@ -156,7 +158,8 @@ public class CustomBoardRepository {
                 new com.stodo.projectchaos.features.task.dto.service.Column(c.id, c.name, c.position),
                 new com.stodo.projectchaos.features.task.dto.service.Assignee(a.email),
                 null,
-                t.createdDate
+                t.createdDate,
+                null
             )
             FROM TaskEntity t
             LEFT JOIN t.priority p
