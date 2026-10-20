@@ -13,13 +13,13 @@ public record CreateTaskRequestDTO (
         String description,
         @NotNull
         Double positionInColumn,
-        @NotNull
         String assigneeEmail,
         // Backlog and archived tasks have no column
         UUID columnId,
         UUID priorityId,
         @Valid
         List<LabelDTO> labels,
+        @NotNull
         TaskStageEnum stage
         ) {
 }
