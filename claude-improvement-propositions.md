@@ -24,3 +24,39 @@
 6. Historia zmian taska, która pokazuje, kto co zmienił i kiedy.
 7. AI, które przenosi taski i robi podsumowanie dnia, np. co ruszyło się od wczoraj.
 8. Akcje na wielu taskach naraz. Endpointy przenoszenia już przyjmują listę `taskIds`.
+9. Czat między członkami projektu, obok czatu z AI.
+
+## Czasy tasków i statystyki
+
+### Pomysł Dawida
+
+- Domyślnie ostatnia kolumna to „Done”, a ADMIN może to zmienić.
+- Przesunięcie taska do „Done” zapisuje czas ukończenia.
+- Aplikacja zapisuje też czas dodania taska na board (domyślnie pierwsza kolumna) i czas rozpoczęcia pracy (domyślnie druga kolumna).
+- Czasy służą do filtrowania w archiwum i do wykresów, np. średni czas życia taska i średni czas od wzięcia do ukończenia.
+
+To dwie standardowe metryki Kanbana:
+- **lead time** to czas od dodania taska na board do jego ukończenia;
+- **cycle time** to czas od rozpoczęcia pracy do ukończenia.
+
+### Zmiany w koncepcji
+
+1. Czasy nie zależą od pozycji kolumny. ADMIN oznacza w Settings jedną kolumnę jako „start”, a drugą jako „done”. Domyślnie „start” to druga kolumna, a „done” to ostatnia. Wtedy przesunięcie albo dodanie kolumny nie psuje pomiaru.
+2. Czas dodania na board zapisuje się przy przejściu taska z backlogu na board, niezależnie od kolumny. Task może trafić od razu do drugiej kolumny, a i tak liczy się moment wejścia na board.
+3. Archiwum też zapisuje czas ukończenia, jeśli task go jeszcze nie ma. Dziś „Move to Done” przenosi task prosto do archiwum, z pominięciem kolumny „Done”. Bez tego część ukończonych tasków nie miałaby czasu.
+4. Gdy task wraca z „done” do wcześniejszej kolumny, czas ukończenia się czyści. Czas startu zostaje pierwszy, bo praca faktycznie wtedy się zaczęła.
+
+### Zapis
+
+Tabela `tasks` dostaje trzy kolumny: `board_entered_at`, `started_at` i `completed_at`. Wystarczą do filtrów w archiwum i do średnich. Zapytania pozostaną proste.
+
+Ten zapis nie pokaże, ile task siedział w każdej kolumnie. Do tego potrzebna jest tabela historii przejść, czyli wiersz z kolumną źródłową, kolumną docelową i czasem przy każdym przesunięciu. Taka tabela pokryłaby też punkt „historia zmian taska” z nowych funkcji. Warto ją dodać dopiero wtedy, gdy będą potrzebne takie wykresy.
+
+### Wykresy
+
+1. Wykresy pokazują medianę, czyli wartość środkową, zamiast średniej. Jeden task wiszący 3 miesiące zawyża średnią, a mediany nie rusza.
+2. Dochodzi **throughput**, czyli liczba ukończonych tasków na tydzień. To najprostszy wykres, który pokazuje tempo zespołu.
+
+### Ograniczenie
+
+Istniejące taski nie mają historii, więc wykresy zaczną się od dnia wdrożenia. Uzupełnić da się tylko czas utworzenia taska, bo baza już go ma.
