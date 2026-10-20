@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,4 +36,8 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE TaskEntity t SET t.priority = NULL WHERE t.project.id = :projectId")
     void clearPriorityByProjectId(@Param("projectId") UUID projectId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE TaskEntity t SET t.priority = NULL WHERE t.priority.id IN :priorityIds")
+    void clearPriorityByPriorityIds(@Param("priorityIds") Collection<UUID> priorityIds);
 }

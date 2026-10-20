@@ -16,4 +16,6 @@ public class TaskPriorityResponseDTO {
     private Short priorityValue;
     private String name;
     private String color;
+    // The number of tasks with this priority, in every stage
+    private long taskCount;
 }

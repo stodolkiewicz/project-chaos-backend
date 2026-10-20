@@ -10,6 +10,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import com.stodo.projectchaos.features.priority.DuplicatePriorityValueException;
 import com.stodo.projectchaos.features.project.ColumnNotEmptyException;
 import com.stodo.projectchaos.features.projectuser.LastAdminCannotLeaveProjectException;
 import com.stodo.projectchaos.security.filter.AppUserDetails;
@@ -151,6 +152,16 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleColumnNotEmpty(ColumnNotEmptyException ex, HttpServletRequest request) {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         problem.setTitle("Column can not be deleted");
+        problem.setDetail(ex.getMessage());
+        problem.setInstance(URI.create(request.getRequestURI()));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
+    @ExceptionHandler(DuplicatePriorityValueException.class)
+    public ProblemDetail handleDuplicatePriorityValue(DuplicatePriorityValueException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Duplicate priority value");
         problem.setDetail(ex.getMessage());
         problem.setInstance(URI.create(request.getRequestURI()));
         problem.setProperty("timestamp", Instant.now());

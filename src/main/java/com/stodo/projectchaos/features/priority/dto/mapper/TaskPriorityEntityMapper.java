@@ -9,5 +9,5 @@ import org.mapstruct.factory.Mappers;
 public interface TaskPriorityEntityMapper {
     TaskPriorityEntityMapper INSTANCE = Mappers.getMapper(TaskPriorityEntityMapper.class);
 
-    TaskPriority toTaskPriority(TaskPriorityEntity entity);
+    TaskPriority toTaskPriority(TaskPriorityEntity entity, long taskCount);
 }
