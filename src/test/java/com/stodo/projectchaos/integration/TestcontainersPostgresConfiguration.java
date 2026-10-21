@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.integration.repository.config;
+package com.stodo.projectchaos.integration;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;

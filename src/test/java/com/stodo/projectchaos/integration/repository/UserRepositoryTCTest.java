@@ -1,8 +1,8 @@
 package com.stodo.projectchaos.integration.repository;
 
 import com.stodo.projectchaos.integration.repository.config.TestContainersBase;
-import com.stodo.projectchaos.integration.repository.config.TestcontainersPostgresConfiguration;
-import com.stodo.projectchaos.integration.repository.helper.TcHelper;
+import com.stodo.projectchaos.integration.TestcontainersPostgresConfiguration;
+import com.stodo.projectchaos.integration.TcHelper;
 import com.stodo.projectchaos.model.entity.ProjectEntity;
 import com.stodo.projectchaos.model.entity.ProjectUsersEntity;
 import com.stodo.projectchaos.model.entity.UserEntity;

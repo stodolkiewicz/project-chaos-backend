@@ -7,8 +7,8 @@ import com.stodo.projectchaos.features.priority.dto.request.UpdateTaskPriorities
 import com.stodo.projectchaos.features.priority.dto.request.UpdateTaskPriorityRequestDTO;
 import com.stodo.projectchaos.features.priority.dto.service.TaskPriority;
 import com.stodo.projectchaos.integration.repository.config.TestContainersBase;
-import com.stodo.projectchaos.integration.repository.config.TestcontainersPostgresConfiguration;
-import com.stodo.projectchaos.integration.repository.helper.TcHelper;
+import com.stodo.projectchaos.integration.TestcontainersPostgresConfiguration;
+import com.stodo.projectchaos.integration.TcHelper;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;

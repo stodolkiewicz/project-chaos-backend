@@ -1,4 +1,4 @@
-package com.stodo.projectchaos.integration.repository.helper;
+package com.stodo.projectchaos.integration;
 
 import com.stodo.projectchaos.model.enums.ProjectRoleEnum;
 import com.stodo.projectchaos.model.enums.RoleEnum;

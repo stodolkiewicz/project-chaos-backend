@@ -1,0 +1,24 @@
+spring:
+  cloud:
+    gcp:
+      sql:
+        enabled: false
+      enabled: false
+  liquibase:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+app:
+  frontend-dashboard-url: http://localhost:3000/dashboard
+  security:
+    cookie:
+      domain: fakevalue.com
+      secure: false
+  ai:
+    number-of-requests-in-time-window-limit: 50
+    time-window-in-minutes: 10

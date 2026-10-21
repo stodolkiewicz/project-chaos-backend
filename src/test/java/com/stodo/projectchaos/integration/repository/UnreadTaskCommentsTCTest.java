@@ -4,8 +4,8 @@ import com.stodo.projectchaos.features.taskcomments.CustomTaskCommentsRepository
 import com.stodo.projectchaos.features.taskcomments.TaskCommentsRepository;
 import com.stodo.projectchaos.features.taskcomments.TaskCommentsService;
 import com.stodo.projectchaos.integration.repository.config.TestContainersBase;
-import com.stodo.projectchaos.integration.repository.config.TestcontainersPostgresConfiguration;
-import com.stodo.projectchaos.integration.repository.helper.TcHelper;
+import com.stodo.projectchaos.integration.TestcontainersPostgresConfiguration;
+import com.stodo.projectchaos.integration.TcHelper;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

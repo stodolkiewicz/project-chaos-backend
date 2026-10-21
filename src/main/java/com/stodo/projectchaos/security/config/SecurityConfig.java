@@ -84,7 +84,7 @@ public class SecurityConfig {
     }
 
     @Bean("corsConfigurationSource")
-    @Profile("dev")
+    @Profile({"dev", "test"})
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
