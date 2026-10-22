@@ -26,31 +26,31 @@ spring:
       ssl.keystore.type: PKCS12
       ssl.keystore.location: /cert/keystore/keystore.p12
       ssl.keystore.password: ${KEYSTORE_PASSWORD}
-  management:
+management:
+  metrics:
+    distribution:
+      percentiles-histogram:
+        all: true
+  otlp:
     metrics:
-      distribution:
-        percentiles-histogram:
-          all: true
-    otlp:
-      metrics:
-        export:
-          # goes to Prometheus (locally) or GCP sidecar collector
-          url: http://localhost:4318/v1/metrics
-          step: 30s
-    opentelemetry:
-      tracing:
-        export:
-          otlp:
-            # goes to Tempo (locally) or GCP sidecar collector
-            endpoint: http://localhost:4318/v1/traces
-      logging:
-        export:
-          otlp:
-            # goes to Loki (locally) or GCP sidecar collector
-            endpoint: http://localhost:4318/v1/logs
+      export:
+        # goes to Prometheus (locally) or GCP sidecar collector
+        url: http://localhost:4318/v1/metrics
+        step: 30s
+  opentelemetry:
     tracing:
-      sampling:
-        probability: 0.1
+      export:
+        otlp:
+          # goes to Tempo (locally) or GCP sidecar collector
+          endpoint: http://localhost:4318/v1/traces
+    logging:
+      export:
+        otlp:
+          # goes to Loki (locally) or GCP sidecar collector
+          endpoint: http://localhost:4318/v1/logs
+  tracing:
+    sampling:
+      probability: 0.1
 
   cloud:
     gcp:
