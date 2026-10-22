@@ -26,6 +26,13 @@ spring:
       ssl.keystore.type: PKCS12
       ssl.keystore.location: /cert/keystore/keystore.p12
       ssl.keystore.password: ${KEYSTORE_PASSWORD}
+
+  cloud:
+    gcp:
+      sql:
+        database-name: ${PROD_DB_NAME}
+        instance-connection-name: ${GCP_SQL_INSTANCE_CONNECTION_NAME}
+
 management:
   metrics:
     distribution:
@@ -51,12 +58,6 @@ management:
   tracing:
     sampling:
       probability: 0.1
-
-  cloud:
-    gcp:
-      sql:
-        database-name: ${PROD_DB_NAME}
-        instance-connection-name: ${GCP_SQL_INSTANCE_CONNECTION_NAME}
 
 logging:
   level:
