@@ -2,6 +2,11 @@
 services:
   grafana-lgtm:
     image: "grafana/otel-lgtm:latest"
+    environment:
+      LANGFUSE_AUTH: ${LANGFUSE_AUTH}
+      ENABLE_LOGS_OTELCOL: "true"
+    volumes:
+      - ./otelcol-config.yaml:/otel-lgtm/otelcol-config.yaml:ro
     ports:
       - '3001:3000'
       - '4317:4317'

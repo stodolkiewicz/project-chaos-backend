@@ -59,6 +59,29 @@ gcloud auth application-default login --impersonate-service-account=SA-ID@PROJEC
 The service account is named **Service Account for Project Chaos App** in GCP (IAM & Admin → Service Accounts).
 Restart the application after logging in.
 
+### Langfuse (LLM tracing)
+Do it if you want to inspect AI chat traces locally.
+
+The app sends traces to the OpenTelemetry Collector running in the `grafana-lgtm` container.
+The collector forwards them to Tempo and to Langfuse Cloud (see `otelcol-config.yaml`).
+
+1. Create an account at https://cloud.langfuse.com (EU region).
+2. Create an organization and a project.
+3. Go to **Settings → API Keys** and create a new key pair. The secret key is shown only once.
+4. Generate the value of `LANGFUSE_AUTH`:
+```
+echo -n "pk-lf-...:sk-lf-..." | base64 -w0
+```
+5. Add the value to your shell profile (`~/.bashrc` or `~/.zshrc`) and open a new terminal:
+```
+export LANGFUSE_AUTH=<value from step 4>
+```
+6. Start the stack from the project top-level directory:
+```
+docker compose -f compose.yml up -d
+```
+7. Open your Langfuse project and go to **Tracing** to see th1e traces.
+
 ### Access Token
 --- DEV ACCESS TOKEN --- is printed in the console on application start.
 
