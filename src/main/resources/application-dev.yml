@@ -7,6 +7,19 @@ spring:
   jpa:
     show-sql: false
 
+  ai:
+    chat:
+      # ChatModel layer. Writes the prompt and the completion of each model call to the application log.
+      # Does not affect Input and Output in Langfuse. They come from ChatModelCompletionContentObservationFilter.
+      observations:
+        log-prompt: false
+        log-completion: false
+      client:
+        # ChatClient layer. Writes the prompt and the completion of each ChatClient call to the application log.
+        observations:
+          log-prompt: false
+          log-completion: false
+
   cloud:
     gcp:
       sql:

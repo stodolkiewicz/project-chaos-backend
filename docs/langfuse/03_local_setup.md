@@ -17,16 +17,23 @@ The concepts are explained in [02_collector.md](02_collector.md).
 
 ## Pipelines
 
-The `traces` pipeline takes traces from the app and sends them to Tempo and to Langfuse.
+Two pipelines handle traces.
+The `traces` pipeline sends all spans to Tempo.
+The `traces/langfuse` pipeline filters the spans and sends only the AI spans to Langfuse.
+The filter is explained in [04_filtering.md](04_filtering.md).
 
 ```yaml
 traces:
   receivers: [otlp]
   processors: [batch]
-  exporters: [otlp_http/traces, otlp_http/langfuse]
+  exporters: [otlp_http/traces]
+traces/langfuse:
+  receivers: [otlp]
+  processors: [filter/langfuse, batch]
+  exporters: [otlp_http/langfuse]
 ```
 
-The `metrics` and `logs` pipelines send data to Grafana tools. Langfuse receives the traces.
+The `metrics` and `logs` pipelines send data to Grafana tools. Langfuse receives only the traces.
 
 ## Receiver
 
@@ -59,7 +66,7 @@ The exporter `otlp_http/langfuse` sends traces to Langfuse Cloud.
 `LANGFUSE_AUTH` holds both keys as `base64("pk-lf-...:sk-lf-...")` (see the main README).
 `${env:LANGFUSE_AUTH}` is collector syntax. The collector replaces it with the value of the environment variable when it reads the config.
 `compose.yml` passes the variable from your shell to the `grafana-lgtm` container.
-`x-langfuse-ingestion-version` makes Langfuse show the traces in real time. Without it they can appear up to 15 minutes late.
+`x-langfuse-ingestion-version` makes Langfuse show the traces in real time. Without it they can appear up to 10 minutes late.
 
 ```yaml
 exporters:
