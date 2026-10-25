@@ -2,9 +2,12 @@ package com.stodo.projectchaos.ai.chat;
 
 import com.stodo.projectchaos.ai.features.conversation.AIConversationService;
 import com.stodo.projectchaos.ai.features.conversation.dto.service.AIConversation;
+import com.stodo.projectchaos.ai.features.prompt.LangfusePromptService;
+import com.stodo.projectchaos.ai.features.prompt.dto.service.SystemPrompt;
 import com.stodo.projectchaos.ai.features.usage.AIUsageLogsService;
 import com.stodo.projectchaos.ai.tools.TaskProposalTools;
 import com.stodo.projectchaos.config.ChatClientSessionUserObservationFilter;
+import com.stodo.projectchaos.config.ChatModelPromptLinkObservationFilter;
 import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.dto.service.Project;
@@ -19,7 +22,6 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -45,8 +47,9 @@ public class AIChatService {
     private final ChatMemory messageWindowChatMemory;
     private final ProjectService projectService;
     private final MeterRegistry registry;
+    private final LangfusePromptService langfusePromptService;
 
-    public AIChatService(ChatClient chatClient, ChatClient simpleChatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory, ProjectService projectService, MeterRegistry registry) {
+    public AIChatService(ChatClient chatClient, ChatClient simpleChatClient, AIUsageLogsService aiUsageLogsService, UserService userService, AIConversationService aiConversationService, ChatMemory messageWindowChatMemory, ProjectService projectService, MeterRegistry registry, LangfusePromptService langfusePromptService) {
         this.chatClient = chatClient;
         this.simpleChatClient = simpleChatClient;
         this.aiUsageLogsService = aiUsageLogsService;
@@ -55,6 +58,7 @@ public class AIChatService {
         this.messageWindowChatMemory = messageWindowChatMemory;
         this.projectService = projectService;
         this.registry = registry;
+        this.langfusePromptService = langfusePromptService;
     }
 
     @Value("${app.ai.number-of-requests-in-time-window-limit:10}")
@@ -62,9 +66,6 @@ public class AIChatService {
 
     @Value("${app.ai.time-window-in-minutes:60}")
     int timeWindowInMinutes;
-
-    @Value("classpath:/promptTemplates/system-prompt.st")
-    private Resource systemPromptTemplate;
 
     public Flux<String> chat(String question, UUID projectId, UUID userId, String conversationId, boolean conversationHasTitle, Sinks.Many<ServerSentEvent<Object>> events) {
         if(aiUsageLogsService.isNumberOfRequestsInTimeWindowReached(
@@ -86,15 +87,25 @@ public class AIChatService {
         AtomicReference<ChatResponse> finalResponse = new AtomicReference<>();
         AtomicBoolean firstTokenReceived = new AtomicBoolean(false);
 
+        SystemPrompt systemPrompt = langfusePromptService.getSystemPrompt();
+
         return chatClient.prompt()
-                .system(systemSpec -> systemSpec
-                        .text(systemPromptTemplate)
-                        .param("projectName", project.name())
-                        .param("projectId", projectId)
-                        .param("projectDescription", project.description())
-                        .param("createdAt", project.createdDate())
-                        .param("userId", userId)
-                )
+                .system(systemSpec -> {
+                    systemSpec
+                            .text(systemPrompt.text())
+                            .param("projectName", project.name())
+                            .param("projectId", projectId)
+                            .param("projectDescription", project.description())
+                            .param("createdAt", project.createdDate())
+                            .param("userId", userId);
+
+                    // The fallback prompt is not in Langfuse, so it must not be linked.
+                    if (systemPrompt.isFromLangfuse()) {
+                        systemSpec
+                                .metadata(ChatModelPromptLinkObservationFilter.PROMPT_NAME, systemPrompt.name())
+                                .metadata(ChatModelPromptLinkObservationFilter.PROMPT_VERSION, systemPrompt.version());
+                    }
+                })
                 .user(question)
                 .toolContext(Map.of(
                         TaskProposalTools.EVENTS_KEY, events,
