@@ -2,8 +2,9 @@
 
 ## Context
 
-Locally we run `grafana-lgtm` and add a Langfuse exporter to its collector.
-To do this we edit the collector config file.
+Locally we run `grafana-lgtm`, the compose service built from the image `grafana/otel-lgtm`.
+It is an all-in-one observability stack: an OpenTelemetry collector, Tempo (trace storage), Loki (logs), Prometheus (metrics) and Grafana (UI).
+We add a Langfuse exporter to its collector by editing the collector config file.
 The config file has four parts: receivers, processors, exporters and pipelines.
 
 ```yaml
@@ -13,8 +14,6 @@ exporters: ...
 service:
   pipelines: ...
 ```
-
-This file explains each part, so the config is readable.
 
 ## Collector
 

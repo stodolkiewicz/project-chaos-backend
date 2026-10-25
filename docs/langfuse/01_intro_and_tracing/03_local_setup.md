@@ -2,22 +2,13 @@
 
 ## Context
 
-Locally the app sends traces to the collector in the `grafana-lgtm` container.
-The collector forwards them to Tempo and to Langfuse Cloud.
-Langfuse shows the AI calls of the app.
-This file describes the collector config (`otelcol-config.yaml`) that does this.
-The concepts are explained in [02_collector.md](02_collector.md).
-
-## The way of a trace
-
-1. The app creates a trace for every request. Spring AI adds spans for model calls and tool calls.
-2. The app sends the trace to `localhost:4318`.
-3. The collector receives the trace on this port.
-4. The collector sends the trace to Tempo and to Langfuse.
+The app creates a trace for every request, and Spring AI adds spans for model calls and tool calls.
+The app sends traces to the collector in the `grafana-lgtm` container (`localhost:4318`).
+The collector forwards all spans to Tempo and the AI spans to Langfuse Cloud.
+This file walks through the collector config (`otelcol-config.yaml`). The concepts are in [02_collector.md](02_collector.md).
 
 ## Pipelines
 
-Two pipelines handle traces.
 The `traces` pipeline sends all spans to Tempo.
 The `traces/langfuse` pipeline filters the spans and sends only the AI spans to Langfuse.
 The filter is explained in [04_filtering.md](04_filtering.md).
@@ -33,12 +24,11 @@ traces/langfuse:
   exporters: [otlp_http/langfuse]
 ```
 
-The `metrics` and `logs` pipelines send data to Grafana tools. Langfuse receives only the traces.
+The `metrics` and `logs` pipelines never reach Langfuse.
 
 ## Receiver
 
-The receiver is called `otlp` and listens on port `4318`.
-This is the port from step 2 of "The way of a trace".
+The `otlp` receiver accepts OTLP over HTTP on `4318`.
 
 ```yaml
 receivers:
@@ -50,8 +40,7 @@ receivers:
 
 ## Processor
 
-The processor is called `batch`.
-It groups spans into batches, so the exporter sends fewer HTTP requests to Langfuse.
+`batch` collects spans and exports them together, so the exporter sends fewer HTTP requests to Langfuse.
 
 ```yaml
 processors:
@@ -60,8 +49,6 @@ processors:
 
 ## Exporter
 
-The exporter `otlp_http/langfuse` sends traces to Langfuse Cloud.
-`endpoint` is the OTLP address of Langfuse.
 `Authorization` uses HTTP Basic auth. The login is the Langfuse public key and the password is the secret key.
 `LANGFUSE_AUTH` holds both keys as `base64("pk-lf-...:sk-lf-...")` (see the main README).
 `${env:LANGFUSE_AUTH}` is collector syntax. The collector replaces it with the value of the environment variable when it reads the config.

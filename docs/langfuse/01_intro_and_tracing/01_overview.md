@@ -15,6 +15,7 @@ Example from this project: one chat request with a tool contains two model calls
 A trace is the record of one request.
 A span is one step inside a trace.
 Example: a chat request is one trace. A model call and a tool call are two spans inside it.
+Langfuse calls a span an observation.
 
 ## How data reaches Langfuse
 

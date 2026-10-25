@@ -4,6 +4,7 @@ import com.stodo.projectchaos.ai.features.conversation.AIConversationService;
 import com.stodo.projectchaos.ai.features.conversation.dto.service.AIConversation;
 import com.stodo.projectchaos.ai.features.usage.AIUsageLogsService;
 import com.stodo.projectchaos.ai.tools.TaskProposalTools;
+import com.stodo.projectchaos.config.ChatClientSessionUserObservationFilter;
 import com.stodo.projectchaos.exception.TooManyAIRequestsException;
 import com.stodo.projectchaos.features.project.ProjectService;
 import com.stodo.projectchaos.features.project.dto.service.Project;
@@ -102,6 +103,7 @@ public class AIChatService {
                 .advisors(advisorSpec -> advisorSpec
                         .advisors(MessageChatMemoryAdvisor.builder(messageWindowChatMemory).build())
                         .param(CONVERSATION_ID, conversationId)
+                        .param(ChatClientSessionUserObservationFilter.USER_ID, userId)
                 )
                 .stream()
                 .chatResponse()
