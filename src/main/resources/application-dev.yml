@@ -74,10 +74,8 @@ app:
   langfuse:
     base-url: https://cloud.langfuse.com
     auth: ${LANGFUSE_AUTH:}
-    system-prompt:
-      name: system-prompt
-      label: production
-      cache-ttl-seconds: 60
+    prompt-label: production
+    cache-ttl-seconds: 60
   frontend-dashboard-url: http://localhost:3000/dashboard
   security:
     cookie:

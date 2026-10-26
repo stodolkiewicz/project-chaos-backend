@@ -1,7 +1,7 @@
 package com.stodo.projectchaos.ai.features.prompt;
 
 import com.stodo.projectchaos.ai.features.prompt.dto.response.LangfusePromptResponseDTO;
-import com.stodo.projectchaos.ai.features.prompt.dto.service.SystemPrompt;
+import com.stodo.projectchaos.ai.features.prompt.dto.service.LangfusePrompt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -15,11 +15,13 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Provides the system prompt of the AI chat.
- * The prompt is fetched from the Langfuse public API and kept in memory for the configured time to live.
- * The file promptTemplates/system-prompt.st is the fallback when Langfuse is not configured or not reachable.
+ * Provides text prompts stored in Langfuse.
+ * A prompt is fetched from the Langfuse public API and kept in memory for the configured time to live.
+ * The cache holds one entry per prompt name, so the service can be used for any number of prompts.
+ * The caller passes a fallback file, which is used when Langfuse is not configured or not reachable.
  */
 @Slf4j
 @Service
@@ -28,20 +30,18 @@ public class LangfusePromptService {
 
     private final RestClient restClient;
     private final boolean enabled;
-    private final String promptName;
     private final String promptLabel;
     private final Duration cacheTtl;
-    private final Resource fallbackTemplate;
 
-    private volatile CachedPrompt cachedPrompt;
+    private final ConcurrentHashMap<String, CachedPrompt> cache = new ConcurrentHashMap<>();
+    // One lock per prompt name. A fetch of one prompt does not block the fetch of another prompt.
+    private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
     public LangfusePromptService(
             @Value("${app.langfuse.base-url:https://cloud.langfuse.com}") String baseUrl,
             @Value("${app.langfuse.auth:}") String auth,
-            @Value("${app.langfuse.system-prompt.name:system-prompt}") String promptName,
-            @Value("${app.langfuse.system-prompt.label:production}") String promptLabel,
-            @Value("${app.langfuse.system-prompt.cache-ttl-seconds:60}") long cacheTtlSeconds,
-            @Value("classpath:/promptTemplates/system-prompt.st") Resource fallbackTemplate
+            @Value("${app.langfuse.prompt-label:production}") String promptLabel,
+            @Value("${app.langfuse.cache-ttl-seconds:60}") long cacheTtlSeconds
     ) {
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(HTTP_TIMEOUT);
@@ -54,52 +54,51 @@ public class LangfusePromptService {
                 .defaultHeader("Authorization", "Basic " + auth)
                 .build();
         this.enabled = !auth.isBlank();
-        this.promptName = promptName;
         this.promptLabel = promptLabel;
         this.cacheTtl = Duration.ofSeconds(cacheTtlSeconds);
-        this.fallbackTemplate = fallbackTemplate;
     }
 
-    public SystemPrompt getSystemPrompt() {
+    public LangfusePrompt getTextPrompt(String promptName, Resource fallbackTemplate) {
         if (!enabled) {
-            return readFallback();
+            return readFallback(fallbackTemplate);
         }
 
-        CachedPrompt current = cachedPrompt;
+        CachedPrompt current = cache.get(promptName);
         if (current != null && current.isFresh(cacheTtl)) {
             return current.prompt();
         }
 
-        return refresh(current);
+        // Only one thread fetches a given prompt. The other threads wait and then use the fresh value.
+        synchronized (locks.computeIfAbsent(promptName, key -> new Object())) {
+            current = cache.get(promptName);
+            if (current != null && current.isFresh(cacheTtl)) {
+                return current.prompt();
+            }
+            return refresh(promptName, current, fallbackTemplate);
+        }
     }
 
-    // Only one thread fetches the prompt. The other threads wait and then use the fresh value.
-    private synchronized SystemPrompt refresh(CachedPrompt previous) {
-        CachedPrompt current = cachedPrompt;
-        if (current != null && current.isFresh(cacheTtl)) {
-            return current.prompt();
-        }
-
+    private LangfusePrompt refresh(String promptName, CachedPrompt previous, Resource fallbackTemplate) {
         try {
-            SystemPrompt fetched = fetch();
-            cachedPrompt = new CachedPrompt(fetched, Instant.now());
-            log.info("System prompt fetched from Langfuse [name={}, version={}]", fetched.name(), fetched.version());
+            LangfusePrompt fetched = fetch(promptName);
+            cache.put(promptName, new CachedPrompt(fetched, Instant.now()));
+            log.info("Prompt fetched from Langfuse [name={}, version={}]", fetched.name(), fetched.version());
             return fetched;
         } catch (RuntimeException e) {
             // A stale prompt is better than no prompt. The next call tries to fetch again.
             if (previous != null) {
-                log.warn("Fetching the system prompt from Langfuse failed, using the cached version [name={}, version={}]",
+                log.warn("Fetching the prompt from Langfuse failed, using the cached version [name={}, version={}]",
                         previous.prompt().name(),
                         previous.prompt().version(),
                         e);
                 return previous.prompt();
             }
-            log.warn("Fetching the system prompt from Langfuse failed, using the fallback file", e);
-            return readFallback();
+            log.warn("Fetching the prompt from Langfuse failed, using the fallback file [name={}]", promptName, e);
+            return readFallback(fallbackTemplate);
         }
     }
 
-    private SystemPrompt fetch() {
+    private LangfusePrompt fetch(String promptName) {
         LangfusePromptResponseDTO response = restClient.get()
                 .uri("/api/public/v2/prompts/{name}?label={label}",
                         UriUtils.encodePathSegment(promptName, StandardCharsets.UTF_8),
@@ -111,7 +110,7 @@ public class LangfusePromptService {
             throw new IllegalStateException("The Langfuse prompt is missing or is not of the type text: " + promptName);
         }
 
-        return new SystemPrompt(toSpringAiTemplate(response.prompt()), response.name(), response.version());
+        return new LangfusePrompt(toSpringAiTemplate(response.prompt()), response.name(), response.version());
     }
 
     // Langfuse variables look like {{name}}. The template of Spring AI uses {name}.
@@ -119,15 +118,15 @@ public class LangfusePromptService {
         return langfuseText.replaceAll("\\{\\{\\s*(\\w+)\\s*}}", "{$1}");
     }
 
-    private SystemPrompt readFallback() {
+    private LangfusePrompt readFallback(Resource fallbackTemplate) {
         try {
-            return new SystemPrompt(fallbackTemplate.getContentAsString(StandardCharsets.UTF_8), null, null);
+            return new LangfusePrompt(fallbackTemplate.getContentAsString(StandardCharsets.UTF_8), null, null);
         } catch (IOException e) {
-            throw new UncheckedIOException("Cannot read the fallback system prompt", e);
+            throw new UncheckedIOException("Cannot read the fallback prompt " + fallbackTemplate, e);
         }
     }
 
-    private record CachedPrompt(SystemPrompt prompt, Instant fetchedAt) {
+    private record CachedPrompt(LangfusePrompt prompt, Instant fetchedAt) {
         boolean isFresh(Duration ttl) {
             return fetchedAt.plus(ttl).isAfter(Instant.now());
         }

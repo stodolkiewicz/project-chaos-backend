@@ -3,7 +3,7 @@ package com.stodo.projectchaos.ai.chat;
 import com.stodo.projectchaos.ai.features.conversation.AIConversationService;
 import com.stodo.projectchaos.ai.features.conversation.dto.service.AIConversation;
 import com.stodo.projectchaos.ai.features.prompt.LangfusePromptService;
-import com.stodo.projectchaos.ai.features.prompt.dto.service.SystemPrompt;
+import com.stodo.projectchaos.ai.features.prompt.dto.service.LangfusePrompt;
 import com.stodo.projectchaos.ai.features.usage.AIUsageLogsService;
 import com.stodo.projectchaos.ai.tools.TaskProposalTools;
 import com.stodo.projectchaos.config.ChatClientSessionUserObservationFilter;
@@ -22,6 +22,7 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.model.Generation;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -39,6 +40,8 @@ import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 @Slf4j
 @Service
 public class AIChatService {
+    private static final String SYSTEM_PROMPT_NAME = "system-prompt";
+
     private final ChatClient chatClient;
     private final ChatClient simpleChatClient;
     private final AIUsageLogsService aiUsageLogsService;
@@ -67,6 +70,10 @@ public class AIChatService {
     @Value("${app.ai.time-window-in-minutes:60}")
     int timeWindowInMinutes;
 
+    // Used when the prompt cannot be fetched from Langfuse.
+    @Value("classpath:/promptTemplates/system-prompt.st")
+    private Resource systemPromptFallback;
+
     public Flux<String> chat(String question, UUID projectId, UUID userId, String conversationId, boolean conversationHasTitle, Sinks.Many<ServerSentEvent<Object>> events) {
         if(aiUsageLogsService.isNumberOfRequestsInTimeWindowReached(
                 userId, numberOfRequestsInTimeWindowLimit, timeWindowInMinutes))
@@ -87,7 +94,7 @@ public class AIChatService {
         AtomicReference<ChatResponse> finalResponse = new AtomicReference<>();
         AtomicBoolean firstTokenReceived = new AtomicBoolean(false);
 
-        SystemPrompt systemPrompt = langfusePromptService.getSystemPrompt();
+        LangfusePrompt systemPrompt = langfusePromptService.getTextPrompt(SYSTEM_PROMPT_NAME, systemPromptFallback);
 
         return chatClient.prompt()
                 .system(systemSpec -> {
