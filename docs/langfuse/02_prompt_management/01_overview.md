@@ -16,7 +16,7 @@ An application without these SDKs calls the REST API:
 GET https://cloud.langfuse.com/api/public/v2/prompts/{promptName}
 ```
 
-- The authentication is Basic Auth. The login is the public key of the project and the password is the secret key.
+- The authentication is Basic Auth. The login is the public key of the project (it starts with `pk-lf-`) and the password is the secret key (it starts with `sk-lf-`). The setup is described in [Local setup](../01_intro_and_tracing/03_local_setup.md).
 - The endpoint returns exactly one version of the prompt, as JSON. The fields include `name`, `type`, `prompt`, `version` and `labels`.
 - The query parameter `label` selects a version by label. The parameter `version` selects a version by number.
 - Without parameters the endpoint returns the version with the label `production`.

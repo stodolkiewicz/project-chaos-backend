@@ -2,69 +2,43 @@
 
 ## Context
 
-Score analytics analyzes scores without any configuration.
-It is the tab **Analytics** on the page **Scores**.
+Score analytics is the tab **Analytics** on the page **Scores**.
+It analyzes scores without any configuration.
 The documentation describes it as a beta feature.
-It analyzes one score and compares two scores of the same data type.
 
 ## Analyzing one score
 
 1. Open **Scores > Analytics**.
-2. Select a score from the first list.
+2. Select a score from the list.
 3. Select the object type: Traces, Observations, Sessions or Dataset Run Items (the items of a dataset run, a later lesson).
 4. Set the time range.
 
 The page shows three things:
 
-- statistics: the count, the mean or the mode, and the standard deviation,
+- statistics: the number of scores and, for boolean scores, the most frequent value,
 - the distribution of the values,
 - the trend over time.
 
-Text scores are not supported.
+![The tab Analytics with the boolean score talk_about_task management only: Statistics, Trend Over Time and Distribution](images/analytics-one-score.png)
 
 ## Comparing two scores
 
-Select a second score from the second list.
-It must have the same data type as the first one.
-The scores can have different scales, but the error metrics then depend on the scales.
-
-The page shows metrics that fit the data type:
-
-| Data type             | Distribution          | Comparison       | Metrics                                              |
-|-----------------------|-----------------------|------------------|------------------------------------------------------|
-| Numeric               | histogram, 10 bins    | 10x10 heatmap    | Pearson, Spearman, MAE, RMSE                         |
-| Categorical           | bar chart             | confusion matrix | Cohen's Kappa, F1, overall agreement                 |
-| Boolean               | bar chart, 2 values   | 2x2 matrix       | Cohen's Kappa, F1, overall agreement                 |
-
+The tab compares two scores attached to the same observation.
+For boolean scores it shows Cohen's Kappa and Overall Agreement.
 Cohen's Kappa measures the agreement of two raters and corrects for agreement by chance.
-Values from 0.81 to 1.0 mean almost perfect agreement.
-Values below 0.41 mean fair or slight agreement.
+Overall Agreement is the share of objects on which both scores have the same value.
 
-A diagonal pattern in the matrix means that the two scores agree.
-An anti-diagonal pattern means a negative relation.
+## Human and judge agreement
 
-## Matched and all data
-
-A match exists when two scores are attached to the same object.
-The tab **Matched** counts only objects that have both scores.
-The tabs of the single scores count all objects with that score.
-A matched count much lower than the single counts shows a gap in the evaluation coverage.
-
-## Typical uses
-
-- Check that an LLM judge agrees with human annotations (compare an `EVAL` score with an `ANNOTATION` score of the same data type). When the agreement is low, change the judge prompt and compare again.
-- Check that two judge models give consistent results.
-- Detect a quality regression: set the time range around a deployment and read the trend.
-
-## Limits
-
-- Only two scores are compared at a time.
-- Only scores of the same data type are compared.
-- A query that expects more than 100,000 scores is sampled. A visible indicator shows the sampling.
+The documentation calls this use "Human vs AI Annotation Agreement".
+Compare an evaluator score (`EVAL`) with a manual score (`ANNOTATION`).
+A boolean judge needs a manual score config of the type `BOOLEAN` (see [Manual scores](05_manual_scores.md)).
+When the agreement is low, change the judge prompt and compare again.
 
 ## Scores with different meanings
 
-The page has no filter on the version of an evaluator.
-Scores of one name from versions with opposite meanings of `true` and `false` distort the distribution.
-Restrict the time range to the period after the last change of the judge prompt.
-Another option is to rename the evaluator, because its name is the name of the score.
+Scores of one name from evaluator versions with opposite meanings of `true` and `false` distort the distribution.
+Separate the versions in one of two ways:
+
+- Restrict the time range to the period after the last change of the judge prompt.
+- Rename the evaluator, because its name is the name of the score.

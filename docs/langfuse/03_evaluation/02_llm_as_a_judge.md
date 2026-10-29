@@ -34,20 +34,18 @@ An evaluator without a rule has the status `Inactive` and scores nothing.
 ## What an evaluator scores
 
 An observation-level evaluator scores one observation.
-It does not score a trace or a session.
-Trace-level evaluators are deprecated and stop producing results on Langfuse Cloud on 2026-11-16.
-The documentation does not describe an evaluator that scores a whole session.
+Trace-level evaluators are deprecated.
+Not verified: whether an evaluator can score a whole session. The documentation does not mention one.
 
-The evaluator can map four fields of the matched observation to prompt variables:
+The evaluator maps four fields of the matched observation to prompt variables:
 
 - input,
 - output,
 - metadata,
 - tool calls.
 
-It does not load the parent, the siblings or the children of that observation.
-Model, tokens, cost and latency are not mapped to the judge prompt.
-Langfuse shows them in the tables, the dashboards and the alerts.
+The evaluator sees only the matched observation, not its parent, siblings or children.
+Langfuse shows model, tokens, cost and latency in the tables, the dashboards and the alerts.
 
 ## Targets
 
@@ -71,8 +69,9 @@ The page **Evaluators > New evaluator** has the tabs **LLM-as-a-judge**, **Code 
 
 The Langfuse worker, a background process of Langfuse, runs the evaluators.
 It takes a matching observation from a queue after Langfuse received it.
-Nothing runs inside your application, so an evaluator cannot stop or change an answer.
-An evaluator measures how often the application breaks its own rules.
+The evaluator runs after the user received the answer.
+It measures how often the application breaks its own rules.
+A guardrail belongs in the application code, before the answer is sent.
 
 ## Parent and root observation
 
@@ -84,7 +83,7 @@ A generation is an observation of the type `GENERATION`: one model call.
 It has a parent when the call starts inside another span.
 
 The filter `isRootObservation:true` selects logical roots.
-A logical root is an observation without a parent, or an observation that an SDK marks as the root of the application.
+A logical root is an observation without a parent.
 A generation with a parent is not a root, so this filter hides it.
 Use `type:GENERATION` to score generations.
 
@@ -115,7 +114,7 @@ The default score output is a number between 0 and 1.
 
 Saving an evaluator again creates a new version.
 Active rules use the latest version.
-The metadata of every score holds the `evaluator_version_id` that produced it.
+Every score holds the `evaluator_version_id` of the version that produced it.
 
 ## What `{{input}}` contains
 
@@ -142,7 +141,9 @@ The screenshot shows the filter `Prompt Name = system-prompt` in the Builder.
 One match has the output `[]`, which is a model call that only requested a tool.
 
 The option **Reuse the configured filters** copies the filters of the test panel into the rule.
-Check them before you accept. The test panel can contain filters such as `isExperimentItemRootSpan:true`, which do not match live observations.
+Check them before you accept.
+The test panel can contain a filter such as `isExperimentItemRootSpan:true`.
+By its name it selects experiment items, so it probably matches no live observation (not verified).
 
 ### Filters
 
@@ -152,22 +153,24 @@ Remove `isRootObservation:true` when the generations have a parent.
 
 The Builder offers these fields:
 
-- Type, Name, Environment, Status, Version, Release, Status Message,
+- Type, Name, Environment, Status, Version,
 - Provided Model Name, Prompt Name, Prompt Version,
 - Trace Name, User ID, Session ID, Tags, Metadata,
-- Is Root Observation, Experiment ID, Experiment Name, Is Experiment Item Root Span,
-- Called Tool Names, Tool Call Count, Dataset name.
+- Is Root Observation,
+- Called Tool Names, Tool Call Count.
 
 Use **Prompt Name** to select only the generations that are linked to a prompt of Prompt management.
-Use the Builder and type the value without quotes. A value with extra quote characters matched nothing in a test.
-There is no filter on the output of an observation.
+Type the value in the Builder without quotes, for example `system-prompt`.
+A value with extra quote characters matched nothing in a test.
+The syntax of the mode Query is not verified.
 
 ### Generations with an empty output
 
 A model call that only requests a tool has no text output.
 An instrumentation that records only the text of the answer stores an empty list for such a call.
-The filter **Tool Call Count** does not select these calls when Langfuse cannot see the tool calls in the recorded output.
-Handle empty outputs in the judge prompt, because the rule cannot filter them out.
+The filter **Tool Call Count = 0** did not exclude these calls in a test, because Langfuse sees no tool calls in the recorded output.
+The Builder has no field for the output.
+Add the sentence "If the answer is empty, return false." to the System message of the judge prompt.
 Each empty output still costs one call of the judge model.
 
 ### Cost and sampling
@@ -180,6 +183,7 @@ A rule scores only observations that arrive after it was activated.
 ## Scoring past observations
 
 There are two ways to score observations that exist already.
+Both come from the documentation. Neither is verified in the UI.
 
 - The option **Also run on past observations** appears when you save an evaluator. Choose a range of up to six months and at most 25,000 observations. Langfuse shows the estimated LLM cost.
 - Batch evaluation scores selected rows of the Tracing table: select rows and click **Actions > Evaluate**. It requires the toggle for the Langfuse v4 preview on the evaluator.
@@ -213,12 +217,12 @@ Did the assistant behave correctly?
 
 The score type is boolean.
 
-Do not compare scores of one score name across a change of meaning, for example when a prompt flips the meaning of `true` and `false`.
+Compare only the scores of evaluator versions with the same meaning of `true` and `false`.
 
 ## Seeing the results
 
 - The tab **Scores** of an observation shows the value and the reasoning of its score.
-- The page **Scores** in the menu lists all scores of the project. The field **Search** accepts `source:EVAL`, `name:helpfulness` and `value:<0.5`.
+- The page **Scores** in the menu lists all scores of the project. The field **Search** accepts `source:EVAL` and `name:helpfulness`.
 - Every evaluator run creates a trace in the environment `langfuse-llm-as-a-judge`. An environment is a label on traces that separates their sources, for example `default` for the application and `langfuse-llm-as-a-judge` for the evaluator runs. The execution status of a run is `Completed`, `Error`, `Delayed` (rate limit, retried) or `Pending`.
 
 ![The tab Scores of a generation with the score of an evaluator and its comment](images/llm-judge-observation-scores.png)
@@ -240,5 +244,4 @@ Clear the filters and widen the time range when an environment is missing.
 
 1. Open a trace of the environment `langfuse-llm-as-a-judge`.
 2. Read the System and User messages: they show the exact prompt that the judge received.
-3. Compare the score comment with the rubric.
-4. A score is missing when the rule filter matches nothing, the observation arrived before the rule was active, or the execution status is not `Completed`.
+3. A score is missing when the rule filter matches nothing, the observation arrived before the rule was active, or the execution status is not `Completed`.

@@ -62,8 +62,8 @@ The curriculum follows the sidebar of the Langfuse UI.
 | `docs/langfuse/02_prompt_management/05_playground.md`      | Playground and LLM connections                              |
 | `docs/langfuse/03_evaluation/01_scores.md`                  | Scores: data types, ways to create, REST API, user feedback |
 | `docs/langfuse/03_evaluation/02_llm_as_a_judge.md`          | LLM-as-a-Judge: evaluator, rule, filters, cost, results     |
-| `docs/langfuse/03_evaluation/03_code_evaluators.md`         | Code evaluators: function contract, runtime limits          |
-| `docs/langfuse/03_evaluation/04_decision_model_evaluators.md` | Decision model evaluators: question types, providers      |
+| `docs/langfuse/03_evaluation/03_code_evaluators.md`         | Code evaluators: example function, runtime limits          |
+| `docs/langfuse/03_evaluation/04_decision_model_evaluators.md` | Decision model evaluators: question types                  |
 | `docs/langfuse/03_evaluation/05_manual_scores.md`           | Score configs and manual scores in the UI                   |
 | `docs/langfuse/03_evaluation/06_score_analytics.md`         | The tab Analytics of the page Scores                        |
 
@@ -104,6 +104,10 @@ The curriculum follows the sidebar of the Langfuse UI.
 - Tested: a poem about a cat got `false`, a geography question that was redirected got `true`.
 - The Langfuse worker runs the judge, so an evaluator monitors the application and cannot block an answer.
 - The environment `langfuse-llm-as-a-judge` is hidden in the Tracing filter while another filter or a short time range excludes its data.
+- The code evaluator `has_answer_text` ran (`code_eval_runtime: PYTHON`) on observations that the Java application sent over OTLP. It returned `true` for generations with text and `false` for the output `[]`. The documentation requires an OTel-based SDK, but it did not block these observations. Dawid has not been taught this yet.
+- The page Score Configs says that the data type cannot be changed after creation. The name, description, range and categories can be edited.
+- The tab Analytics of the Scores page has the selectors First score and Second score, the object type (default All Objects), the time range (default Past 1 day) and the panels Statistics, Trend Over Time, Distribution and Confusion Matrix.
+- The button Annotate is in the toolbar below the name of an observation. The panel Annotate opens on the right and lists the score configs after a click on Add score.
 
 ## Not verified
 
@@ -116,11 +120,7 @@ The curriculum follows the sidebar of the Langfuse UI.
 - Whether the UI filters scores by the version of a prompt.
 - Whether the options **Also run on past observations** and **Actions > Evaluate** work in this project. Both come from the documentation and were not clicked.
 - Why the trace panel on the Scores page selects the span `message_chat_memory` first.
-- The layout of the tab Analytics of the Scores page. Only the documentation was read.
-- Whether `ctx.observation.output` is a string or a list for spans sent over plain OTLP. The example code evaluator `has_answer_text` was not run.
-- Whether code evaluators work for observations that do not come from a Langfuse SDK. The documentation requires an OTel-based SDK.
 - Whether the OpenAI connection of the project (model `gpt-5.4-mini`) works for decision models. The documentation names `gpt-6-luna`.
-- The documentation calls score configs immutable and also describes editing them.
 - The syntax of the Query mode of the rule filter. The Builder works.
 - Whether a collector transform that resets `parent_span_id` makes `spring_ai chat_client` a root. It is not needed for the current rule.
 
@@ -140,7 +140,7 @@ Prompt management (done):
 
 Evaluation:
 
-7. Scores. Done: types, ways to create, REST API, user feedback, the Scores page and the tab Analytics (from the documentation, Dawid did not open the tab).
+7. Scores. Done: types, ways to create, REST API, user feedback, the Scores page and the tab Analytics.
 8. Evaluators. Done: LLM-as-a-Judge, code evaluators and decision-model evaluators.
 9. Human annotation. Manual scores and score configs are done. Annotation queues are NOT taught: the lesson started in the chat, Dawid asked to skip the notes because he had not read it. Teach the queues from the beginning, then write `07_annotation_queues.md`.
 10. Datasets.
