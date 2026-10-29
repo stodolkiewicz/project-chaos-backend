@@ -71,7 +71,7 @@ The body is a list of objects:
 - `observationId` is optional and narrows the score to one observation.
 - A `BOOLEAN` value is a number: `1` is true and `0` is false.
 - A `CATEGORICAL` value is a string.
-- The optional field `id` is an idempotency key. A repeated request with the same `id` replaces the score.
+- The optional field `id` is an idempotency key. A repeated request replaces the score when the `id`, the `name` and the date of the timestamp are the same. Without an `id` every request creates a new score.
 
 ## User feedback from an application
 

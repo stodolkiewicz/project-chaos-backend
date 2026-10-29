@@ -66,6 +66,10 @@ The curriculum follows the sidebar of the Langfuse UI.
 | `docs/langfuse/03_evaluation/04_decision_model_evaluators.md` | Decision model evaluators: question types                  |
 | `docs/langfuse/03_evaluation/05_manual_scores.md`           | Score configs and manual scores in the UI                   |
 | `docs/langfuse/03_evaluation/06_score_analytics.md`         | The tab Analytics of the page Scores                        |
+| `docs/langfuse/03_evaluation/07_annotation_queues.md`       | Annotation queues                                           |
+| `docs/langfuse/03_evaluation/08_datasets.md`                | Datasets: creating, adding items, versions                  |
+
+Exercises are in `docs/langfuse/03_evaluation/exercises/` and comprehension questions in `docs/langfuse/03_evaluation/questions/`. Only `01_scores.md` has both so far.
 
 ## Code changes made during the lessons
 
@@ -108,6 +112,9 @@ The curriculum follows the sidebar of the Langfuse UI.
 - The page Score Configs says that the data type cannot be changed after creation. The name, description, range and categories can be edited.
 - The tab Analytics of the Scores page has the selectors First score and Second score, the object type (default All Objects), the time range (default Past 1 day) and the panels Statistics, Trend Over Time, Distribution and Confusion Matrix.
 - The button Annotate is in the toolbar below the name of an observation. The panel Annotate opens on the right and lists the score configs after a click on Add score.
+- The table in Tracing shows a bar with Add to Annotation Queue and Add to Dataset after you select rows. The toolbar of an observation has the menu Add to with Dataset, Annotation queue and Playground. The clock icon in the dataset header opens Version History. The wizard Run Experiment has the list Dataset Version after the dataset is selected.
+- A score from a queue has `source = ANNOTATION` and a `queueId`.
+- The wizard Run Experiment shows the warning Invalid configuration when no item of the dataset has the variables of the prompt (for `system-prompt`: `userId`, `projectName`, `projectId`, `projectDescription`, `createdAt`) as top-level `input` keys.
 
 ## Not verified
 
@@ -142,19 +149,34 @@ Evaluation:
 
 7. Scores. Done: types, ways to create, REST API, user feedback, the Scores page and the tab Analytics.
 8. Evaluators. Done: LLM-as-a-Judge, code evaluators and decision-model evaluators.
-9. Human annotation. Manual scores and score configs are done. Annotation queues are NOT taught: the lesson started in the chat, Dawid asked to skip the notes because he had not read it. Teach the queues from the beginning, then write `07_annotation_queues.md`.
-10. Datasets.
-11. Experiments.
+9. Human annotation. Manual scores and score configs are done. Annotation queues are done: creating a queue, adding items, processing, keyboard shortcuts (`07_annotation_queues.md`). Dawid skipped managing queues over the API.
+10. Datasets. Done: definition, creating in the UI, adding items, versions (`08_datasets.md`). Skipped: SDK and API. The clock icon in the dataset header opens the Version History.
+11. Experiments. Done in chat: definition (one pass of the application over all items of a dataset; the result is a run; two runs of one dataset can be compared) and the page Experiments (sidebar section Evaluation, under Datasets; button Run experiment; table columns Name, Item Count, Error Count, Start Time, Dataset, Referenced Prompts, Latency (s), Total Cost ($), Trace Scores, Observation Scores, Experiment Scores; filters by name, dataset, metadata and scores). Dawid's project has no run yet. No note file exists yet. Next lesson: starting a run with Run experiment (wizard steps Prompt & Model > Dataset > Evaluators > Experiment run details > Review).
 
 Also: Dashboards, environments, observation types.
 
 ## Next steps
 
-1. Continue with annotation queues, then the menu item Human Annotation. Dawid asked to go in small steps, one piece per message.
-   Dawid stopped for the day after manual scores. The estimate of the remaining chat messages was about 35.
-2. Dawid may want a thumbs up and down for the chat. It needs the `traceId` in the SSE stream, an endpoint in the backend and a call of `POST /api/public/scores`. Nothing of this is implemented.
-3. Check that tokens and cost appear on production without the filter.
-4. Capture the content of tool calls in the spans `execute_tool`.
+State at the end of the session (2026-10-29). Dawid pauses for 4-5 days. Nothing is committed (commit only on request).
+
+1. Continue Experiments with "dalej": starting a run via **Run experiment** (cards "via User Interface" and "via Webhook"; the wizard steps above), then reading run results and comparing runs. Estimate of the remaining chat messages: Experiments 8-10, Dashboards about 5, environments about 3, observation types about 3. Write the note `09_experiments.md` after the lessons, not before.
+2. The question types of decision model evaluators (Choice, Score, Yes/no) were not taught in chat. The section was removed from `04_decision_model_evaluators.md`. Teach it, then add it back. The image `images/decision-model-questions.png` is unused until then. Dawid's own scores `user_frustration` (decision model) and `talk_about_task_management` (judge) are good examples.
+3. Spots in the notes that still cite the documentation instead of the real UI. Dawid wants only reality: verify in the UI with Playwright or remove the sentence.
+   - `04_decision_model_evaluators.md` line 16 ("The documentation names three options").
+   - `07_annotation_queues.md` lines 50, 52, 70 (Complete + next, Back, Skip, the shortcut table).
+   - `08_datasets.md` lines 37-38 (Upload CSV content, link of an item to its trace).
+   - Sentences "not verified" remain in `01_scores.md` (about `@langfuse/browser`) and in `02_llm_as_a_judge.md` (three). Ask Dawid what to do with them.
+4. Exercises and questions exist only for `01_scores.md`. Create them for the other notes when Dawid asks.
+5. Dawid may want a thumbs up and down for the chat. It needs the `traceId` in the SSE stream, an endpoint in the backend and a call of `POST /api/public/scores`. Nothing of this is implemented.
+6. Check that tokens and cost appear on production without the filter.
+7. Capture the content of tool calls in the spans `execute_tool`.
+
+Working rules learned in this session:
+
+- Never act on a bare pasted quote. Ask what Dawid wants.
+- Never write "not verified" sentences in notes. Verify read-only in the UI, or leave the fact out.
+- Run `notes-review` (skill in `.claude/skills/notes-review`) on new notes. It floods the context, so a subagent that follows the skill is better.
+- Playwright: never save anything in the Langfuse project. Keep Dawid's email and user ids out of screenshots. Avoid `browser_find` on tables.
 
 ## Links
 

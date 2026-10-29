@@ -9,14 +9,18 @@ Each question writes one score.
 It is usually cheaper than an LLM judge.
 Use an LLM judge when you need the reasoning in the `comment` of the score.
 
-## Question types
+## Models
 
-| Type         | Langfuse score                                                | Example                                                              |
-|--------------|---------------------------------------------------------------|----------------------------------------------------------------------|
-| **Choice**   | categorical score with the selected option                    | "Which team should handle this ticket?" gives `billing`, `technical` or `sales` |
-| **Score**    | numeric score with a level from `0` to `levels - 1`           | "How frustrated is the customer?" gives `0` (calm) to `3` (angry)    |
-| **Yes / no** | numeric score with the probability `P(true)` from `0` to `1`  | "Does the message request a refund?" gives `0.93`                    |
+An LLM judge calls a chat model through an **LLM Connection**, for example `gpt-5.4-mini`.
+A decision model evaluator calls a decision model, which selects an answer from fixed options.
+The documentation names three options:
 
-The form **New evaluator** offers one example question for each type after you choose the tab **Decision model**.
+- an **OpenAI** connection with access to the model `gpt-6-luna`, which Langfuse calls through the OpenAI Decisions API,
+- the model Jev from TypeSafe,
+- other models that are compatible with the TypeSafe System One API.
 
-![The tab Decision model with the section Questions and one example question for each type: Choice, Score and Yes / no](images/decision-model-questions.png)
+## Trying it with `gpt-6-luna`
+
+1. Check in **Settings > LLM Connections** that an OpenAI connection with access to `gpt-6-luna` exists.
+2. Open **Evaluators**, click **New evaluator** and choose the card **Decision model**.
+3. Select that connection and the model `gpt-6-luna`.
